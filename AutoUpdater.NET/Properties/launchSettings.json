@@ -1,0 +1,19 @@
+﻿{
+  "profiles": {
+    "AutoUpdater": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "UpdateUnavailableMessage": "There is no update available. Please try again later.",
+        "UpdateUnavailableCaption": "Update Unavailable",
+        "UpdateCheckFailedMessage": "There is a problem reaching update server. Please check your internet connection and try again later.",
+        "UpdateCheckFailedCaption": "Update Check Failed",
+        "DownloadSpeedMessage": "Downloading at {0}/s",
+        "FileIntegrityCheckFailedMessage": "File integrity check failed and reported some errors.",
+        "FileIntegrityCheckFailedCaption": "Checksum differs",
+        "HashAlgorithmNotSupportedCaption": "Unsupported Hash Algorithm",
+        "HashAlgorithmNotSupportedMessage": "Hash algorithm provided in the XML file is not supported.",
+        "UnableToDetermineFilenameMessage": "Unable to determine the filename of the update file!"
+      }
+    }
+  }
+}

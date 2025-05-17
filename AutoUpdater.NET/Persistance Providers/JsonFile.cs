@@ -1,0 +1,98 @@
+﻿// ****************************************************************************
+// Project:  AutoUpdater.NET
+// File:     JsonFilePersistenceProvider.cs
+// Author:   Latency McLaughlin
+// Date:     05/16/2025
+// ****************************************************************************
+
+using System.IO;
+using System.Runtime.Serialization.Json;
+using System.Text;
+using AutoUpdaterDotNET.Interfaces;
+
+namespace AutoUpdaterDotNET.Persistance_Providers;
+
+/// <summary>
+///     Provides a mechanism for storing AutoUpdater state between sessions on a Json formatted file.
+/// </summary>
+public class JsonFile : IPersistenceProvider
+{
+    /// <summary>
+    ///     Initializes a new instance of the JsonFilePersistenceProvider class.
+    /// </summary>
+    /// <remarks>The path for the Json formatted file must be specified using the FileName property.</remarks>
+    public JsonFile(string jsonPath)
+    {
+        FileName = jsonPath;
+        ReadFile();
+    }
+
+    /// <summary>
+    ///     Path for the Json formatted file.
+    /// </summary>
+    private string FileName { get; }
+
+    /// <summary>
+    /// </summary>
+    private PersistedValues PersistedValues { get; set; } = new();
+
+    /// <inheritdoc />
+    public Version? GetSkippedVersion() => PersistedValues.SkippedVersion;
+
+    /// <inheritdoc />
+    public DateTime? GetRemindLater() => PersistedValues.RemindLaterAt;
+
+    /// <inheritdoc />
+    public void SetSkippedVersion(Version? version)
+    {
+        PersistedValues.SkippedVersion = version;
+        Save();
+    }
+
+    /// <inheritdoc />
+    public void SetRemindLater(DateTime? remindLaterAt)
+    {
+        PersistedValues.RemindLaterAt = remindLaterAt;
+        Save();
+    }
+
+    /// <summary>
+    ///     Stores applied modifications into the Json formatted file specified in the FileName property.
+    /// </summary>
+    private void Save()
+    {
+        string json;
+
+        using (var stream = new MemoryStream())
+        {
+            var serializer = new DataContractJsonSerializer(PersistedValues.GetType());
+            serializer.WriteObject(stream, PersistedValues);
+
+            using (var reader = new StreamReader(stream))
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                json = reader.ReadToEnd();
+            }
+        }
+
+        File.WriteAllText(FileName, json);
+    }
+
+    /// <summary>
+    ///     Reads a Json formatted file and returns an initialized instance of the class PersistedValues.
+    /// </summary>
+    /// <remarks>The function creates a new instance, initialized with default parameters, in case the file does not exist.</remarks>
+    private void ReadFile()
+    {
+        PersistedValues? jsonFile = null;
+
+        if (File.Exists(FileName))
+        {
+            using var stream     = new MemoryStream(Encoding.UTF8.GetBytes(File.ReadAllText(FileName)));
+            var       serializer = new DataContractJsonSerializer(typeof(PersistedValues));
+            jsonFile = serializer.ReadObject(stream) as PersistedValues;
+        }
+
+        PersistedValues = jsonFile ?? new PersistedValues();
+    }
+}

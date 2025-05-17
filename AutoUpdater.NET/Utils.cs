@@ -1,35 +1,38 @@
-﻿using System.Collections.ObjectModel;
-using System.Linq;
+﻿// ****************************************************************************
+// Project:  AutoUpdater.NET
+// File:     Utils.cs
+// Author:   Latency McLaughlin
+// Date:     05/16/2025
+// ****************************************************************************
+
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace AutoUpdaterDotNET;
 
 internal static class Utils
 {
-    public static string BuildArguments(Collection<string> argumentList)
-    {
-        var arguments = new StringBuilder();
-        if (argumentList is not { Count: > 0 })
-        {
-            return string.Empty;
-        }
-
-        foreach (string argument in argumentList) PasteArguments.AppendArgument(ref arguments, argument);
-        return arguments.ToString();
-    }
-}
-
-internal static class PasteArguments
-{
-    private const char Quote = '\"';
+    private const char Quote     = '\"';
     private const char Backslash = '\\';
 
-    internal static void AppendArgument(ref StringBuilder stringBuilder, string argument)
+
+    public static string BuildArguments(Collection<string> argumentList)
+    {
+        if (argumentList is not { Count: > 0 })
+            return string.Empty;
+
+        var arguments = new StringBuilder();
+        foreach (var argument in argumentList)
+            AppendArgument(ref arguments, argument);
+
+        return arguments.ToString();
+    }
+
+
+    private static void AppendArgument(ref StringBuilder stringBuilder, string argument)
     {
         if (stringBuilder.Length != 0)
-        {
             stringBuilder.Append(' ');
-        }
 
         // Parsing rules for non-argv[0] arguments:
         //   - Backslash is a normal character except followed by a quote.
@@ -37,18 +40,16 @@ internal static class PasteArguments
         //   - 2N+1 backslashes followed by a quote ==> N literal backslashes followed by a literal quote
         //   - Parsing stops at first whitespace outside of quoted region.
         //   - (post 2008 rule): A closing quote followed by another quote ==> literal quote, and parsing remains in quoting mode.
-        if (argument.Length != 0 && ContainsNoWhitespaceOrQuotes(argument))
-        {
+        if (argument.Length != 0 && argument.All(c => !char.IsWhiteSpace(c) && c != Quote))
             // Simple case - no quoting or changes needed.
             stringBuilder.Append(argument);
-        }
         else
         {
             stringBuilder.Append(Quote);
             var idx = 0;
             while (idx < argument.Length)
             {
-                char c = argument[idx++];
+                var c = argument[idx++];
                 switch (c)
                 {
                     case Backslash:
@@ -61,10 +62,8 @@ internal static class PasteArguments
                         }
 
                         if (idx == argument.Length)
-                        {
                             // We'll emit an end quote after this so must double the number of backslashes.
                             stringBuilder.Append(Backslash, numBackSlash * 2);
-                        }
                         else if (argument[idx] == Quote)
                         {
                             // Backslashes will be followed by a quote. Must double the number of backslashes.
@@ -73,10 +72,8 @@ internal static class PasteArguments
                             idx++;
                         }
                         else
-                        {
                             // Backslash will not be followed by a quote, so emit as normal characters.
                             stringBuilder.Append(Backslash, numBackSlash);
-                        }
 
                         continue;
                     }
@@ -94,10 +91,5 @@ internal static class PasteArguments
 
             stringBuilder.Append(Quote);
         }
-    }
-
-    private static bool ContainsNoWhitespaceOrQuotes(string s)
-    {
-        return s.All(c => !char.IsWhiteSpace(c) && c != Quote);
     }
 }

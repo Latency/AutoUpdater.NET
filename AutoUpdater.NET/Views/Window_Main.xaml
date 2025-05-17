@@ -1,0 +1,100 @@
+﻿<Window x:Class="AutoUpdaterDotNET.Views.Window_Main"
+        x:Name="WindowMain"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="ThreeDBorderWindow"
+        ResizeMode="CanResizeWithGrip"
+        Title="Window_Main"
+        Width="770"
+        Height="750"
+>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="160" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Button x:Name="TransButtonPatch"
+                                      Grid.Column="3"
+                                      Grid.Row="6"
+                                      Height="50"
+                                      Width="50"
+                                      Margin="215,20,0,0"
+                                      ToolTip="Apply the patch"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      Command="{Binding CommandPatch}"
+                                      CommandParameter="{x:Reference Name=WindowMain}"
+        />
+
+        <TextBlock x:Name="StatusLabel"
+                   Grid.Column="3"
+                   Grid.Row="6"
+                   d:Visibility="Visible"
+                   Margin="0,27,145,0"
+                   Visibility="Hidden"
+                   VerticalAlignment="Top"
+                   HorizontalAlignment="Center"
+                   FontFamily="Courier New"
+                   FontStyle="Normal"
+                   FontWeight="Regular"
+                   FontSize="12.0"
+                   Foreground="LawnGreen"
+        />
+
+        <Border
+                Grid.Column="1"
+                Grid.Row="6"
+                Grid.ColumnSpan="2"
+                BorderBrush="Yellow"
+                Background="Black"
+                BorderThickness="2,2,0.5,0.5"
+                Height="80"
+                CornerRadius="8"
+                VerticalAlignment="Bottom"
+                Margin="-30,0,0,30"
+        >
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="8" ShadowDepth="5" Color="Black" RenderingBias="Quality" />
+            </Border.Effect>
+            <TextBlock
+                    Name="VersionInfo"
+                    Margin="5"
+                    Background="Black"
+                    Foreground="White"
+                    TextWrapping="NoWrap"
+            >
+            </TextBlock>
+
+        </Border>
+
+        <Label x:Name="LabelVersion"
+               Content="Loader Version: {0}"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Bottom"
+               Margin="10,15"
+               Foreground="DarkSlateGray"
+               RenderTransformOrigin="0.49,0.176"
+               Grid.Row="6"
+               Grid.Column="3"
+               Width="180"
+        />
+
+    </Grid>
+</Window>
