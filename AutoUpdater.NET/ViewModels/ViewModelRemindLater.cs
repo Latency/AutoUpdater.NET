@@ -6,31 +6,29 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using System.IO;
-using System.Windows;
-using System.Windows.Input;
-using AutoUpdaterDotNET.Views;
 using AutoUpdaterDotNET.Commands;
 using AutoUpdaterDotNET.Interfaces;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Views;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public class ViewModelRemindLater : DependencyObject, IViewModelRemindLater
+public sealed class ViewModelRemindLater : DependencyObject, IViewModelRemindLater
 {
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static bool AllowPatch(object? _) => true;
+    private static bool AllowReminder(object? _) => true;
 
-    public ICommand CommandPatch   { get; }
+    public ICommand CommandButtonOk      { get; set; }
+
+
+    public RemindLaterFormat RemindLaterFormat { get; private set; }
+    public int               RemindLaterAt     { get; private set; }
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
-
-
-    #region Fields
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Fields
 
 
     /// <summary>
@@ -38,31 +36,57 @@ public class ViewModelRemindLater : DependencyObject, IViewModelRemindLater
     /// </summary>
     public ViewModelRemindLater()
     {
-        CommandPatch = new RelayCommand(TransButtonPatch_Click, AllowPatch);
-
-        string? folder;
-        using (var myKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Audials\RSConfig\VCDWriter", false))
-        {
-            var path = myKey?.GetValue("LaunchExe") as string;
-            folder = Path.GetDirectoryName(path);
-        }
-
-        InstallationFolder = folder ?? throw new NullReferenceException("Installation is missing or corrupted!");
-        Version            = ushort.Parse(new string(InstallationFolder.Split('\\').Last().SkipWhile(c => c != ' ').Skip(1).ToArray()));
-        ReleaseDate        = File.GetCreationTime($@"{InstallationFolder}\{Environment.GetEnvironmentVariable("Assembly Name")}").ToShortDateString();
+        CommandButtonOk = new RelayCommand(((IViewModelRemindLater)this).ButtonOk_Click, AllowReminder);
     }
 
 
-    internal string InstallationFolder { get; }
-    internal ushort Version            { get; }
-    internal string ReleaseDate        { get; }
-
-
     // ReSharper disable once AsyncVoidMethod
-    public void TransButtonPatch_Click(object? sender)
+    void IViewModelRemindLater.ButtonOk_Click(object? sender)
     {
-        if (sender is not Window_Main win)
-            throw new NullReferenceException();
+        var (vm, btnOk, args) = (sender as Tuple<Window_RemindLater, Button, RoutedEventArgs>)!;
 
+        if (vm.RadioButtonYes is { IsChecked: true })
+        {
+            if (vm.ComboBoxRemindLater == null)
+                throw new NullReferenceException();
+
+            switch (vm.ComboBoxRemindLater.SelectedIndex)
+            {
+                case 0:
+                    RemindLaterFormat = RemindLaterFormat.Minutes;
+                    RemindLaterAt     = 30;
+                    break;
+                case 1:
+                    RemindLaterFormat = RemindLaterFormat.Hours;
+                    RemindLaterAt     = 12;
+                    break;
+                case 2:
+                    RemindLaterFormat = RemindLaterFormat.Days;
+                    RemindLaterAt     = 1;
+                    break;
+                case 3:
+                    RemindLaterFormat = RemindLaterFormat.Days;
+                    RemindLaterAt     = 2;
+                    break;
+                case 4:
+                    RemindLaterFormat = RemindLaterFormat.Days;
+                    RemindLaterAt     = 4;
+                    break;
+                case 5:
+                    RemindLaterFormat = RemindLaterFormat.Days;
+                    RemindLaterAt     = 8;
+                    break;
+                case 6:
+                    RemindLaterFormat = RemindLaterFormat.Days;
+                    RemindLaterAt     = 10;
+                    break;
+            }
+        }
+        else // No... Perform update!
+        {
+            ;
+        }
+
+        vm.Hide();
     }
 }

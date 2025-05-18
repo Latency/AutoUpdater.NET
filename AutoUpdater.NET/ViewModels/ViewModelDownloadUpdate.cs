@@ -15,7 +15,7 @@ using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public class ViewModelDownloadUpdate : DependencyObject, IViewModelDownloadUpdate
+public sealed class ViewModelDownloadUpdate : DependencyObject, IViewModelDownloadUpdate
 {
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

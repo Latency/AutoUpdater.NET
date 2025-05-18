@@ -5,9 +5,13 @@
 // Date:     04/18/2025
 // ****************************************************************************
 
+using System.Windows.Input;
+
 namespace AutoUpdaterDotNET.Interfaces;
 
 public interface IViewModelMain
 {
-    void TransButtonPatch_Click(object? sender);
+    void ButtonOk_Click(object? sender);
+
+    ICommand CommandRemindLater { get; set; }
 }

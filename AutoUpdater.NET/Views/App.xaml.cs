@@ -14,7 +14,10 @@ namespace AutoUpdaterDotNET.Views;
 
 public partial class App
 {
-    private IServiceProvider? _serviceProvider;
+    private static IServiceProvider? _serviceProvider;
+
+    internal static T GetWindow<T>(object? serviceKey) where T : class => (_serviceProvider ?? throw new InvalidOperationException()).GetRequiredKeyedService<T>(serviceKey);
+
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -34,11 +37,15 @@ public partial class App
         services.AddSingleton<IViewModelMain, ViewModelMain>();
         services.AddSingleton<IViewModelDownloadUpdate, ViewModelDownloadUpdate>();
         services.AddSingleton<IViewModelRemindLater, ViewModelRemindLater>();
+        services.AddSingleton<IViewModelUpdate, ViewModelUpdate>();
 
         // Register Views
         services.AddSingleton<Window_Main>();
         services.AddSingleton<Window_DownloadUpdate>();
         services.AddSingleton<Window_RemindLater>();
-        
+        services.AddSingleton<Window_Update>();
     }
+
+
+    private void App_OnStartup(object sender, StartupEventArgs e) => OnStartup(e);
 }

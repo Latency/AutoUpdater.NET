@@ -6,7 +6,6 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using AutoUpdaterDotNET.Views;
@@ -15,22 +14,15 @@ using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public class ViewModelMain : DependencyObject, IViewModelMain
+public sealed class ViewModelMain : DependencyObject, IViewModelMain
 {
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static bool AllowPatch(object? _) => true;
+    private static bool AllowReminder(object? _) => true;
 
-    public ICommand CommandPatch   { get; }
+    public ICommand CommandRemindLater { get; set; }
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
-
-
-    #region Fields
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Fields
 
 
     /// <summary>
@@ -38,31 +30,25 @@ public class ViewModelMain : DependencyObject, IViewModelMain
     /// </summary>
     public ViewModelMain()
     {
-        CommandPatch = new RelayCommand(TransButtonPatch_Click, AllowPatch);
-
-        string? folder;
-        using (var myKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Audials\RSConfig\VCDWriter", false))
-        {
-            var path = myKey?.GetValue("LaunchExe") as string;
-            folder = Path.GetDirectoryName(path);
-        }
-
-        InstallationFolder = folder ?? throw new NullReferenceException("Installation is missing or corrupted!");
-        Version            = ushort.Parse(new string(InstallationFolder.Split('\\').Last().SkipWhile(c => c != ' ').Skip(1).ToArray()));
-        ReleaseDate        = File.GetCreationTime($@"{InstallationFolder}\{Environment.GetEnvironmentVariable("Assembly Name")}").ToShortDateString();
+        CommandRemindLater = new RelayCommand(((IViewModelMain)this).ButtonOk_Click, AllowReminder);
     }
 
 
-    internal string InstallationFolder { get; }
-    internal ushort Version            { get; }
-    internal string ReleaseDate        { get; }
-
-
     // ReSharper disable once AsyncVoidMethod
-    public void TransButtonPatch_Click(object? sender)
+    void IViewModelMain.ButtonOk_Click(object? sender)
     {
-        if (sender is not Window_Main win)
-            throw new NullReferenceException();
+        var win = sender as Window_Main ?? throw new NullReferenceException();
+        var frm = App.GetWindow<Window_Update>(null);
 
+        frm.Owner ??= win ?? throw new NullReferenceException();
+
+        try
+        {
+            win.Hide();
+            frm.ShowDialog();
+        } finally
+        {
+            win.Show();
+        }
     }
 }

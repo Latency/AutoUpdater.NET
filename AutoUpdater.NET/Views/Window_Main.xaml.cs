@@ -6,36 +6,26 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using System.Reflection;
 using AutoUpdaterDotNET.Interfaces;
-using AutoUpdaterDotNET.ViewModels;
+using System.Reflection;
 
 namespace AutoUpdaterDotNET.Views;
 
 /// <summary>
 ///     Interaction logic for Window_Main.xaml
 /// </summary>
-public partial class Window_Main
+public sealed partial class Window_Main
 {
-    private readonly ViewModelMain vm;
-
-
     /// <summary>
     ///     Constructor
     /// </summary>
-    public Window_Main(IViewModelMain viewModel)
+    public Window_Main(IViewModelMain vm)
     {
-        if (viewModel is null)
-            throw new NullReferenceException();
-
-        if (viewModel is not ViewModelMain vm1)
-            throw new ArgumentNullException(nameof(viewModel));
-
         InitializeComponent();
 
-        DataContext = vm1;
-        vm          = vm1;
+        DataContext = vm;
 
+        // ReSharper disable once InvertIf
         if (LabelVersion?.Content != null)
         {
             var format = LabelVersion.Content.ToString();
