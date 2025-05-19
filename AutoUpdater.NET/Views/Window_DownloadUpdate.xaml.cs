@@ -6,17 +6,24 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using System.Windows;
+using AutoUpdaterDotNET.Controls;
+using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.Views;
 
-/// <summary>
-///     Interaction logic for RemindLater.xaml
-/// </summary>
-public sealed partial class Window_DownloadUpdate : Window
+public sealed partial class Window_DownloadUpdate : RestrictedWindow
 {
-    public Window_DownloadUpdate()
+    /// <summary>
+    ///     Constructor
+    /// </summary>
+    /// <param name="vm"></param>
+    public Window_DownloadUpdate(IViewModelDownloadUpdate vm)
     {
         InitializeComponent();
+
+        DataContext = vm;
+
+        ControlBox = !AutoUpdater.Instance.Mandatory || AutoUpdater.Instance.UpdateMode != Mode.ForcedDownload;
     }
 }

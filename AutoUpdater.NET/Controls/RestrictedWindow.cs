@@ -41,6 +41,14 @@ public abstract class RestrictedWindow : Window
     /// </summary>
     protected RestrictedWindow()
     {
+        ControlBox            = false;
+        ResizeMode            = ResizeMode.NoResize;
+        ShowActivated         = true;
+        ShowInTaskbar         = true;
+        Topmost               = true;
+        WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        WindowStyle           = WindowStyle.SingleBorderWindow;
+
         Loaded += Window_OnLoaded;
     }
 

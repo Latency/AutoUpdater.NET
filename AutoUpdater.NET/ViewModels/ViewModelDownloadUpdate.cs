@@ -1,36 +1,18 @@
 // ****************************************************************************
-// Project:  Patch1
+// Project:  AutoUpdater.NET
 // File:     ViewModelDownloadUpdate.cs
 // Author:   Latency McLaughlin
-// Date:     05/03/2024
+// Date:     05/18/2025
 // ****************************************************************************
-// ReSharper disable InconsistentNaming
 
-using System.IO;
 using System.Windows;
-using System.Windows.Input;
-using AutoUpdaterDotNET.Views;
-using AutoUpdaterDotNET.Commands;
 using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
 public sealed class ViewModelDownloadUpdate : DependencyObject, IViewModelDownloadUpdate
 {
-    #region Properties
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static bool AllowPatch(object? _) => true;
-
-    public ICommand CommandPatch   { get; }
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Properties
-
-
-    #region Fields
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Fields
+    public static readonly DependencyProperty ProgressPercentageProperty = DependencyProperty.Register(nameof(ProgressPercentage), typeof(double), typeof(ViewModelDownloadUpdate), new PropertyMetadata(0.0));
 
 
     /// <summary>
@@ -38,31 +20,12 @@ public sealed class ViewModelDownloadUpdate : DependencyObject, IViewModelDownlo
     /// </summary>
     public ViewModelDownloadUpdate()
     {
-        CommandPatch = new RelayCommand(TransButtonPatch_Click, AllowPatch);
-
-        string? folder;
-        using (var myKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Audials\RSConfig\VCDWriter", false))
-        {
-            var path = myKey?.GetValue("LaunchExe") as string;
-            folder = Path.GetDirectoryName(path);
-        }
-
-        InstallationFolder = folder ?? throw new NullReferenceException("Installation is missing or corrupted!");
-        Version            = ushort.Parse(new string(InstallationFolder.Split('\\').Last().SkipWhile(c => c != ' ').Skip(1).ToArray()));
-        ReleaseDate        = File.GetCreationTime($@"{InstallationFolder}\{Environment.GetEnvironmentVariable("Assembly Name")}").ToShortDateString();
     }
 
 
-    internal string InstallationFolder { get; }
-    internal ushort Version            { get; }
-    internal string ReleaseDate        { get; }
-
-
-    // ReSharper disable once AsyncVoidMethod
-    public void TransButtonPatch_Click(object? sender)
+    public double ProgressPercentage
     {
-        if (sender is not Window_Main win)
-            throw new NullReferenceException();
-
+        get => (double)GetValue(ProgressPercentageProperty);
+        set => SetValue(ProgressPercentageProperty, value);
     }
 }

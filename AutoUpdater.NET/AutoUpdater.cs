@@ -1,3 +1,10 @@
+// ****************************************************************************
+// Project:  AutoUpdater.NET
+// File:     AutoUpdater.cs
+// Author:   Latency McLaughlin
+// Date:     05/18/2025
+// ****************************************************************************
+
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -21,10 +28,20 @@ namespace AutoUpdaterDotNET;
 /// </summary>
 public sealed class AutoUpdater : Window
 {
-    private static readonly Lazy<AutoUpdater> SingletonAutoUpdater = new(() => new());
-    public static           AutoUpdater       Instance => SingletonAutoUpdater.Value;
+    #region Static Properties
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    public static  AutoUpdater       Instance                  => SingletonAutoUpdater.Value;
+    private static HttpClientHandler HttpClientHandlerInstance => SingletonHttpClientHandler.Value;
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Static Properties
 
 
+    #region Fields
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    private static readonly Lazy<AutoUpdater>       SingletonAutoUpdater       = new(() => new());
     private static readonly Lazy<HttpClientHandler> SingletonHttpClientHandler = new(() => new()
     {
         Credentials             = CredentialCache.DefaultCredentials,
@@ -37,10 +54,15 @@ public sealed class AutoUpdater : Window
         UseProxy                = false,
         DefaultProxyCredentials = new CredentialCache()
     });
-    private static HttpClientHandler HttpClientHandlerInstance => SingletonHttpClientHandler.Value;
 
-    private HttpClient HttpWebClient { get; }
+    private Timer? _remindLaterTimer;
 
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Fields
+
+
+    #region Constructors
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     /// <summary>
     ///     Singleton Default Constructor
@@ -50,6 +72,12 @@ public sealed class AutoUpdater : Window
         HttpWebClient = new HttpClient(HttpClientHandlerInstance);
     }
 
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Constructors
+
+
+    #region Delegates
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     /// <summary>
     ///     A delegate type to handle how to exit the application after update is downloaded.
@@ -71,8 +99,14 @@ public sealed class AutoUpdater : Window
     /// <param name="args">An object containing the AppCast file received from server.</param>
     public delegate void ParseUpdateInfoHandler(ParseUpdateInfoEventArgs args);
 
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Delegates
 
-    private Timer? _remindLaterTimer;
+
+    #region Properties
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    private HttpClient HttpWebClient { get; }
 
     internal Uri BaseUri
     {
@@ -84,7 +118,7 @@ public sealed class AutoUpdater : Window
         }
     }
 
-    internal bool Running;
+    internal bool Running { get; set; }
 
     /// <summary>
     ///     URL of the xml file that contains information about latest version of the application.
@@ -96,38 +130,38 @@ public sealed class AutoUpdater : Window
     ///     Set the Application Title shown in Update dialog. Although AutoUpdater.NET will get it automatically, you can set
     ///     this property if you like to give custom Title.
     /// </summary>
-    public string? AppTitle;
+    public string? AppTitle { get; set; }
 
     /// <summary>
     ///     Set Basic Authentication credentials to navigate to the change log URL.
     /// </summary>
-    public ICredentials BasicAuthChangeLog;
+    public ICredentials? BasicAuthChangeLog { get; set; }
 
     /// <summary>
     ///     Set Basic Authentication credentials required to download the file.
     /// </summary>
-    public ICredentials BasicAuthDownload;
+    public ICredentials? BasicAuthDownload { get; set; }
 
     /// <summary>
     ///     Set Basic Authentication credentials required to download the XML file.
     /// </summary>
-    public AuthenticationHeaderValue BasicAuthHeaderValue;
+    public AuthenticationHeaderValue? BasicAuthHeaderValue { get; set; }
 
     /// <summary>
     ///     Set this to true if you want to clear application directory before extracting update.
     /// </summary>
-    public bool ClearAppDirectory = false;
+    public bool ClearAppDirectory { get; set; } = false;
 
     /// <summary>
     ///     Set it to folder path where you want to download the update file. If not provided then it defaults to Temp folder.
     /// </summary>
-    public string DownloadPath;
+    public string? DownloadPath { get; set; }
 
     /// <summary>
     ///     If you are using a zip file as an update file, then you can set this value to a new executable path relative to the
     ///     installation directory.
     /// </summary>
-    public string ExecutablePath;
+    public string? ExecutablePath { get; set; }
 
     /// <summary>
     ///     Login/password/domain for FTP-request
@@ -137,41 +171,41 @@ public sealed class AutoUpdater : Window
     /// <summary>
     ///     Set the User-Agent string to be used for HTTP web requests.
     /// </summary>
-    public string HttpUserAgent;
+    public string? HttpUserAgent { get; set; }
 
     /// <summary>
     ///     If you are using a zip file as an update file then you can set this value to path where your app is installed. This
     ///     is only necessary when your installation directory differs from your executable path.
     /// </summary>
-    public string? InstallationPath;
+    public string? InstallationPath { get; set; }
 
     /// <summary>
     ///     You can set this field to your current version if you don't want to determine the version from the assembly.
     /// </summary>
-    public Version? InstalledVersion;
+    public Version? InstalledVersion { get; set; }
 
     /// <summary>
     ///     If this is true users see dialog where they can set remind later interval otherwise it will take the interval from
     ///     RemindLaterAt and RemindLaterTimeSpan fields.
     /// </summary>
-    public bool LetUserSelectRemindLater = true;
+    public bool LetUserSelectRemindLater { get; set; } = true;
 
     /// <summary>
     ///     Set this to true if you want to ignore previously assigned Remind Later and Skip settings. It will also hide Remind
     ///     Later and Skip buttons.
     /// </summary>
-    public bool Mandatory;
+    public bool Mandatory { get; set; }
 
     /// <summary>
     ///     Opens the download URL in default browser if true. Very useful if you have portable application.
     /// </summary>
-    public bool OpenDownloadPage;
+    public bool OpenDownloadPage { get; set; }
 
     /// <summary>
     ///     Set this to an instance implementing the IPersistenceProvider interface for using a data storage method different
     ///     from the default Windows Registry based one.
     /// </summary>
-    public IPersistenceProvider PersistenceProvider;
+    public IPersistenceProvider? PersistenceProvider { get; set; }
 
     /// <summary>
     ///     Remind Later interval after user should be reminded of update.
@@ -211,7 +245,14 @@ public sealed class AutoUpdater : Window
     /// <summary>
     ///     Set this to any of the available modes to change behaviour of the Mandatory flag.
     /// </summary>
-    public Mode UpdateMode;
+    public Mode UpdateMode { get; set; } = Mode.Normal;
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Properties
+
+
+    #region Event Handlers
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     /// <summary>
     ///     An event that developers can use to exit the application gracefully.
@@ -228,6 +269,13 @@ public sealed class AutoUpdater : Window
     /// </summary>
     public event ParseUpdateInfoHandler? ParseUpdateInfoEvent;
 
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Event Handlers
+
+
+    #region Methods
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
     /// <summary>
     ///     Start checking for new version of application and display a dialog to the user if update is available.
     /// </summary>
@@ -236,6 +284,7 @@ public sealed class AutoUpdater : Window
     {
         _ = Start(AppCastURL, myAssembly);
     }
+
 
     /// <summary>
     ///     Start checking for new version of application via FTP and display a dialog to the user if update is available.
@@ -248,6 +297,7 @@ public sealed class AutoUpdater : Window
         FtpCredentials = ftpCredentials;
         _ = Start(appCast, myAssembly);
     }
+
 
     /// <summary>
     ///     Start checking for new version of application and display a dialog to the user if update is available.
@@ -347,6 +397,9 @@ public sealed class AutoUpdater : Window
     }
 
 
+    /// <summary>
+    ///     Obtain the <see cref="UpdateInfoEventArgs" />.
+    /// </summary>
     private async Task<UpdateInfoEventArgs?> CheckUpdate(Assembly mainAssembly)
     {
         var appCompany = AssemblyLoader.AssemblyInfo.Company(mainAssembly);
@@ -433,6 +486,11 @@ public sealed class AutoUpdater : Window
     }
 
 
+    /// <summary>
+    ///     StartUpdate
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns></returns>
     private bool StartUpdate(object? result)
     {
         if (result is DateTime time)
@@ -471,15 +529,23 @@ public sealed class AutoUpdater : Window
         return false;
     }
 
+
+    /// <summary>
+    ///     ShowError
+    /// </summary>
+    /// <param name="exception"></param>
     private void ShowError(Exception exception)
     {
         if (CheckForUpdateEvent != null)
+        {
             CheckForUpdateEvent(
                 new UpdateInfoEventArgs
                 {
                     Error = exception,
                     Owner = this
-                });
+                }
+            );
+        }
         else
         {
             if (ReportErrors)
@@ -503,6 +569,7 @@ public sealed class AutoUpdater : Window
 
         Running = false;
     }
+
 
     /// <summary>
     ///     Detects and exits all instances of running assembly, including current.
@@ -549,8 +616,17 @@ public sealed class AutoUpdater : Window
     }
 
 
+    /// <summary>
+    ///     GetUserAgent
+    /// </summary>
+    /// <returns></returns>
     internal string GetUserAgent() => string.IsNullOrEmpty(HttpUserAgent) ? "AutoUpdater.NET" : HttpUserAgent;
 
+
+    /// <summary>
+    ///     SetTimer
+    /// </summary>
+    /// <param name="remindLater"></param>
     internal void SetTimer(DateTime remindLater)
     {
         var timeSpan = remindLater - DateTime.Now;
@@ -590,7 +666,7 @@ public sealed class AutoUpdater : Window
     /// <summary>
     ///     Opens the Download window that download the update and execute the installer when download completes.
     /// </summary>
-    public static void DownloadUpdate(UpdateInfoEventArgs args)
+    public void DownloadUpdate(UpdateInfoEventArgs args)
     {
         //var downloadDialog = new DownloadUpdateDialog(args);
         //return downloadDialog.ShowDialog();
@@ -608,10 +684,19 @@ public sealed class AutoUpdater : Window
     }
 
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <param name="basicAuthentication"></param>
+    /// <returns></returns>
     internal Task<HttpResponseMessage> GetWebClient(Uri uri, AuthenticationHeaderValue basicAuthentication)
     {
         BaseUri = uri;
         HttpWebClient.DefaultRequestHeaders.Authorization = basicAuthentication;
         return HttpWebClient.GetAsync(BaseUri);
     }
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Methods
 }

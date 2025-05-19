@@ -8,15 +8,8 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:ViewModelRemindLater }"
         Title="Remind me later for update"
-        WindowStartupLocation="CenterScreen"
-        ShowInTaskbar="True"
-        ShowActivated="True"
-        ResizeMode="NoResize"
-        Topmost="True"
-        WindowStyle="SingleBorderWindow"
         Width="500"
         Height="168"
-        ControlBox="False"
         Icon="{StaticResource clock_go}"
 >
     <Grid>
@@ -59,7 +52,7 @@
                Grid.Row="1"
                VerticalAlignment="Top"
                HorizontalAlignment="Center"
-               Source="{StaticResource clock_go_32}"
+               Source="{StaticResource clock_go}"
                RenderOptions.BitmapScalingMode="Fant"
                Margin="0,-10,0,0"
                Stretch="Fill"
@@ -120,7 +113,7 @@
         >
             <Button x:Name="ButtonOk">
                 <WrapPanel>
-                    <Image Source="{StaticResource clock_go_32}"
+                    <Image Source="{StaticResource clock_go}"
                            Width="15"
                            Height="15"
                            Margin="-10,3,5,0"

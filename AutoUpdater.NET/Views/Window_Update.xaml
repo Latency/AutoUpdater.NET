@@ -9,15 +9,8 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:ViewModelUpdate }"
         Title="Remind me later for update"
-        WindowStartupLocation="CenterScreen"
-        ShowInTaskbar="True"
-        ShowActivated="True"
-        ResizeMode="NoResize"
-        Topmost="True"
-        WindowStyle="SingleBorderWindow"
         Width="500"
         Height="168"
-        ControlBox="False"
         Icon="{StaticResource update}"
 >
     <controls:RestrictedWindow.Resources>
@@ -110,7 +103,7 @@
                                     AncestorType={x:Type views:Window_Update}}}"
         >
             <WrapPanel>
-                <Image Source="{StaticResource clock_go_32}"
+                <Image Source="{StaticResource clock_go}"
                     Width="15"
                     Height="15"
                     Margin="-5,3,3,0"

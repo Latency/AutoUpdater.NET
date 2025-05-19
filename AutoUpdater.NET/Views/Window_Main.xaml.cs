@@ -11,9 +11,6 @@ using System.Reflection;
 
 namespace AutoUpdaterDotNET.Views;
 
-/// <summary>
-///     Interaction logic for Window_Main.xaml
-/// </summary>
 public sealed partial class Window_Main
 {
     /// <summary>

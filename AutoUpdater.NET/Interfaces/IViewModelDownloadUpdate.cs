@@ -9,4 +9,5 @@ namespace AutoUpdaterDotNET.Interfaces;
 
 public interface IViewModelDownloadUpdate
 {
+    double ProgressPercentage { get; set; }
 }

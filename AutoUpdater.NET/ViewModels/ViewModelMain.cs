@@ -38,7 +38,7 @@ public sealed class ViewModelMain : DependencyObject, IViewModelMain
     void IViewModelMain.ButtonOk_Click(object? sender)
     {
         var win = sender as Window_Main ?? throw new NullReferenceException();
-        var frm = App.GetWindow<Window_Update>(null);
+        var frm = App.GetWindow<Window_DownloadUpdate>(null);
 
         frm.Owner ??= win ?? throw new NullReferenceException();
 

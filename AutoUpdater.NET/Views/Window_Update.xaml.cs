@@ -6,15 +6,11 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using System.Windows;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Controls;
 
 namespace AutoUpdaterDotNET.Views;
 
-/// <summary>
-///     Interaction logic for RemindLater.xaml
-/// </summary>
 public sealed partial class Window_Update : RestrictedWindow
 {
     /// <summary>

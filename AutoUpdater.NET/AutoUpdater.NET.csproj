@@ -43,10 +43,8 @@
 
     <ItemGroup>
       <Resource Include="png\clock_go.png" />
-      <Resource Include="png\clock_go_32.png" />
       <Resource Include="png\clock_play.png" />
       <Resource Include="png\download.png" />
-      <Resource Include="png\download_32.png" />
       <Resource Include="png\hand_point.png" />
       <Resource Include="png\update.png" />
     </ItemGroup>

@@ -12,7 +12,6 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="ThreeDBorderWindow"
         ResizeMode="CanResizeWithGrip"
-        Title="Window_Main"
     >
 
     <StackPanel>
