@@ -7,7 +7,7 @@
 
 using System.Runtime.Serialization;
 
-namespace AutoUpdaterDotNET;
+namespace AutoUpdaterDotNET.Models;
 
 /// <summary>
 ///     Provides way to serialize and deserialize AutoUpdater persisted values.

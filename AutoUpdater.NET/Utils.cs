@@ -6,7 +6,10 @@
 // ****************************************************************************
 
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Reflection;
 using System.Text;
+using System.Windows.Controls;
 
 namespace AutoUpdaterDotNET;
 
@@ -14,6 +17,19 @@ internal static class Utils
 {
     private const char Quote     = '\"';
     private const char Backslash = '\\';
+
+
+    public static Delegate[] GetEventHandlers<T>(this T ctrl, string eventName) where T : class
+    {
+        var propertyInfo     = ctrl.GetType().GetProperty("Events", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+        var eventHandlerList = propertyInfo.GetValue(ctrl, []) as EventHandlerList;
+        var fieldInfo        = typeof(Control).GetField("Event" + eventName, BindingFlags.NonPublic | BindingFlags.Static);
+        var eventKey         = fieldInfo.GetValue(ctrl);
+        var eventHandler     = eventHandlerList[eventKey];
+        var invocationList   = eventHandler.GetInvocationList();
+
+        return invocationList;
+    }
 
 
     public static string BuildArguments(Collection<string> argumentList)

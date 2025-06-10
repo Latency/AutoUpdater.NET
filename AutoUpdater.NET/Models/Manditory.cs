@@ -8,7 +8,7 @@
 using System.Xml.Serialization;
 using AutoUpdaterDotNET.Enums;
 
-namespace AutoUpdaterDotNET;
+namespace AutoUpdaterDotNET.Models;
 
 /// <summary>
 ///     Mandatory class to fetch the XML values related to Mandatory field.

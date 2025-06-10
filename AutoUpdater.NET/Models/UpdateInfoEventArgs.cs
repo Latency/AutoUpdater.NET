@@ -8,7 +8,7 @@
 using System.Windows;
 using System.Xml.Serialization;
 
-namespace AutoUpdaterDotNET;
+namespace AutoUpdaterDotNET.Models;
 
 /// <summary>
 ///     Object of this class gives you all the details about the update useful in handling the update logic yourself.
@@ -98,7 +98,8 @@ public class UpdateInfoEventArgs : EventArgs
     /// <summary>
     ///     The 'parent' instance
     /// </summary>
-    public required AutoUpdater Owner { get; init; }
+    [XmlIgnore]
+    public AutoUpdater? Owner { get; set; }
 
     // ReSharper disable once InconsistentNaming
     internal static string GetURL(Uri baseUri, string url)

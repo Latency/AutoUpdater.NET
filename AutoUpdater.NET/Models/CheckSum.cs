@@ -7,7 +7,7 @@
 
 using System.Xml.Serialization;
 
-namespace AutoUpdaterDotNET;
+namespace AutoUpdaterDotNET.Models;
 
 /// <summary>
 ///     Checksum class to fetch the XML values for checksum.

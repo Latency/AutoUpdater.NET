@@ -210,12 +210,12 @@ public sealed class AutoUpdater : Window
     /// <summary>
     ///     Remind Later interval after user should be reminded of update.
     /// </summary>
-    public int RemindLaterAt { get; init; } = 2;
+    public int RemindLaterAt { get; set; } = 2;
 
     /// <summary>
     ///     Set if RemindLaterAt interval should be in Minutes, Hours or Days.
     /// </summary>
-    public RemindLaterFormat RemindLaterTimeSpan { get; init; } = RemindLaterFormat.Days;
+    public RemindLaterFormat RemindLaterTimeSpan { get; set; } = RemindLaterFormat.Days;
 
     /// <summary>
     ///     AutoUpdater.NET will report errors if this is true.
@@ -225,7 +225,7 @@ public sealed class AutoUpdater : Window
     /// <summary>
     ///     Set this to false if your application doesn't need administrator privileges to replace the old version.
     /// </summary>
-    public bool RunUpdateAsAdmin { get; init; } = true;
+    public bool RunUpdateAsAdmin { get; set; } = false;
 
     /// <summary>
     ///     If this is true users can see the Remind Later button.
@@ -246,6 +246,11 @@ public sealed class AutoUpdater : Window
     ///     Set this to any of the available modes to change behaviour of the Mandatory flag.
     /// </summary>
     public Mode UpdateMode { get; set; } = Mode.Normal;
+
+    /// <summary>
+    ///     Set TopMost to true for all updater dialogs.
+    /// </summary>
+    public bool TopMost { get; set; }
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
@@ -326,7 +331,7 @@ public sealed class AutoUpdater : Window
         {
             try
             {
-                var args = CheckUpdate(assembly).Result;
+                var args = await CheckUpdate(assembly);
 
                 // Change the window size if overriden.
                 if (args?.UpdateFormSize != null)
@@ -348,28 +353,27 @@ public sealed class AutoUpdater : Window
         else
         {
             try {
-                await Task.Run(() => CheckUpdate(assembly))
-                      .ContinueWith(t =>
-                      {
-                          var args = t.Result;
+                await CheckUpdate(assembly).ContinueWith(t =>
+                {
+                    var args = t.Result;
 
-                          // Change the window size if overriden.
-                          if (args?.UpdateFormSize != null)
-                          {
-                              Height = args.UpdateFormSize.Value.Height;
-                              Width  = args.UpdateFormSize.Value.Width;
-                          }
+                    // Change the window size if overriden.
+                    if (args?.UpdateFormSize != null)
+                    {
+                        Height = args.UpdateFormSize.Value.Height;
+                        Width  = args.UpdateFormSize.Value.Width;
+                    }
 
-                          if (args?.Error != null)
-                              ShowError(args.Error);
-                          else
-                          {
-                              if (!t.IsCanceled && StartUpdate(args))
-                                  return;
+                    if (args?.Error != null)
+                        ShowError(args.Error);
+                    else
+                    {
+                        if (!t.IsCanceled && StartUpdate(args))
+                            return;
 
-                              Running = false;
-                          }
-                      }).ConfigureAwait(false);
+                        Running = false;
+                    }
+                }).ConfigureAwait(false);
             }
             catch (TaskCanceledException)
             {
@@ -386,7 +390,7 @@ public sealed class AutoUpdater : Window
     /// <summary>
     ///     Set Proxy server to use for all the web requests in AutoUpdater.NET.
     /// </summary>
-    private void Proxy(string username, string password, string address)
+    private static void Proxy(string username, string password, string address)
     {
         HttpClientHandlerInstance.Proxy = new WebProxy
         {
@@ -438,7 +442,9 @@ public sealed class AutoUpdater : Window
             args = parseArgs.UpdateInfo;
         }
 
-        if (string.IsNullOrEmpty(args?.CurrentVersion) || string.IsNullOrEmpty(args.DownloadURL))
+        args.Owner = this;
+
+        if (string.IsNullOrEmpty(args.CurrentVersion) || string.IsNullOrEmpty(args.DownloadURL))
             throw new MissingFieldException();
 
         args.InstalledVersion = InstalledVersion ?? mainAssembly.GetName().Version!;
@@ -451,15 +457,7 @@ public sealed class AutoUpdater : Window
                 Mandatory = args.Mandatory.Value;
                 UpdateMode = args.Mandatory.UpdateMode;
             }
-        }
 
-        if (Mandatory)
-        {
-            ShowRemindLaterButton = false;
-            ShowSkipButton = false;
-        }
-        else
-        {
             // Read the persisted state from the persistence provider.
             // This method makes the persistence handling independent from the storage method.
             var skippedVersion = PersistenceProvider.GetSkippedVersion();
@@ -480,6 +478,11 @@ public sealed class AutoUpdater : Window
 
             if (DateTime.Compare(DateTime.Now, remindLaterAt.Value) < 0)
                 args.TimeStamp = remindLaterAt.Value;
+        }
+        else
+        {
+            ShowRemindLaterButton = false;
+            ShowSkipButton = false;
         }
 
         return args;

@@ -1,42 +1,1135 @@
 ﻿<Window x:Class="AutoUpdaterDotNET.Views.Window_Main"
-        x:Name="WindowMain"
+        Name="WindowMain"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:AutoUpdaterDotNET.ViewModels"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        xmlns:enums="clr-namespace:AutoUpdaterDotNET.Enums"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:ViewModelMain }"
-        Height="140"
-        Width="150"
+        Height="640"
+        Width="510"
         WindowStartupLocation="CenterScreen"
         WindowStyle="ThreeDBorderWindow"
         ResizeMode="CanResizeWithGrip"
+        MinWidth="500"
+        MinHeight="550"
+        Icon="{StaticResource project}"
     >
+    <Window.Resources>
+        <ObjectDataProvider x:Key="RemindLaterFormatEnumValues"
+                            MethodName="GetValues"
+                            ObjectType="{x:Type sys:Enum}"
+        >
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:RemindLaterFormat" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="UpdateModeEnumValues"
+                            MethodName="GetValues"
+                            ObjectType="{x:Type sys:Enum}"
+        >
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:Mode" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
 
-    <StackPanel>
+    <Grid
+        Margin="10"
+        IsSharedSizeScope="True"
+    >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"  />
+            <ColumnDefinition Width="*" SharedSizeGroup="B" />
+            <ColumnDefinition Width="110" SharedSizeGroup="C" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+
+        <!-- ReSharper disable once InconsistentNaming -->
+        <TextBlock
+            Name="txtOptions"
+            Margin="10,0,0,0"
+            Text="Options"
+            FontFamily="Vivaldi"
+            FontWeight="Bold"
+            FontSize="28"
+            TextDecorations="Underline"
+        />
+
+        <StackPanel
+            Orientation="Horizontal"
+            Grid.Column="1"
+            Grid.Row="0"
+        >
+            <Button
+                Name="ButtonLoad"
+                Content="Load"
+                Margin="6,6"
+                ToolTip="Save the configuration settings."
+                Command="{Binding CommandLoadConfig}"
+                CommandParameter="{x:Reference Name=WindowMain}"
+            />
+
+            <Button
+                Name="ButtonSave"
+                Content="Save"
+                Margin="0,6"
+                ToolTip="Load the configuration settings."
+                Command="{Binding CommandSaveConfig}"
+                CommandParameter="{x:Reference Name=WindowMain}"
+            />
+        </StackPanel>
+
         <Button
-          x:Name="ButtonRemindLater"
-          Content="RemindLater"
-          Height="50"
-          Width="50"
-          Margin="30,0,30,0"
-          ToolTip="Apply the patch"
-          HorizontalAlignment="Left"
-          VerticalAlignment="Center"
-          Command="{Binding CommandRemindLater}"
-          CommandParameter="{x:Reference Name=WindowMain}"
+            Name="ButtonCancel"
+            Grid.Row="0"
+            Grid.Column="2"
+            Content="Cancel"
+            ToolTip="Cancel the changes."
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Command="{Binding CommandCancel}"
+            CommandParameter="{x:Reference Name=WindowMain}"
         />
 
-        <Label x:Name="LabelVersion"
-               Content="Loader Version: {0}"
-               HorizontalAlignment="Left"
-               VerticalAlignment="Bottom"
-               Margin="10,15"
-               Foreground="DarkSlateGray"
-               RenderTransformOrigin="0.49,0.176"
-               Width="180"
+        <Button
+            Name="ButtonUpdate"
+            Grid.Row="1"
+            Grid.Column="2"
+            Content="Update"
+            ToolTip="Start the update."
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Command="{Binding CommandUpdate}"
+            CommandParameter="{x:Reference Name=WindowMain}"
         />
 
-    </StackPanel>
+        <ScrollViewer
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            HorizontalScrollBarVisibility="Auto"
+            VerticalScrollBarVisibility="Auto"
+        >
+
+            <StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbRunUpdateAsAdmin"
+                    IsChecked="{Binding RunUpdateAsAdmin}"
+                    ToolTip="Check this to run update process without admin privileges."
+                    Content="Run Update As Admin"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbOpenDownloadPage"
+                    IsChecked="{Binding OpenDownloadPage}"
+                    ToolTip="Check this to open the download page instead of downloading the update file when the user clicks on the download button."
+                    Content="Open Download Page"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbLetUserSelectRemindLater"
+                    IsChecked="{Binding LetUserSelectRemindLater}"
+                    ToolTip="Check this if you want to show the 'Remind Later' or 'Time' options within the AutoUpdater notification window."
+                    Content="User Select Remind Later"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <ComboBox
+                    Name="cbRemindLaterTimeSpan"
+                    ToolTip="Select the duration type."
+                    ItemsSource="{Binding Source={StaticResource RemindLaterFormatEnumValues}}"
+                    SelectedValue="{Binding RemindLaterTimeSpan}"
+                    IsSynchronizedWithCurrentItem="True"
+                    HorizontalAlignment="Left"
+                    Margin="10,0,0,0"
+                >
+                    <ComboBox.Style>
+                        <Style TargetType="ComboBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbLetUserSelectRemindLater}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbLetUserSelectRemindLater}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <xctk:IntegerUpDown 
+                    Name="iudRemindLaterAt"
+                    Value="{Binding RemindLaterAt}"
+                    DefaultValue="0"
+                    Minimum="0"
+                    ToolTip="Set the duration time."
+                    HorizontalAlignment="Left"
+                    Margin="10,0,0,0"
+                >
+                    <xctk:IntegerUpDown.Style>
+                        <Style TargetType="xctk:IntegerUpDown">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbLetUserSelectRemindLater}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbLetUserSelectRemindLater}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </xctk:IntegerUpDown.Style>
+                </xctk:IntegerUpDown>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbManditory"
+                    IsChecked="{Binding IsManditory}"
+                    ToolTip="Check this if you want to show the 'ShowSkipButton' or 'ShowRemindLaterButton'."
+                    Content="Is Manditory"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbShowSkipButton"
+                    IsChecked="{Binding ShowSkipButton}"
+                    ToolTip="Check this if you want to show the 'Skip' button."
+                    Margin="10,0,0,0"
+                    Content="Skip Button"
+                >
+                    <CheckBox.Style>
+                        <Style TargetType="CheckBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </CheckBox.Style>
+                </CheckBox>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbShowRemindLaterButton"
+                    IsChecked="{Binding ShowRemindLaterButton}"
+                    ToolTip="Check this if you want to show the 'Remind Later' button."
+                    Margin="10,0,0,0"
+                    Content="Remind Later Button"
+                >
+                    <CheckBox.Style>
+                        <Style TargetType="CheckBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </CheckBox.Style>
+                </CheckBox>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <ComboBox
+                    Name="cbUpdateMode"
+                    ToolTip="Normal - Ignores 'Remind Later' and 'Skip' values set previously and will hide both buttons.&#x0a;Forced - Same as Normal mode, minus showing the close box.&#x0a;ForcedDownload - Will start downloading and applying update without showing standard update dialog in addition to Forced mode behaviour."
+                    ItemsSource="{Binding Source={StaticResource UpdateModeEnumValues}}"
+                    SelectedValue="{Binding UpdateMode}"
+                    IsSynchronizedWithCurrentItem="True"
+                    HorizontalAlignment="Left"
+                    Width="150"
+                    Margin="10,0,0,0"
+                >
+                    <ComboBox.Style>
+                        <Style TargetType="ComboBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Setter Property="SelectedValue" Value="{x:Static enums:Mode.ForcedDownload}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbAppTitle"
+                    ToolTip="Check this if you want to show a custom application title in AutoUpdater notification window."
+                    Content="App Title"
+                />
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Title:"
+                           Margin="10,0,0,0"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbAppTitle}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbAppTitle}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <TextBox
+                        Name="tbAppTitle"
+                        Text="{Binding AppTitle}"
+                        Width="150"
+                        ToolTip="Modify this to show a custom application title in AutoUpdater notification window."
+                    >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbAppTitle}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbAppTitle}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+
+                </StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbReportErrors"
+                    IsChecked="{Binding ReportErrors}"
+                    ToolTip="Check this if you want to show any errors."
+                    Content="Report Errors"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbProxy"
+                    IsChecked="{Binding ProxyEnabled}"
+                    ToolTip="Check this to configure web proxy credentials."
+                    Content="Enable Proxy"
+                />
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Uri:"
+                           Margin="10,0,0,0"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <TextBox
+                        Name="tbProxyUri"
+                        ToolTip="Check this to update file served only through Proxy."
+                        Text="{Binding ProxyUri}"
+                        Width="150"
+                        PreviewTextInput="TbProxyUri_OnPreviewTextInput"
+                    >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Username:"
+                           Margin="10,0,0,0"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <TextBox
+                        Name="tbProxyUsername"
+                        ToolTip="Enter the username for the remote Proxy."
+                        Text="{Binding ProxyUsername}"
+                        Width="150"
+                    >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Password:"
+                           Margin="10,0,0,0"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <TextBox
+                        Name="tbProxyPassword"
+                        ToolTip="Enter the password for the remote Proxy, if applicable."
+                        Text="{Binding ProxyPassword}"
+                        Width="150"
+                    >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbProxy}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbTimerEnabled"
+                    IsChecked="{Binding TimerEnabled}"
+                    ToolTip="Check this if periodically check for updates."
+                    Content="Enable Timer"
+                />
+
+                <StackPanel
+                    Orientation="Horizontal"
+                >
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <ComboBox
+                        Name="cbTimerDuration"
+                        ToolTip="Select the interval duration within the combo-box."
+                        ItemsSource="{Binding Source={StaticResource RemindLaterFormatEnumValues}}"
+                        SelectedValue="{Binding TimerDurationTimeSpan}"
+                        IsSynchronizedWithCurrentItem="True"
+                        HorizontalAlignment="Left"
+                        Margin="10,0,0,0"
+                        Height="22"
+                    >
+                        <ComboBox.Style>
+                            <Style TargetType="ComboBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ComboBox.Style>
+                    </ComboBox>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <xctk:IntegerUpDown 
+                        Name="iudTimers"
+                        Value="{Binding Interval}"
+                        DefaultValue="0"
+                        Minimum="0"
+                        HorizontalAlignment="Left"
+                        ToolTip="Modify this for the interval value."
+                        Margin="10,0,0,0"
+                        Height="22"
+                    >
+                        <xctk:IntegerUpDown.Style>
+                            <Style TargetType="xctk:IntegerUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </xctk:IntegerUpDown.Style>
+                    </xctk:IntegerUpDown>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <TreeView
+                        Name="tvTimers"
+                        Margin="10,0,0,0"
+                        BorderThickness="0"
+                        ItemsSource="{Binding TimerNodeList}"
+                    >
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="{x:Type TreeViewItem}">
+                                <EventSetter
+                                    Event="MouseUp"
+                                    Handler="Timers_OnMouseUp" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                    </TreeView>
+                </StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbBasicAuth"
+                    IsChecked="{Binding BasicAuth}"
+                    ToolTip="Check this to set basic authentication on credentials."
+                    Content="Basic Authentication"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbBasicAuthChangeLog"
+                    Margin="10,0,0,0"
+                    IsChecked="{Binding BasicAuthChangeLog}"
+                    ToolTip="Check this to set provide basic authentication change log credentials needed to access update resources."
+                    Content="Change Log"
+                >
+                    <CheckBox.Style>
+                        <Style TargetType="CheckBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </CheckBox.Style>
+                </CheckBox>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbBasicAuthDownload"
+                    Margin="10,0,0,0"
+                    IsChecked="{Binding BasicAuthChangeLog}"
+                    ToolTip="Check this to set provide basic authentication download credentials needed to access update resources."
+                    Content="Download"
+                >
+                    <CheckBox.Style>
+                        <Style TargetType="CheckBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </CheckBox.Style>
+                </CheckBox>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Username:"
+                           Margin="10,0,0,0"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <TextBox
+                        Name="tbBasicAuthUsername"
+                        ToolTip="Enter the username for the basic authentication."
+                        Text="{Binding BasicAuthUsername}"
+                        Width="150"
+                    >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Password:"
+                           Margin="10,0,0,0"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <TextBox
+                        Name="tbBasicAuthPassword"
+                        ToolTip="Enter the password for the basic authentication, if applicable."
+                        Text="{Binding BasicAuthPassword}"
+                        Width="150"
+                    >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbFTPProtocol"
+                    IsChecked="{Binding FTPProtocol}"
+                    ToolTip="Check this if the protocol used is only able to be accessed via FTP."
+                    Content="FTP instead of HTTP"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbPersistSettings"
+                    IsChecked="{Binding PersistSettings}"
+                    ToolTip="Check this to persist 'Remind Later' and 'Skip' values in a JSON file instead of the registry."
+                    Content="Persist Settings"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbUseZipFile"
+                    IsChecked="{Binding UseZipFile}"
+                    ToolTip="Check this to persist 'Remind Later' and 'Skip' values in a JSON file instead of the registry."
+                    Content="Use ZIP File"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbClearAppDirectory"
+                    IsChecked="{Binding ClearAppDirectory}"
+                    Margin="10,0,0,0"
+                    ToolTip="Check this to clear application directory before update zip is extracted.&#x0a;This only works when using a zip file as an update file."
+                    Content="Clear App Directory"
+                >
+                    <CheckBox.Style>
+                        <Style TargetType="CheckBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </CheckBox.Style>
+                </CheckBox>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbExecutablePathOverride"
+                    Margin="10,0,0,0"
+                    IsChecked="{Binding ExecutablePathOverride}"
+                    ToolTip="Check this to execute different executable after the update.&#x0a;This only works when using a zip file as an update file."
+                    Content="Executable Path Override"
+                >
+                    <CheckBox.Style>
+                        <Style TargetType="CheckBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </CheckBox.Style>
+                </CheckBox>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Executable Path:"
+                           Margin="20,0,0,0"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <TextBox
+                        Name="tbExecutablePathOverride"
+                        ToolTip="Enter the customized executable path to be executed after the update."
+                        Text="{Binding ExecutablePath}"
+                        Width="150"
+                    >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbChangeUpdateZipExtractionPath"
+                    Margin="10,0,0,0"
+                    IsChecked="{Binding ChangeUpdateZipExtractionPath}"
+                    ToolTip="Check this to change the update zip extraction path.&#x0a;This only works when using a zip file as an update file."
+                    Content="Change Update ZIP Extraction Path"
+                >
+                    <CheckBox.Style>
+                        <Style TargetType="CheckBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </CheckBox.Style>
+                </CheckBox>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Installation Path:"
+                           Margin="20,0,0,0"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbChangeUpdateZipExtractionPath}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbChangeUpdateZipExtractionPath}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <TextBox
+                        Name="tbInstallationPath"
+                        ToolTip="Enter the customized update zip extraction path."
+                        Text="{Binding InstallationPath}"
+                        Width="150"
+                    >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbChangeUpdateZipExtractionPath}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbChangeUpdateZipExtractionPath}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbCheckSynchronously"
+                    IsChecked="{Binding CheckSynchronously}"
+                    ToolTip="Check this to update synchronously."
+                    Content="Check Synchronously"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbInstalledVersionOverride"
+                    IsChecked="{Binding InstalledVersionOverride}"
+                    ToolTip="Check this to assign installed version manually and don't want to rely on the library to determine the installed version from the originating assembly."
+                    Content="Installed Version Override"
+                />
+
+                <StackPanel
+                    Orientation="Horizontal"
+                    Margin="10,0,0,0"
+                >
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <xctk:IntegerUpDown 
+                        Name="iudMajorVersion"
+                        Value="{Binding MajorVersion}"
+                        DefaultValue="1"
+                        Minimum="0"
+                        HorizontalAlignment="Left"
+                        ToolTip="Modify this for the interval value."
+                    >
+                        <xctk:IntegerUpDown.Style>
+                            <Style TargetType="xctk:IntegerUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </xctk:IntegerUpDown.Style>
+                    </xctk:IntegerUpDown>
+
+                    <Label Content="."
+                           FontWeight="Heavy"
+                           VerticalAlignment="Bottom"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <xctk:IntegerUpDown 
+                        Name="iudMinorVersion"
+                        Value="{Binding MinorVersion}"
+                        DefaultValue="0"
+                        Minimum="0"
+                        ToolTip="Modify this for the minor version's value."
+                    >
+                        <xctk:IntegerUpDown.Style>
+                            <Style TargetType="xctk:IntegerUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </xctk:IntegerUpDown.Style>
+                    </xctk:IntegerUpDown>
+
+                    <Label Content="."
+                           FontWeight="Heavy"
+                           VerticalAlignment="Bottom"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <xctk:IntegerUpDown 
+                        Name="iudSubPatchVersion"
+                        Value="{Binding SubPatchVersion}"
+                        DefaultValue="0"
+                        Minimum="0"
+                        ToolTip="Modify this for the sub-patch version's value."
+                    >
+                        <xctk:IntegerUpDown.Style>
+                            <Style TargetType="xctk:IntegerUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </xctk:IntegerUpDown.Style>
+                    </xctk:IntegerUpDown>
+
+                    <Label Content="."
+                           FontWeight="Heavy"
+                           VerticalAlignment="Bottom"
+                    >
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <xctk:IntegerUpDown 
+                        Name="iudBuildVersion"
+                        Value="{Binding BuildVersion}"
+                        DefaultValue="0"
+                        Minimum="0"
+                        ToolTip="Modify this for the build version's value."
+                    >
+                        <xctk:IntegerUpDown.Style>
+                            <Style TargetType="xctk:IntegerUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </xctk:IntegerUpDown.Style>
+                    </xctk:IntegerUpDown>
+
+                </StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbBindOwnerWindow"
+                    IsChecked="{Binding BindOwnerWindow}"
+                    ToolTip="Check this to set 'this' window as owner for the all dialogs initiated by AutoUpdater."
+                    Content="Bind To Owner Window"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbTopMost"
+                    IsChecked="{Binding TopMostEnabled}"
+                    ToolTip="Check this to set TopMost to true for all updater dialogs.&#x0a;It is standard to do this if TopMost is set true in other windows."
+                    Content="Top Most Enabled"
+                />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbIconOverride"
+                    IsChecked="{Binding IconOverride}"
+                    ToolTip="Check this to change the Icon shown on the updater dialog."
+                    Content="Icon Override"
+                />
+
+                <StackPanel
+                    Orientation="Horizontal"
+                    Margin="10,0,0,0"
+                >
+                    <Label Content="Image:">
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIconOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIconOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <Button
+                        Command="{Binding CommandImageChange}"
+                        CommandParameter="{x:Reference Name=WindowMain}"
+                    >
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIconOverride}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIconOverride}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+
+                        <Image 
+                            Name="imgIcon"
+                            Stretch="UniformToFill" 
+                            Width="100"
+                            Source="{Binding TmpIcon}"
+                        />
+                    </Button>
+                </StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <TreeView
+                    Name="tvApplicationExit"
+                    BorderThickness="0"
+                    ItemsSource="{Binding ApplicationExitNodeList}"
+                >
+                </TreeView>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <TreeView
+                    Name="tvCheckForUpdates"
+                    BorderThickness="0"
+                    ItemsSource="{Binding CheckForUpdatesNodeList}"
+                >
+                </TreeView>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <TreeView
+                    Name="tvParseUpdateInfo"
+                    BorderThickness="0"
+                    ItemsSource="{Binding ParseUpdateInfoNodeList}"
+                >
+                </TreeView>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <TextBlock Name="ConfigPath"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Grid.Row="2"
+                   Text="Drive:\Project\Properties\AutoUpdate.json"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Bottom"
+                   Foreground="DarkSlateGray"
+        />
+
+        <TextBlock Name="LabelVersion"
+                   Grid.Column="1"
+                   Grid.ColumnSpan="2"
+                   Grid.Row="2"
+                   Text="Loader Version: {0}"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"
+                   Foreground="DarkSlateGray"
+        />
+
+    </Grid>
+
+
 </Window>

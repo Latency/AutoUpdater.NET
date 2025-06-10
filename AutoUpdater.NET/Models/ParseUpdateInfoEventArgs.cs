@@ -13,6 +13,6 @@ public class ParseUpdateInfoEventArgs(AutoUpdater owner, string remoteData) : Ev
     /// <summary>
     ///     Set this object with values received from the AppCast file.
     /// </summary>
-    public UpdateInfoEventArgs UpdateInfo { get; init; } = new()
+    public UpdateInfoEventArgs UpdateInfo { get; set; } = new()
         { Owner = owner };
 }

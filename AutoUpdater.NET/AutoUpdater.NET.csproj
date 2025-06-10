@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-	    <TargetFrameworks>net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
+	    <TargetFramework>net10.0-windows</TargetFramework>
 		<AssemblyTitle>AutoUpdater.NET</AssemblyTitle>
         <Description>AutoUpdater.NET is a class library that allows .NET developers to easily add auto update functionality to their WinForms or WPF application projects.</Description>
         <Nullable>enable</Nullable>
@@ -16,27 +16,25 @@
         <Version>2.0.0</Version>
         <OutputType>WinExe</OutputType>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     </PropertyGroup>
 
     <ItemGroup>
       <Compile Remove="Views\DownloadUpdateDialog.cs" />
       <Compile Remove="Views\DownloadUpdateDialog.Designer.cs" />
-      <Compile Remove="Views\RemindLaterForm.cs" />
-      <Compile Remove="Views\RemindLaterForm.Designer.cs" />
-      <Compile Remove="Views\UpdateForm.cs" />
-      <Compile Remove="Views\UpdateForm.Designer.cs" />
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Remove="Views\DownloadUpdateDialog.resx" />
-      <EmbeddedResource Remove="Views\UpdateForm.resx" />
+      <Content Remove="bin\Debug\net10.0-windows\README.md" />
     </ItemGroup>
 
-    <ItemGroup>
+	<ItemGroup>
       <ApplicationDefinition Include="Views\App.xaml" />
     </ItemGroup>
 
     <ItemGroup>
+	    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
+	    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
 	    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
 	    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
     </ItemGroup>
@@ -47,12 +45,6 @@
       <Resource Include="png\download.png" />
       <Resource Include="png\hand_point.png" />
       <Resource Include="png\update.png" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Views\Window_Update.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
     </ItemGroup>
 
 	<Import Project="D:\Source\Directory.PostBuild.props" Condition="Exists('D:\Source\Directory.PostBuild.props')" />
