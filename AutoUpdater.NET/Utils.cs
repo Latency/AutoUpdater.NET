@@ -2,7 +2,7 @@
 // Project:  AutoUpdater.NET
 // File:     Utils.cs
 // Author:   Latency McLaughlin
-// Date:     05/16/2025
+// Date:     06/10/2025
 // ****************************************************************************
 
 using System.Collections.ObjectModel;
@@ -19,16 +19,42 @@ internal static class Utils
     private const char Backslash = '\\';
 
 
-    public static Delegate[] GetEventHandlers<T>(this T ctrl, string eventName) where T : class
+    public static bool IsSimpleType(this Type type)
     {
-        var propertyInfo     = ctrl.GetType().GetProperty("Events", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
-        var eventHandlerList = propertyInfo.GetValue(ctrl, []) as EventHandlerList;
-        var fieldInfo        = typeof(Control).GetField("Event" + eventName, BindingFlags.NonPublic | BindingFlags.Static);
-        var eventKey         = fieldInfo.GetValue(ctrl);
-        var eventHandler     = eventHandlerList[eventKey];
-        var invocationList   = eventHandler.GetInvocationList();
+        while (true)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                // nullable type, check if the nested type is simple.
+                type = type.GetGenericArguments()[0];
+                continue;
+            }
 
-        return invocationList;
+            return type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(decimal);
+        }
+    }
+
+
+    public static Delegate[] GetEventHandlers<T>(this T ctrl, string eventName)
+        where T : class
+    {
+        var propertyInfo = ctrl.GetType().GetProperty("Events", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+        if (propertyInfo is null)
+            return [];
+
+        var fieldInfo = typeof(Control).GetField("Event" + eventName, BindingFlags.NonPublic | BindingFlags.Static);
+        if (fieldInfo is null)
+            return [];
+
+        var eventKey = fieldInfo.GetValue(ctrl);
+        if (eventKey is null)
+            return [];
+
+        if (propertyInfo.GetValue(ctrl, []) is not EventHandlerList eventHandlerList)
+            return [];
+
+        var eventHandler = eventHandlerList[eventKey];
+        return eventHandler is null ? [] : eventHandler.GetInvocationList();
     }
 
 
@@ -58,7 +84,9 @@ internal static class Utils
         //   - (post 2008 rule): A closing quote followed by another quote ==> literal quote, and parsing remains in quoting mode.
         if (argument.Length != 0 && argument.All(c => !char.IsWhiteSpace(c) && c != Quote))
             // Simple case - no quoting or changes needed.
+        {
             stringBuilder.Append(argument);
+        }
         else
         {
             stringBuilder.Append(Quote);
@@ -79,7 +107,9 @@ internal static class Utils
 
                         if (idx == argument.Length)
                             // We'll emit an end quote after this so must double the number of backslashes.
+                        {
                             stringBuilder.Append(Backslash, numBackSlash * 2);
+                        }
                         else if (argument[idx] == Quote)
                         {
                             // Backslashes will be followed by a quote. Must double the number of backslashes.
@@ -87,9 +117,10 @@ internal static class Utils
                             stringBuilder.Append(Quote);
                             idx++;
                         }
-                        else
-                            // Backslash will not be followed by a quote, so emit as normal characters.
+                        else // Backslash will not be followed by a quote, so emit as normal characters.
+                        {
                             stringBuilder.Append(Backslash, numBackSlash);
+                        }
 
                         continue;
                     }

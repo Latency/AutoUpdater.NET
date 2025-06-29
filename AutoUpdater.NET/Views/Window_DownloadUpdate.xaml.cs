@@ -2,8 +2,9 @@
 // Project:  AutoUpdater.NET
 // File:     Window_DownloadUpdate.xaml.cs
 // Author:   Latency McLaughlin
-// Date:     05/18/2025
+// Date:     06/10/2025
 // ****************************************************************************
+
 // ReSharper disable InconsistentNaming
 
 using AutoUpdaterDotNET.Controls;
@@ -24,6 +25,6 @@ public sealed partial class Window_DownloadUpdate : RestrictedWindow
 
         DataContext = vm;
 
-        ControlBox = !AutoUpdater.Instance.Mandatory || AutoUpdater.Instance.UpdateMode != Mode.ForcedDownload;
+        ControlBox = !Window_AutoUpdater.Instance.Mandatory || Window_AutoUpdater.Instance.UpdateMode != Mode.ForcedDownload;
     }
 }

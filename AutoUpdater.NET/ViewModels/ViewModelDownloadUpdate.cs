@@ -2,7 +2,7 @@
 // Project:  AutoUpdater.NET
 // File:     ViewModelDownloadUpdate.cs
 // Author:   Latency McLaughlin
-// Date:     05/18/2025
+// Date:     06/10/2025
 // ****************************************************************************
 
 using System.Windows;
@@ -19,8 +19,7 @@ public sealed class ViewModelDownloadUpdate : DependencyObject, IViewModelDownlo
     ///     Constructor
     /// </summary>
     public ViewModelDownloadUpdate()
-    {
-    }
+    { }
 
 
     public double ProgressPercentage

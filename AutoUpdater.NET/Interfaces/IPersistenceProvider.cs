@@ -1,4 +1,11 @@
-﻿namespace AutoUpdaterDotNET.Interfaces;
+﻿// ****************************************************************************
+// Project:  AutoUpdater.NET
+// File:     IPersistenceProvider.cs
+// Author:   Latency McLaughlin
+// Date:     06/10/2025
+// ****************************************************************************
+
+namespace AutoUpdaterDotNET.Interfaces;
 
 /// <summary>
 ///     Provides a mechanism for storing AutoUpdater state between sessions.

@@ -1,24 +1,28 @@
 ﻿// ****************************************************************************
-// Project:  Patch1
+// Project:  AutoUpdater.NET
 // File:     Window_Main.xaml.cs
 // Author:   Latency McLaughlin
-// Date:     04/16/2024
+// Date:     06/10/2025
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Interfaces;
-using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
+using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.Views;
 
 public sealed partial class Window_Main
 {
+    [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
+    private static partial Regex MyRegex();
+
+    private bool _isLoaded;
+
+
     /// <summary>
     ///     Constructor
     /// </summary>
@@ -26,10 +30,8 @@ public sealed partial class Window_Main
     {
         InitializeComponent();
 
-        DataContext = vm;
-
-        if (!string.IsNullOrEmpty(ConfigPath?.Text))
-            ConfigPath.Text = Directory.GetParent(Environment.CurrentDirectory)!.Parent!.Parent!.Parent!.FullName + @"\Properties\AutoUpdate.json";
+        DataContext        =  vm;
+        vm.PropertyChanged += (_, _) => UpdateValidation();
 
         if (!string.IsNullOrEmpty(LabelVersion?.Text))
         {
@@ -38,14 +40,14 @@ public sealed partial class Window_Main
             LabelVersion.Text = string.Format(format!, $"{ver.Major}.{ver.Minor}.{ver.Build}");
         }
 
-        vm.CollectionChanged += (sender, _) => imgIcon!.Source = (sender as BitmapImage)!;
-        vm.ImageUri          =  Icon?.ToString() ?? throw new InvalidOperationException();
+        if (Icon is not null)
+            vm.TmpIcon = Icon;
     }
 
 
     private void Timers_OnMouseUp(object sender, MouseButtonEventArgs e)
     {
-        var tvi = e.Source as TreeViewItem;
+        var tvi  = e.Source as TreeViewItem;
         var root = tvTimers?.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem;
 
         if (tvi == root)
@@ -55,11 +57,6 @@ public sealed partial class Window_Main
     }
 
 
-    /// <summary>
-    ///     Validation for URI textbox.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void TbProxyUri_OnPreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         if (e.Text != "\r")
@@ -68,9 +65,51 @@ public sealed partial class Window_Main
         var regex = MyRegex();
         if (!regex.IsMatch(((TextBox)e.OriginalSource!).Text))
             MessageBox.Show("Invalid Input!", "Validation Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+        UpdateValidation();
     }
 
 
-    [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
-    private static partial Regex MyRegex();
+    private void Window_Main_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not IViewModelMain dc)
+            return;
+
+        dc.OnLoaded(sender);
+
+        UpdateValidation();
+
+        _isLoaded = true;
+    }
+
+
+    private void UpdateValidation()
+    {
+        if (DataContext is not IViewModelMain dc)
+            return;
+
+        if (ButtonUpdate is not null)
+            ButtonUpdate.IsEnabled = !dc.Equals();
+    }
+
+
+    private void CheckBox_OnClick(object sender, RoutedEventArgs e) => UpdateValidation();
+
+    private void ComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_isLoaded)
+            return;
+
+        UpdateValidation();
+    }
+
+    private void Iud_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+    {
+        if (!_isLoaded)
+            return;
+
+        UpdateValidation();
+    }
+
+    private void TextBox_OnTextChanged(object sender, TextChangedEventArgs e) => UpdateValidation();
 }

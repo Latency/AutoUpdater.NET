@@ -1,8 +1,8 @@
 ﻿// ****************************************************************************
-// Project:  Patch1
+// Project:  AutoUpdater.NET
 // File:     RelayCommand.cs
 // Author:   Latency McLaughlin
-// Date:     05/03/2024
+// Date:     06/10/2025
 // ****************************************************************************
 
 using System.Windows.Input;

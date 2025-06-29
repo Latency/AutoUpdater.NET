@@ -2,8 +2,9 @@
 // Project:  AutoUpdater.NET
 // File:     Window_RemindLater.xaml.cs
 // Author:   Latency McLaughlin
-// Date:     05/17/2025
+// Date:     06/10/2025
 // ****************************************************************************
+
 // ReSharper disable InconsistentNaming
 
 using System.Windows;

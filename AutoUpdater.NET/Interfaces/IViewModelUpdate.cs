@@ -1,8 +1,8 @@
 ﻿// ****************************************************************************
-// Project:  BHI
+// Project:  AutoUpdater.NET
 // File:     IViewModelUpdate.cs
 // Author:   Latency McLaughlin
-// Date:     04/18/2025
+// Date:     06/10/2025
 // ****************************************************************************
 
 using System.Windows.Input;
@@ -15,7 +15,7 @@ public interface IViewModelUpdate
     ICommand CommandButtonRemindLater { get; set; }
     ICommand CommandButtonUpdate      { get; set; }
 
-    void ButtonSkip_Click  (object? sender);
+    void ButtonSkip_Click(object?        sender);
     void ButtonRemindLater_Click(object? sender);
-    void ButtonUpdate_Click(object? sender);
+    void ButtonUpdate_Click(object?      sender);
 }

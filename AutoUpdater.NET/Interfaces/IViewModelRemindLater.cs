@@ -1,8 +1,8 @@
 ﻿// ****************************************************************************
-// Project:  BHI
+// Project:  AutoUpdater.NET
 // File:     IViewModelRemindLater.cs
 // Author:   Latency McLaughlin
-// Date:     04/18/2025
+// Date:     06/10/2025
 // ****************************************************************************
 
 using System.Windows.Input;

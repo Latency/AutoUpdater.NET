@@ -2,9 +2,15 @@
 // Project:  AutoUpdater.NET
 // File:     AutoUpdater.cs
 // Author:   Latency McLaughlin
-// Date:     05/18/2025
+// Date:     06/10/2025
 // ****************************************************************************
+// ReSharper disable InconsistentNaming
 
+using AssemblyLoader;
+using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.Models;
+using AutoUpdaterDotNET.Persistance_Providers;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -12,26 +18,34 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using System.Windows;
 using System.Xml;
 using System.Xml.Serialization;
-using AutoUpdaterDotNET.Enums;
-using AutoUpdaterDotNET.Interfaces;
-using AutoUpdaterDotNET.Models;
-using AutoUpdaterDotNET.Persistance_Providers;
 using Timer = System.Timers.Timer;
 
-namespace AutoUpdaterDotNET;
+namespace AutoUpdaterDotNET.Views;
 
 /// <summary>
 ///     Main class that lets you auto update applications by setting some fields and executing its Start method.
 /// </summary>
-public sealed class AutoUpdater : Window
+public sealed class Window_AutoUpdater : Window
 {
+    #region Constructors
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    /// <summary>
+    ///     Singleton Default Constructor
+    /// </summary>
+    private Window_AutoUpdater() => HttpWebClient = new HttpClient(HttpClientHandlerInstance);
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Constructors
+
     #region Static Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    public static  AutoUpdater       Instance                  => SingletonAutoUpdater.Value;
+    public static  Window_AutoUpdater Instance => SingletonAutoUpdater.Value;
     private static HttpClientHandler HttpClientHandlerInstance => SingletonHttpClientHandler.Value;
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -41,7 +55,8 @@ public sealed class AutoUpdater : Window
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    private static readonly Lazy<AutoUpdater>       SingletonAutoUpdater       = new(() => new());
+    private static readonly Lazy<Window_AutoUpdater> SingletonAutoUpdater = new(() => new());
+
     private static readonly Lazy<HttpClientHandler> SingletonHttpClientHandler = new(() => new()
     {
         Credentials             = CredentialCache.DefaultCredentials,
@@ -59,21 +74,6 @@ public sealed class AutoUpdater : Window
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
-
-
-    #region Constructors
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-    /// <summary>
-    ///     Singleton Default Constructor
-    /// </summary>
-    private AutoUpdater()
-    {
-        HttpWebClient = new HttpClient(HttpClientHandlerInstance);
-    }
-
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Constructors
 
 
     #region Delegates
@@ -123,23 +123,27 @@ public sealed class AutoUpdater : Window
     /// <summary>
     ///     URL of the xml file that contains information about latest version of the application.
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     // ReSharper disable once InconsistentNaming
-    public string AppCastURL { get; set; }
+    public string? AppCastURL { get; set; }
 
     /// <summary>
     ///     Set the Application Title shown in Update dialog. Although AutoUpdater.NET will get it automatically, you can set
     ///     this property if you like to give custom Title.
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? AppTitle { get; set; }
 
     /// <summary>
     ///     Set Basic Authentication credentials to navigate to the change log URL.
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ICredentials? BasicAuthChangeLog { get; set; }
 
     /// <summary>
     ///     Set Basic Authentication credentials required to download the file.
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ICredentials? BasicAuthDownload { get; set; }
 
     /// <summary>
@@ -300,7 +304,7 @@ public sealed class AutoUpdater : Window
     public void Start(string appCast, NetworkCredential ftpCredentials, Assembly? myAssembly = null)
     {
         FtpCredentials = ftpCredentials;
-        _ = Start(appCast, myAssembly);
+        _              = Start(appCast, myAssembly);
     }
 
 
@@ -406,14 +410,12 @@ public sealed class AutoUpdater : Window
     /// </summary>
     private async Task<UpdateInfoEventArgs?> CheckUpdate(Assembly mainAssembly)
     {
-        var appCompany = AssemblyLoader.AssemblyInfo.Company(mainAssembly);
+        var appCompany = mainAssembly.Company();
 
         if (string.IsNullOrEmpty(AppTitle))
-            AppTitle = AssemblyLoader.AssemblyInfo.Title(mainAssembly) ?? mainAssembly.GetName().Name!;
+            AppTitle = mainAssembly.Title() ?? mainAssembly.GetName().Name!;
 
-        var registryLocation = !string.IsNullOrEmpty(appCompany)
-                                   ? $@"Software\{appCompany}\{AppTitle}\AutoUpdater"
-                                   : $@"Software\{AppTitle}\AutoUpdater";
+        var registryLocation = !string.IsNullOrEmpty(appCompany) ? $@"Software\{appCompany}\{AppTitle}\AutoUpdater" : $@"Software\{AppTitle}\AutoUpdater";
 
         PersistenceProvider = new Registry(registryLocation);
 
@@ -447,14 +449,14 @@ public sealed class AutoUpdater : Window
         if (string.IsNullOrEmpty(args.CurrentVersion) || string.IsNullOrEmpty(args.DownloadURL))
             throw new MissingFieldException();
 
-        args.InstalledVersion = InstalledVersion ?? mainAssembly.GetName().Version!;
+        args.InstalledVersion  = InstalledVersion ?? mainAssembly.GetName().Version!;
         args.IsUpdateAvailable = new Version(args.CurrentVersion) > args.InstalledVersion;
 
         if (!Mandatory)
         {
             if (string.IsNullOrEmpty(args.Mandatory.MinimumVersion) || args.InstalledVersion < new Version(args.Mandatory.MinimumVersion))
             {
-                Mandatory = args.Mandatory.Value;
+                Mandatory  = args.Mandatory.Value;
                 UpdateMode = args.Mandatory.UpdateMode;
             }
 
@@ -482,7 +484,7 @@ public sealed class AutoUpdater : Window
         else
         {
             ShowRemindLaterButton = false;
-            ShowSkipButton = false;
+            ShowSkipButton        = false;
         }
 
         return args;
@@ -522,9 +524,7 @@ public sealed class AutoUpdater : Window
 
                 if (ReportErrors)
                 {
-                    MessageBox.Show(Environment.GetEnvironmentVariable("UpdateUnavailableMessage")!,
-                                    Environment.GetEnvironmentVariable("UpdateUnavailableCaption")!,
-                                    MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(Environment.GetEnvironmentVariable("UpdateUnavailableMessage")!, Environment.GetEnvironmentVariable("UpdateUnavailableCaption")!, MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
@@ -541,13 +541,11 @@ public sealed class AutoUpdater : Window
     {
         if (CheckForUpdateEvent != null)
         {
-            CheckForUpdateEvent(
-                new UpdateInfoEventArgs
-                {
-                    Error = exception,
-                    Owner = this
-                }
-            );
+            CheckForUpdateEvent(new UpdateInfoEventArgs
+            {
+                Error = exception,
+                Owner = this
+            });
         }
         else
         {
@@ -555,17 +553,11 @@ public sealed class AutoUpdater : Window
             {
                 if (exception is WebException)
                 {
-                    MessageBox.Show(
-                        Environment.GetEnvironmentVariable("UpdateCheckFailedMessage")!,
-                        Environment.GetEnvironmentVariable("UpdateCheckFailedCaption")!,
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(Environment.GetEnvironmentVariable("UpdateCheckFailedMessage")!, Environment.GetEnvironmentVariable("UpdateCheckFailedCaption")!, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 else
                 {
-                    MessageBox.Show(
-                        exception.Message,
-                        exception.GetType().ToString(),
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -592,8 +584,7 @@ public sealed class AutoUpdater : Window
 
                 if (process.CloseMainWindow())
                 {
-                    process.WaitForExit((int)TimeSpan.FromSeconds(10)
-                        .TotalMilliseconds); // Give some time to process message
+                    process.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds); // Give some time to process message
                 }
 
                 if (process.HasExited)
@@ -638,7 +629,7 @@ public sealed class AutoUpdater : Window
 
         _remindLaterTimer = new Timer
         {
-            Interval = Math.Max(1, timeSpan.TotalMilliseconds),
+            Interval  = Math.Max(1, timeSpan.TotalMilliseconds),
             AutoReset = false
         };
 
@@ -688,18 +679,18 @@ public sealed class AutoUpdater : Window
 
 
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="uri"></param>
     /// <param name="basicAuthentication"></param>
     /// <returns></returns>
     internal Task<HttpResponseMessage> GetWebClient(Uri uri, AuthenticationHeaderValue basicAuthentication)
     {
-        BaseUri = uri;
+        BaseUri                                           = uri;
         HttpWebClient.DefaultRequestHeaders.Authorization = basicAuthentication;
         return HttpWebClient.GetAsync(BaseUri);
     }
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
     #endregion Methods
 }

@@ -1,17 +1,16 @@
 ﻿<controls:RestrictedWindow x:Class="AutoUpdaterDotNET.Views.Window_DownloadUpdate"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
-        xmlns:viewModels="clr-namespace:AutoUpdaterDotNET.ViewModels"
-        mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance viewModels:ViewModelDownloadUpdate }"
-        Title="Software Update"
-        Width="500"
-        Height="200"
-        Icon="{StaticResource update}"
->
+                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                           xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
+                           xmlns:viewModels="clr-namespace:AutoUpdaterDotNET.ViewModels"
+                           mc:Ignorable="d"
+                           d:DataContext="{d:DesignInstance viewModels:ViewModelDownloadUpdate }"
+                           Title="Software Update"
+                           Width="500"
+                           Height="200"
+                           Icon="{StaticResource update}">
     <controls:RestrictedWindow.Resources>
         <Style TargetType="{x:Type TextBox}">
             <Setter Property="FontSize" Value="14" />
@@ -37,16 +36,14 @@
                    RenderOptions.BitmapScalingMode="HighQuality"
                    Source="{StaticResource download}"
                    Stretch="UniformToFill"
-                   Height="130"
-            />
+                   Height="130" />
 
             <Label x:Name="LabelInformation"
                    Grid.Column="1"
                    Grid.Row="0"
                    FontWeight="Bold"
                    FontSize="14"
-                   Content="Downloading Update..."
-            />
+                   Content="Downloading Update..." />
 
             <ProgressBar
                 x:Name="ProgressBarDownload"
@@ -54,16 +51,14 @@
                 Grid.Row="1"
                 Height="50"
                 Maximum="100"
-                Value="{Binding ProgressPercentage}"
-            />
+                Value="{Binding ProgressPercentage}" />
 
             <StackPanel
                 Grid.Column="1"
                 Grid.Row="1"
                 Orientation="Horizontal"
                 VerticalAlignment="Center"
-                HorizontalAlignment="Center"
-            >
+                HorizontalAlignment="Center">
                 <TextBlock Text="{Binding ProgressPercentage}" d:Text="100" />
                 <TextBlock Text="%" />
             </StackPanel>

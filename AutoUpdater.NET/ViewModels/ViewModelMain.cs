@@ -1,125 +1,41 @@
 // ****************************************************************************
-// Project:  Patch1
+// Project:  AutoUpdater.NET
 // File:     ViewModelMain.cs
 // Author:   Latency McLaughlin
-// Date:     05/03/2024
+// Date:     06/10/2025
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
 using AutoUpdaterDotNET.Commands;
-using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.TypeResolvers;
 using AutoUpdaterDotNET.Views;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 using System.IO;
 using System.Reflection;
-using System.Windows;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using NullReferenceException = System.NullReferenceException;
+using AutoUpdaterDotNET.Enums;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public sealed class ViewModelMain : DependencyObject, IViewModelMain
+public sealed class ViewModelMain : ViewModelMainConfig, IViewModelMain
 {
-    public event NotifyCollectionChangedEventHandler?     CollectionChanged;
-    public event AutoUpdater.ApplicationExitEventHandler? ApplicationExit;
-    public event AutoUpdater.CheckForUpdateEventHandler?  CheckForUpdates;
-    public event AutoUpdater.ParseUpdateInfoHandler?      ParseUpdateInfo;
-
-
-    #region Properties
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static bool AllowCancel(object?      _) => true;
-    private static bool AllowUpdate(object?      _) => true;
-    private static bool AllowSave(object?        _) => true;
-    private static bool AllowLoad(object?        _) => true;
-    private static bool AllowImageChange(object? _) => true;
-
-    public ICommand CommandCancel      { get; set; }
-    public ICommand CommandUpdate      { get; set; }
-    public ICommand CommandSaveConfig  { get; set; }
-    public ICommand CommandLoadConfig  { get; set; }
-    public ICommand CommandImageChange { get; set; }
-
-
-    public bool                               IsManditory              { get; set; }
-    public bool                               ShowSkipButton           { get; set; }
-    public bool                               ShowRemindLaterButton    { get; set; }
-    public bool                               RunUpdateAsAdmin         { get; set; }
-    public bool                               OpenDownloadPage         { get; set; }
-    public bool                               LetUserSelectRemindLater { get; set; }
-    public RemindLaterFormat                  RemindLaterTimeSpan      { get; set; }
-    public ushort                             RemindLaterAt            { get; set; }
-    public string                             AppTitle                 { get; set; }
-    public bool                               ReportErrors             { get; set; }
-    public bool                               TimerEnabled             { get; set; }
-    public RemindLaterFormat                  TimerDurationTimeSpan    { get; set; }
-    public ushort                             Interval                 { get; set; }
-    public ObservableCollection<TreeViewItem> TimerNodeList            { get; set; } = [];
-    public ObservableCollection<TreeViewItem> ApplicationExitNodeList  { get; set; } = [];
-    public ObservableCollection<TreeViewItem> CheckForUpdatesNodeList  { get; set; } = [];
-    public ObservableCollection<TreeViewItem> ParseUpdateInfoNodeList  { get; set; } = [];
-    public bool                               ProxyEnabled             { get; set; }
-
-    [Url]
-    public string                             ProxyUri                 { get; set; }
-
-    public string      ProxyUsername                 { get; set; }
-    public string      ProxyPassword                 { get; set; }
-    public Mode        UpdateMode                    { get; set; }
-    public bool        BasicAuth                     { get; set; }
-    public bool        BasicAuthDownload             { get; set; }
-    public bool        BasicAuthChangeLog            { get; set; }
-    public string      BasicAuthUsername             { get; set; }
-    public string      BasicAuthPassword             { get; set; }
-    public bool        FTPProtocol                   { get; set; }
-    public bool        PersistSettings               { get; set; }
-    public bool        UseZipFile                    { get; set; }
-    public bool        ChangeUpdateZipExtractionPath { get; set; }
-    public string      InstallationPath              { get; set; }
-    public bool        CheckSynchronously            { get; set; }
-    public bool        InstalledVersionOverride      { get; set; }
-    public ushort      MajorVersion                  { get; set; }
-    public ushort      MinorVersion                  { get; set; }
-    public ushort      SubPatchVersion               { get; set; }
-    public ushort      BuildVersion                  { get; set; }
-    public bool        ClearAppDirectory             { get; set; }
-    public bool        ExecutablePathOverride        { get; set; }
-    public string      ExecutablePath                { get; set; }
-    public bool        BindOwnerWindow               { get; set; } = true;
-    public bool        TopMostEnabled                { get; set; } = true;
-    public bool        IconOverride                  { get; set; }
-    public ImageSource TmpIcon                       { get; private set; }
-
-    public string ImageUri
+    private ViewModelMainConfig? _configOrig;
+    private static readonly JsonSerializerOptions _jso = new()
     {
-        get;
-        set
+        WriteIndented = true,
+        TypeInfoResolver = new DependancyPropertyTypeResolver
         {
-            field = value;
-            var uri    = new Uri(field, (field.StartsWith("pack:") ? UriKind.Absolute : UriKind.Relative));
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.UriSource   = uri;
-            bitmap.EndInit();
-
-            TmpIcon = bitmap;
-
-            CollectionChanged?.Invoke(bitmap, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            Modifiers = { JsonExtensions.AlphabetizeProperties }
         }
-    }
-
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-    #endregion Properties
+    };
 
 
     /// <summary>
@@ -132,18 +48,42 @@ public sealed class ViewModelMain : DependencyObject, IViewModelMain
         CommandSaveConfig  = new RelayCommand(((IViewModelMain)this).ButtonSaveConfig_Click, AllowSave);
         CommandLoadConfig  = new RelayCommand(((IViewModelMain)this).ButtonLoadConfig_Click, AllowLoad);
         CommandImageChange = new RelayCommand(((IViewModelMain)this).Image_Click,            AllowImageChange);
+    }
 
-        var timer = new DispatcherTimer
+    public bool Equals() => _configOrig!.Equals(this);
+
+
+    #region Events
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=+
+
+    public event IViewModelMain.ApplicationExitEventHandler? ApplicationExit;
+    public event IViewModelMain.CheckForUpdateEventHandler?  CheckForUpdates;
+    public event IViewModelMain.ParseUpdateInfoHandler?      ParseUpdateInfo;
+    public event PropertyChangedEventHandler?                PropertyChanged;
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Events
+
+
+    void IViewModelMain.OnLoaded(object? sender)
+    {
+        Func<ushort, TimeSpan> ts = TimerDurationTimeSpan switch
         {
-            Interval = TimeSpan.FromSeconds(1)
+            RemindLaterFormat.Seconds => s => TimeSpan.FromSeconds(s),
+            RemindLaterFormat.Minutes => m => TimeSpan.FromMinutes(m),
+            RemindLaterFormat.Hours   => h => TimeSpan.FromHours(h),
+            RemindLaterFormat.Days    => d => TimeSpan.FromDays(d),
+            _                         => throw new ArgumentOutOfRangeException()
         };
-        timer.Tick += Timer_OnTick;
-        timer.Start();
+        UpdateTimer.Interval =  ts.Invoke(Interval);
+        UpdateTimer.Tick     += (_, _) => { };
 
-        InvocationListGenerator(timer, nameof(timer.Tick),      TimerNodeList);
-        InvocationListGenerator(this,  nameof(ApplicationExit), ApplicationExitNodeList);
-        InvocationListGenerator(this,  nameof(CheckForUpdates), CheckForUpdatesNodeList);
-        InvocationListGenerator(this,  nameof(ParseUpdateInfo), ParseUpdateInfoNodeList);
+        InvocationListGenerator(UpdateTimer, nameof(UpdateTimer.Tick), TimerNodeList);
+        InvocationListGenerator(this,        nameof(ApplicationExit),  ApplicationExitNodeList);
+        InvocationListGenerator(this,        nameof(CheckForUpdates),  CheckForUpdatesNodeList);
+        InvocationListGenerator(this,        nameof(ParseUpdateInfo),  ParseUpdateInfoNodeList);
+
+        _configOrig = new ViewModelMainConfig(this);
 
         return;
 
@@ -169,18 +109,12 @@ public sealed class ViewModelMain : DependencyObject, IViewModelMain
 
             var z = 1;
             foreach (var signature in x.GetInvocationList())
-            {
                 root.Items.Add(new TreeViewItem
                 {
                     Header = $"{z++}.  {y.GetValue(obj)!.GetType().Name} {signature.Method.Name}"
                 });
-            }
         }
     }
-
-
-    private void Timer_OnTick(object? sender, EventArgs e)
-    { }
 
 
     void IViewModelMain.ButtonCancel_Click(object? sender)
@@ -199,49 +133,91 @@ public sealed class ViewModelMain : DependencyObject, IViewModelMain
 
     void IViewModelMain.ButtonSaveConfig_Click(object? sender)
     {
-        var win = sender as Window_Main ?? throw new NullReferenceException();
+        var win       = sender as Window_Main ?? throw new NullReferenceException();
+        var directory = $@"{Directory.GetCurrentDirectory()}\Properties";
 
+        var s = new SaveFileDialog
+        {
+            DefaultDirectory = directory,
+            FileName         = "AutoUpdate.json",
+            Filter           = "All Files (*.*)|*.*|Json Files (*.json)|*.json"
+        };
+        var result = s.ShowDialog(win);
+        if (result is null or false)
+            return;
+
+        var json = JsonSerializer.Serialize(this, _jso);
+        File.WriteAllText(s.FileName, json);
     }
 
 
     void IViewModelMain.ButtonLoadConfig_Click(object? sender)
     {
         var win = sender as Window_Main ?? throw new NullReferenceException();
-
     }
 
 
     void IViewModelMain.Image_Click(object? sender)
     {
-        var img = sender as Image;
-
         var fd = new OpenFileDialog
         {
-            FileName = "Select an image",
-            Title = "Icon Image Selection",
-            DefaultExt = "All Pictures",
+            FileName         = "Select an image",
+            Title            = "Icon Image Selection",
+            DefaultExt       = "All Pictures",
             RestoreDirectory = true,
-            Filter = ImageFilter()
+            Filter           = ImageFilter()
         };
         if (fd.ShowDialog() != true)
             return;
 
-        ImageUri = Path.GetRelativePath(Environment.CurrentDirectory, fd.FileName);
+        var imageUri = Path.GetRelativePath(Environment.CurrentDirectory, fd.FileName);
+        var uri      = new Uri(imageUri, imageUri.StartsWith("pack:") ? UriKind.Absolute : UriKind.Relative);
+        var bitmap   = new BitmapImage();
+        bitmap.BeginInit();
+        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+        bitmap.UriSource   = uri;
+        bitmap.EndInit();
+
+        TmpIcon = bitmap;
+
+        OnPropertyChanged(nameof(TmpIcon));
 
         return;
 
-        static string ImageFilter() => "All Files (*.*)|*.*"                                                                                                      +
+        static string ImageFilter() => "All Files (*.*)|*.*" +
                                        "|All Pictures (*.emf;*.wmf;*.jpg;*.jpeg;*.jfif;*.jpe;*.png;*.bmp;*.dib;*.rle;*.gif;*.emz;*.wmz;*.tif;*.tiff;*.svg;*.ico)" +
-                                       "|*.emf;*.wmf;*.jpg;*.jpeg;*.jfif;*.jpe;*.png;*.bmp;*.dib;*.rle;*.gif;*.emz;*.wmz;*.tif;*.tiff;*.svg;*.ico"                +
-                                       "|Windows Enhanced Metafile (*.emf)|*.emf"                                                                                 +
-                                       "|Windows Metafile (*.wmf)|*.wmf"                                                                                          +
-                                       "|JPEG File Interchange Format (*.jpg;*.jpeg;*.jfif;*.jpe)|*.jpg;*.jpeg;*.jfif;*.jpe"                                      +
-                                       "|Portable Network Graphics (*.png)|*.png"                                                                                 +
-                                       "|Bitmap Image File (*.bmp;*.dib;*.rle)|*.bmp;*.dib;*.rle"                                                                 +
-                                       "|Compressed Windows Enhanced Metafile (*.emz)|*.emz"                                                                      +
-                                       "|Compressed Windows MetaFile (*.wmz)|*.wmz"                                                                               +
-                                       "|Tag Image File Format (*.tif;*.tiff)|*.tif;*.tiff"                                                                       +
-                                       "|Scalable Vector Graphics (*.svg)|*.svg"                                                                                  +
+                                       "|*.emf;*.wmf;*.jpg;*.jpeg;*.jfif;*.jpe;*.png;*.bmp;*.dib;*.rle;*.gif;*.emz;*.wmz;*.tif;*.tiff;*.svg;*.ico" +
+                                       "|Windows Enhanced Metafile (*.emf)|*.emf" +
+                                       "|Windows Metafile (*.wmf)|*.wmf" +
+                                       "|JPEG File Interchange Format (*.jpg;*.jpeg;*.jfif;*.jpe)|*.jpg;*.jpeg;*.jfif;*.jpe" +
+                                       "|Portable Network Graphics (*.png)|*.png" +
+                                       "|Bitmap Image File (*.bmp;*.dib;*.rle)|*.bmp;*.dib;*.rle" +
+                                       "|Compressed Windows Enhanced Metafile (*.emz)|*.emz" +
+                                       "|Compressed Windows MetaFile (*.wmz)|*.wmz" +
+                                       "|Tag Image File Format (*.tif;*.tiff)|*.tif;*.tiff" +
+                                       "|Scalable Vector Graphics (*.svg)|*.svg" +
                                        "|Icon (*.ico)|*.ico";
     }
+
+
+    #region Properties
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    private static bool AllowCancel(object?      _) => true;
+    private static bool AllowUpdate(object?      _) => true;
+    private static bool AllowSave(object?        _) => true;
+    private static bool AllowLoad(object?        _) => true;
+    private static bool AllowImageChange(object? _) => true;
+
+    public ICommand CommandCancel      { get; set; }
+    public ICommand CommandUpdate      { get; set; }
+    public ICommand CommandSaveConfig  { get; set; }
+    public ICommand CommandLoadConfig  { get; set; }
+    public ICommand CommandImageChange { get; set; }
+
+    public DispatcherTimer UpdateTimer { get; } = new();
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Properties
+
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

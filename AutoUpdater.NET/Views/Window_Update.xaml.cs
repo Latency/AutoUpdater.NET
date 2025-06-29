@@ -2,12 +2,13 @@
 // Project:  AutoUpdater.NET
 // File:     Window_Update.xaml.cs
 // Author:   Latency McLaughlin
-// Date:     05/17/2025
+// Date:     06/10/2025
 // ****************************************************************************
+
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Controls;
+using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.Views;
 

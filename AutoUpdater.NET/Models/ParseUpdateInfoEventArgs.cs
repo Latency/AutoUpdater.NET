@@ -1,9 +1,18 @@
-﻿namespace AutoUpdaterDotNET.Models;
+﻿// ****************************************************************************
+// Project:  AutoUpdater.NET
+// File:     ParseUpdateInfoEventArgs.cs
+// Author:   Latency McLaughlin
+// Date:     06/10/2025
+// ****************************************************************************
+
+using AutoUpdaterDotNET.Views;
+
+namespace AutoUpdaterDotNET.Models;
 
 /// <summary>
 ///     An object of this class contains the AppCast file received from server.
 /// </summary>
-public class ParseUpdateInfoEventArgs(AutoUpdater owner, string remoteData) : EventArgs
+public class ParseUpdateInfoEventArgs(Window_AutoUpdater owner, string remoteData) : EventArgs
 {
     /// <summary>
     ///     Remote data received from the AppCast file.
@@ -14,5 +23,7 @@ public class ParseUpdateInfoEventArgs(AutoUpdater owner, string remoteData) : Ev
     ///     Set this object with values received from the AppCast file.
     /// </summary>
     public UpdateInfoEventArgs UpdateInfo { get; set; } = new()
-        { Owner = owner };
+    {
+        Owner = owner
+    };
 }

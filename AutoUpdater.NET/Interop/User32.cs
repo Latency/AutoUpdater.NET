@@ -2,7 +2,7 @@
 // Project:  AutoUpdater.NET
 // File:     User32.cs
 // Author:   Latency McLaughlin
-// Date:     05/18/2025
+// Date:     06/10/2025
 // ****************************************************************************
 
 using System.Runtime.InteropServices;

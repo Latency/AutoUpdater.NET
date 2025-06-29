@@ -1,8 +1,8 @@
 ﻿// ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     RegistryPersistenceProvider.cs
+// File:     Registry.cs
 // Author:   Latency McLaughlin
-// Date:     05/16/2025
+// Date:     06/10/2025
 // ****************************************************************************
 
 using System.Globalization;

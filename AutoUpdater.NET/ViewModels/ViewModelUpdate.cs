@@ -1,9 +1,10 @@
 // ****************************************************************************
-// Project:  Patch1
+// Project:  AutoUpdater.NET
 // File:     ViewModelUpdate.cs
 // Author:   Latency McLaughlin
-// Date:     05/03/2024
+// Date:     06/10/2025
 // ****************************************************************************
+
 // ReSharper disable InconsistentNaming
 
 using System.Windows;
@@ -16,27 +17,14 @@ namespace AutoUpdaterDotNET.ViewModels;
 
 public sealed class ViewModelUpdate : DependencyObject, IViewModelUpdate
 {
-    #region Properties
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static bool AllowSkip       (object? _) => true;
-    private static bool AllowRemindLater(object? _) => true;
-    private static bool AllowUpdate     (object? _) => true;
-
-    public ICommand CommandButtonSkip   { get; set; }
-    public ICommand CommandButtonRemindLater { get; set; }
-    public ICommand CommandButtonUpdate { get; set; }
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Properties
-
-
     /// <summary>
     ///     Constructor
     /// </summary>
     public ViewModelUpdate()
     {
-        CommandButtonSkip        = new RelayCommand(((IViewModelUpdate)this).ButtonSkip_Click,   AllowSkip);
+        CommandButtonSkip        = new RelayCommand(((IViewModelUpdate)this).ButtonSkip_Click,        AllowSkip);
         CommandButtonRemindLater = new RelayCommand(((IViewModelUpdate)this).ButtonRemindLater_Click, AllowRemindLater);
-        CommandButtonUpdate      = new RelayCommand(((IViewModelUpdate)this).ButtonUpdate_Click, AllowUpdate);
+        CommandButtonUpdate      = new RelayCommand(((IViewModelUpdate)this).ButtonUpdate_Click,      AllowUpdate);
     }
 
 
@@ -57,6 +45,21 @@ public sealed class ViewModelUpdate : DependencyObject, IViewModelUpdate
     void IViewModelUpdate.ButtonUpdate_Click(object? sender)
     {
         var win = sender as Window_Update;
-        win.ToggleControlBox(null);
+        win.ToggleControlBox();
     }
+
+    #region Properties
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    private static bool AllowSkip(object?        _) => true;
+    private static bool AllowRemindLater(object? _) => true;
+    private static bool AllowUpdate(object?      _) => true;
+
+    public ICommand CommandButtonSkip        { get; set; }
+    public ICommand CommandButtonRemindLater { get; set; }
+
+    public ICommand CommandButtonUpdate { get; set; }
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    #endregion Properties
 }

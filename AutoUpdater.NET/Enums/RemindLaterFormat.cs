@@ -2,7 +2,7 @@
 // Project:  AutoUpdater.NET
 // File:     RemindLaterFormat.cs
 // Author:   Latency McLaughlin
-// Date:     05/16/2025
+// Date:     06/10/2025
 // ****************************************************************************
 
 namespace AutoUpdaterDotNET.Enums;
@@ -12,6 +12,11 @@ namespace AutoUpdaterDotNET.Enums;
 /// </summary>
 public enum RemindLaterFormat
 {
+    /// <summary>
+    ///     Represents the time span in seconds.
+    /// </summary>
+    Seconds,
+
     /// <summary>
     ///     Represents the time span in minutes.
     /// </summary>

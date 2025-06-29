@@ -1,43 +1,28 @@
 // ****************************************************************************
-// Project:  Patch1
+// Project:  AutoUpdater.NET
 // File:     ViewModelRemindLater.cs
 // Author:   Latency McLaughlin
-// Date:     05/03/2024
+// Date:     06/10/2025
 // ****************************************************************************
+
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Commands;
-using AutoUpdaterDotNET.Interfaces;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using AutoUpdaterDotNET.Commands;
 using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Views;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
 public sealed class ViewModelRemindLater : DependencyObject, IViewModelRemindLater
 {
-    #region Properties
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static bool AllowReminder(object? _) => true;
-
-    public ICommand CommandButtonOk      { get; set; }
-
-
-    public RemindLaterFormat RemindLaterFormat { get; private set; }
-    public int               RemindLaterAt     { get; private set; }
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Properties
-
-
     /// <summary>
     ///     Constructor
     /// </summary>
-    public ViewModelRemindLater()
-    {
-        CommandButtonOk = new RelayCommand(((IViewModelRemindLater)this).ButtonOk_Click, AllowReminder);
-    }
+    public ViewModelRemindLater() => CommandButtonOk = new RelayCommand(((IViewModelRemindLater)this).ButtonOk_Click, AllowReminder);
 
 
     // ReSharper disable once AsyncVoidMethod
@@ -89,4 +74,19 @@ public sealed class ViewModelRemindLater : DependencyObject, IViewModelRemindLat
 
         vm.Hide();
     }
+
+    #region Properties
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    private static bool AllowReminder(object? _) => true;
+
+    public ICommand CommandButtonOk { get; set; }
+
+
+    public RemindLaterFormat RemindLaterFormat { get; private set; }
+
+    public int RemindLaterAt { get; private set; }
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    #endregion Properties
 }
