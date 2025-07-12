@@ -6,13 +6,15 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using AssemblyLoader;
 using AutoUpdaterDotNET.Commands;
+using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
-using AutoUpdaterDotNET.TypeResolvers;
 using AutoUpdaterDotNET.Views;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -21,7 +23,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using AutoUpdaterDotNET.Enums;
+using Exception = System.Exception;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -31,10 +33,10 @@ public sealed class ViewModelMain : ViewModelMainConfig, IViewModelMain
     private static readonly JsonSerializerOptions _jso = new()
     {
         WriteIndented = true,
-        TypeInfoResolver = new DependancyPropertyTypeResolver
-        {
-            Modifiers = { JsonExtensions.AlphabetizeProperties }
-        }
+        //TypeInfoResolver = new DependancyPropertyTypeResolver
+        //{
+        //    Modifiers = { JsonExtensions.AlphabetizeProperties }
+        //}
     };
 
 
@@ -84,6 +86,17 @@ public sealed class ViewModelMain : ViewModelMainConfig, IViewModelMain
         InvocationListGenerator(this,        nameof(ParseUpdateInfo),  ParseUpdateInfoNodeList);
 
         _configOrig = new ViewModelMainConfig(this);
+
+        if (sender is Window_Main { cbInstalledVersionOverride: not null } vm)
+            vm.cbInstalledVersionOverride.IsChecked = false;
+
+        var defaultVersion = GetType().Assembly.Version()!;
+        MajorVersion    = (ushort) defaultVersion.Major;
+        MinorVersion    = (ushort) defaultVersion.Minor;
+        BuildVersion    = (ushort) defaultVersion.Build;
+        RevisionVersion = (ushort) defaultVersion.Revision;
+
+        // Override version from configuration loading here...
 
         return;
 
@@ -146,8 +159,15 @@ public sealed class ViewModelMain : ViewModelMainConfig, IViewModelMain
         if (result is null or false)
             return;
 
-        var json = JsonSerializer.Serialize(this, _jso);
-        File.WriteAllText(s.FileName, json);
+        try
+        {
+            var json = JsonSerializer.Serialize<ViewModelMainConfig>(this, _jso);
+            File.WriteAllTextAsync(s.FileName, json);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine(ex.Message);
+        }
     }
 
 

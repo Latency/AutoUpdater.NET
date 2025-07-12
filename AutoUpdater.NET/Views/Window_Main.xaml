@@ -1,4 +1,4 @@
-﻿<Window x:Class="AutoUpdaterDotNET.Views.Window_Main"
+<Window x:Class="AutoUpdaterDotNET.Views.Window_Main"
         Name="WindowMain"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,8 +17,9 @@
         ResizeMode="CanResizeWithGrip"
         MinWidth="500"
         MinHeight="550"
-        Icon="{StaticResource project}"
+        Icon="{Binding TmpIcon}"
         Loaded="Window_Main_OnLoaded"
+        Closing="Window_Main_OnClosing"
 >
     <Window.Resources>
         <ObjectDataProvider x:Key="RemindLaterFormatEnumValues"

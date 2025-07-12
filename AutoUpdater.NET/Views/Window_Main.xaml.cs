@@ -6,12 +6,14 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using AutoUpdaterDotNET.Interfaces;
+using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using AutoUpdaterDotNET.Interfaces;
+using System.Windows.Media.Imaging;
 
 namespace AutoUpdaterDotNET.Views;
 
@@ -42,6 +44,8 @@ public sealed partial class Window_Main
 
         if (Icon is not null)
             vm.TmpIcon = Icon;
+        else
+            vm.TmpIcon = Application.Current!.Resources["project"] as BitmapImage;
     }
 
 
@@ -111,5 +115,12 @@ public sealed partial class Window_Main
         UpdateValidation();
     }
 
-    private void TextBox_OnTextChanged(object sender, TextChangedEventArgs e) => UpdateValidation();
+    private void TextBox_OnTextChanged(object  sender, TextChangedEventArgs e) => UpdateValidation();
+
+
+    private void Window_Main_OnClosing(object? sender, CancelEventArgs e)
+    {
+        Hide();
+        e.Cancel = true;
+    }
 }

@@ -60,7 +60,7 @@ public class UpdateInfoEventArgs : EventArgs
     /// <summary>
     ///     Returns version of the application currently installed on the user's PC.
     /// </summary>
-    public Version? InstalledVersion { get; set; }
+    public InstalledVersion? InstalledVersion { get; set; }
 
     /// <summary>
     ///     Shows if the update is required or optional.

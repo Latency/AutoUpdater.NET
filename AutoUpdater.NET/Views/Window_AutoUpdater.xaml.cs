@@ -449,12 +449,16 @@ public sealed class Window_AutoUpdater : Window
         if (string.IsNullOrEmpty(args.CurrentVersion) || string.IsNullOrEmpty(args.DownloadURL))
             throw new MissingFieldException();
 
-        args.InstalledVersion  = InstalledVersion ?? mainAssembly.GetName().Version!;
-        args.IsUpdateAvailable = new Version(args.CurrentVersion) > args.InstalledVersion;
+        var ver = new InstalledVersion
+        {
+            Version = InstalledVersion ?? mainAssembly.GetName().Version!
+        };
+        args.InstalledVersion  = ver;
+        args.IsUpdateAvailable = new Version(args.CurrentVersion) > args.InstalledVersion.Version;
 
         if (!Mandatory)
         {
-            if (string.IsNullOrEmpty(args.Mandatory.MinimumVersion) || args.InstalledVersion < new Version(args.Mandatory.MinimumVersion))
+            if (string.IsNullOrEmpty(args.Mandatory.MinimumVersion) || args.InstalledVersion.Version < new Version(args.Mandatory.MinimumVersion))
             {
                 Mandatory  = args.Mandatory.Value;
                 UpdateMode = args.Mandatory.UpdateMode;
