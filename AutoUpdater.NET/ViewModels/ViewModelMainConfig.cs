@@ -4,438 +4,331 @@
 // Author:   Latency McLaughlin
 // Date:     06/18/2025
 // ****************************************************************************
+// ReSharper disable InconsistentNaming
+#pragma warning disable MVVMTK0042
 
 using AssemblyLoader;
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Models;
-using AutoUpdaterDotNET.Views;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using AutoUpdaterDotNET.Interfaces;
+
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-#pragma warning disable CA1067 // Override Object.Equals(object) when implementing IEquatable<T>
-public class ViewModelMainConfig : DependencyObject, IEquatable<ViewModelMainConfig>
-#pragma warning restore CA1067 // Override Object.Equals(object) when implementing IEquatable<T>
+public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfig
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private readonly Version _defaultInstalledVersion;
+    protected Version _defaultInstalledVersion;
+
+    private ProxyEnabled? _defaultProxy;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
 
-    #region Dependancy Properties
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    public static readonly DependencyProperty ProxyUriProperty                      = DependencyProperty.Register(nameof(ProxyUri),                      typeof(string),                             typeof(Window_Main));
-    public static readonly DependencyProperty AppTitleProperty                      = DependencyProperty.Register(nameof(AppTitle),                      typeof(string),                             typeof(Window_Main));
-    public static readonly DependencyProperty BasicAuthPasswordProperty             = DependencyProperty.Register(nameof(BasicAuthPassword),             typeof(string),                             typeof(Window_Main));
-    public static readonly DependencyProperty BasicAuthUsernameProperty             = DependencyProperty.Register(nameof(BasicAuthUsername),             typeof(string),                             typeof(Window_Main));
-    public static readonly DependencyProperty ExecutablePathProperty                = DependencyProperty.Register(nameof(ExecutablePath),                typeof(string),                             typeof(Window_Main));
-    public static readonly DependencyProperty ImageUriProperty                      = DependencyProperty.Register(nameof(ImageUri),                      typeof(string),                             typeof(Window_Main));
-    public static readonly DependencyProperty InstallationPathProperty              = DependencyProperty.Register(nameof(InstallationPath),              typeof(string),                             typeof(Window_Main));
-    public static readonly DependencyProperty ProxyPasswordProperty                 = DependencyProperty.Register(nameof(ProxyPassword),                 typeof(string),                             typeof(Window_Main));
-    public static readonly DependencyProperty ProxyUsernameProperty                 = DependencyProperty.Register(nameof(ProxyUsername),                 typeof(string),                             typeof(Window_Main));
-    public static readonly DependencyProperty IsManditoryProperty                   = DependencyProperty.Register(nameof(IsManditory),                   typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty ShowSkipButtonProperty                = DependencyProperty.Register(nameof(ShowSkipButton),                typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty ShowRemindLaterButtonProperty         = DependencyProperty.Register(nameof(ShowRemindLaterButton),         typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty RunUpdateAsAdminProperty              = DependencyProperty.Register(nameof(RunUpdateAsAdmin),              typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty OpenDownloadPageProperty              = DependencyProperty.Register(nameof(OpenDownloadPage),              typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty LetUserSelectRemindLaterProperty      = DependencyProperty.Register(nameof(LetUserSelectRemindLater),      typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty BasicAuthProperty                     = DependencyProperty.Register(nameof(BasicAuth),                     typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty BasicAuthChangeLogProperty            = DependencyProperty.Register(nameof(BasicAuthChangeLog),            typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty BasicAuthDownloadProperty             = DependencyProperty.Register(nameof(BasicAuthDownload),             typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty DoNotBindOwnerWindowProperty          = DependencyProperty.Register(nameof(DoNotBindOwnerWindow),          typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty ChangeUpdateZipExtractionPathProperty = DependencyProperty.Register(nameof(ChangeUpdateZipExtractionPath), typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty CheckSynchronouslyProperty            = DependencyProperty.Register(nameof(CheckSynchronously),            typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty ClearAppDirectoryProperty             = DependencyProperty.Register(nameof(ClearAppDirectory),             typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty ExecutablePathOverrideProperty        = DependencyProperty.Register(nameof(ExecutablePathOverride),        typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty FtpProtocolProperty                   = DependencyProperty.Register(nameof(FtpProtocol),                   typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty IconOverrideProperty                  = DependencyProperty.Register(nameof(IconOverride),                  typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty InstalledVersionOverrideProperty      = DependencyProperty.Register(nameof(InstalledVersionOverride),      typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty PersistSettingsProperty               = DependencyProperty.Register(nameof(PersistSettings),               typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty ProxyEnabledProperty                  = DependencyProperty.Register(nameof(ProxyEnabled),                  typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty ReportErrorsProperty                  = DependencyProperty.Register(nameof(ReportErrors),                  typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty TimerEnabledProperty                  = DependencyProperty.Register(nameof(TimerEnabled),                  typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty TopMostDisabledProperty               = DependencyProperty.Register(nameof(TopMostDisabled),               typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty UseZipFileProperty                    = DependencyProperty.Register(nameof(UseZipFile),                    typeof(bool),                               typeof(Window_Main));
-    public static readonly DependencyProperty UpdateModeProperty                    = DependencyProperty.Register(nameof(UpdateMode),                    typeof(Mode),                               typeof(Window_Main));
-    public static readonly DependencyProperty RemindLaterTimeSpanProperty           = DependencyProperty.Register(nameof(RemindLaterTimeSpan),           typeof(RemindLaterFormat),                  typeof(Window_Main));
-    public static readonly DependencyProperty TimerDurationTimeSpanProperty         = DependencyProperty.Register(nameof(TimerDurationTimeSpan),         typeof(RemindLaterFormat),                  typeof(Window_Main));
-    public static readonly DependencyProperty IntervalProperty                      = DependencyProperty.Register(nameof(Interval),                      typeof(ushort),                             typeof(Window_Main));
-    public static readonly DependencyProperty MajorVersionProperty                  = DependencyProperty.Register(nameof(MajorVersion),                  typeof(ushort),                             typeof(Window_Main), new PropertyMetadata((ushort) typeof(ViewModelMainConfig).Assembly.Version()!.Major));
-    public static readonly DependencyProperty MinorVersionProperty                  = DependencyProperty.Register(nameof(MinorVersion),                  typeof(ushort),                             typeof(Window_Main), new PropertyMetadata((ushort) typeof(ViewModelMainConfig).Assembly.Version()!.Minor));
-    public static readonly DependencyProperty RevisionVersionProperty               = DependencyProperty.Register(nameof(RevisionVersion),               typeof(ushort),                             typeof(Window_Main), new PropertyMetadata((ushort) typeof(ViewModelMainConfig).Assembly.Version()!.Build));
-    public static readonly DependencyProperty BuildVersionProperty                  = DependencyProperty.Register(nameof(BuildVersion),                  typeof(ushort),                             typeof(Window_Main), new PropertyMetadata((ushort) typeof(ViewModelMainConfig).Assembly.Version()!.Revision));
-    public static readonly DependencyProperty RemindLaterAtProperty                 = DependencyProperty.Register(nameof(RemindLaterAt),                 typeof(ushort),                             typeof(Window_Main));
-    public static readonly DependencyProperty TimerNodeListProperty                 = DependencyProperty.Register(nameof(TimerNodeList),                 typeof(ObservableCollection<TreeViewItem>), typeof(Window_Main), new PropertyMetadata((ObservableCollection<TreeViewItem>)[]));
-    public static readonly DependencyProperty ApplicationExitNodeListProperty       = DependencyProperty.Register(nameof(ApplicationExitNodeList),       typeof(ObservableCollection<TreeViewItem>), typeof(Window_Main), new PropertyMetadata((ObservableCollection<TreeViewItem>)[]));
-    public static readonly DependencyProperty CheckForUpdatesNodeListProperty       = DependencyProperty.Register(nameof(CheckForUpdatesNodeList),       typeof(ObservableCollection<TreeViewItem>), typeof(Window_Main), new PropertyMetadata((ObservableCollection<TreeViewItem>)[]));
-    public static readonly DependencyProperty ParseUpdateInfoNodeListProperty       = DependencyProperty.Register(nameof(ParseUpdateInfoNodeList),       typeof(ObservableCollection<TreeViewItem>), typeof(Window_Main), new PropertyMetadata((ObservableCollection<TreeViewItem>)[]));
-    public static readonly DependencyProperty IconProperty                          = DependencyProperty.Register(nameof(TmpIcon),                       typeof(ImageSource),                        typeof(Window_Main));
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Dependancy Properties
-
-
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    [Url, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string ProxyUri
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [ObservableProperty]
+    public string? _appTitle;
+    partial void OnAppTitleChanged(string? value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [ObservableProperty]
+    public string? _basicAuthPassword;
+    partial void OnBasicAuthPasswordChanged(string? value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [ObservableProperty]
+    public string? _basicAuthUserName;
+    partial void OnBasicAuthUserNameChanged(string? value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [ObservableProperty]
+    public string? _executablePath;
+    partial void OnExecutablePathChanged(string? value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [ObservableProperty]
+    public string? _imageUri;
+    partial void OnImageUriChanged(string? value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [ObservableProperty]
+    public string? _installationPath;
+    partial void OnInstallationPathChanged(string? value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _isManditory;
+    partial void OnIsManditoryChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _showSkipButton;
+    partial void OnShowSkipButtonChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _showRemindLaterButton;
+    partial void OnShowRemindLaterButtonChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _runUpdateAsAdmin;
+    partial void OnRunUpdateAsAdminChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _openDownloadPage;
+    partial void OnOpenDownloadPageChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _basicAuth;
+    partial void OnBasicAuthChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _basicAuthChangeLog;
+    partial void OnBasicAuthChangeLogChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _basicAuthDownload;
+    partial void OnBasicAuthDownloadChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _doNotBindOwnerWindow;
+    partial void OnDoNotBindOwnerWindowChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _changeUpdateZipExtractionPath;
+    partial void OnChangeUpdateZipExtractionPathChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _checkSynchronously;
+    partial void OnCheckSynchronouslyChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _clearAppDirectory;
+    partial void OnClearAppDirectoryChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _executablePathOverride;
+    partial void OnExecutablePathOverrideChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _ftpProtocol;
+    partial void OnFtpProtocolChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _iconOverride;
+    partial void OnIconOverrideChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _persistSettings;
+    partial void OnPersistSettingsChanged(bool value) => OnUpdateValidation();
+
+    #region ProxyEnabled
+
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public bool _proxyEnabled;
+    partial void OnProxyEnabledChanged(bool value) => Proxy = value ? _defaultProxy ??= new ProxyEnabled() : null;
+
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public string? _proxyUri;
+    partial void OnProxyUriChanged(string? value)
     {
-        get => (string)GetValue(ProxyUriProperty)!;
-        set => SetValue(ProxyUriProperty, value);
+        if (Proxy is not null)
+            Proxy.Uri = value;
+        OnUpdateValidation();
+    }
+
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public string? _proxyUserName;
+    partial void OnProxyUserNameChanged(string? value)
+    {
+        if (Proxy is not null)
+            Proxy.UserName = value;
+        OnUpdateValidation();
+    }
+
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public string? _proxyPassword;
+    partial void OnProxyPasswordChanged(string? value)
+    {
+        if (Proxy is not null)
+            Proxy.Password = value;
+        OnUpdateValidation();
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string AppTitle
+    public ProxyEnabled? Proxy { get; set; }
+
+    #endregion ProxyEnabled
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _reportErrors;
+    partial void OnReportErrorsChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _timerEnabled;
+    partial void OnTimerEnabledChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _topMostDisabled;
+    partial void OnTopMostDisabledChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _useZipFile;
+    partial void OnUseZipFileChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public Mode _updateMode;
+    partial void OnUpdateModeChanged(Mode value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public RemindLaterFormat _timerDurationTimeSpan;
+    partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public ushort _interval = 1;
+    partial void OnIntervalChanged(ushort value) => OnUpdateValidation();
+
+    #region UserSelectRemindLater
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public bool _userSelectRemindLater;
+    partial void OnUserSelectRemindLaterChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [ObservableProperty]
+    public ushort _remindLaterAt = 1;
+    partial void OnRemindLaterAtChanged(ushort value) => OnUpdateValidation();
+
+    [ObservableProperty]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public RemindLaterFormat _remindLaterTimeSpan;
+    partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat value) => OnUpdateValidation();
+
+    #endregion UserSelectRemindLater
+
+    #region Version
+
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public bool _installedVersionOverride;
+    partial void OnInstalledVersionOverrideChanging(bool value) => InstalledVersion = value ? new InstalledVersion { Version = _defaultInstalledVersion } : null;
+
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public ushort _majorVersion = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Major;
+    partial void OnMajorVersionChanged(ushort value)
     {
-        get => (string)GetValue(AppTitleProperty)!;
-        set => SetValue(AppTitleProperty, value);
+        var tmpVer = new Version(value, MinorVersion, BuildVersion, RevisionVersion);
+        SetInstalledVersion(tmpVer);
+    }
+
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public ushort _minorVersion = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Minor;
+    partial void OnMinorVersionChanged(ushort value)
+    {
+        var tmpVer = new Version(MajorVersion, value, BuildVersion, RevisionVersion);
+        SetInstalledVersion(tmpVer);
+    }
+
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public ushort _buildVersion = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Build;
+    partial void OnBuildVersionChanged(ushort value)
+    {
+        var tmpVer = new Version(MajorVersion, MinorVersion, value, RevisionVersion);
+        SetInstalledVersion(tmpVer);
+    }
+
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public ushort _revisionVersion = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Revision;
+    partial void OnRevisionVersionChanged(ushort value)
+    {
+        var tmpVer = new Version(MajorVersion, MinorVersion, BuildVersion, value);
+        SetInstalledVersion(tmpVer);
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string BasicAuthPassword
-    {
-        get => (string)GetValue(BasicAuthPasswordProperty)!;
-        set => SetValue(BasicAuthPasswordProperty, value);
-    }
+    public InstalledVersion? InstalledVersion { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string BasicAuthUsername
-    {
-        get => (string)GetValue(BasicAuthUsernameProperty)!;
-        set => SetValue(BasicAuthUsernameProperty, value);
-    }
+    #endregion Version
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string ExecutablePath
-    {
-        get => (string)GetValue(ExecutablePathProperty)!;
-        set => SetValue(ExecutablePathProperty, value);
-    }
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public ImageSource? _tmpIcon = null;
+    partial void OnTmpIconChanged(ImageSource? value) => OnUpdateValidation();
 
-    [Url, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string ImageUri
-    {
-        get => (string)GetValue(ImageUriProperty)!;
-        private set => SetValue(ImageUriProperty, value);
-    }
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public ObservableCollection<TreeViewItem> _timerNodeList = [];
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string InstallationPath
-    {
-        get => (string)GetValue(InstallationPathProperty)!;
-        set => SetValue(InstallationPathProperty, value);
-    }
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public ObservableCollection<TreeViewItem> _applicationExitNodeList = [];
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string ProxyPassword
-    {
-        get => (string)GetValue(ProxyPasswordProperty)!;
-        set => SetValue(ProxyPasswordProperty, value);
-    }
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public ObservableCollection<TreeViewItem> _checkForUpdatesNodeList = [];
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string ProxyUsername
-    {
-        get => (string)GetValue(ProxyUsernameProperty)!;
-        set => SetValue(ProxyUsernameProperty, value);
-    }
+    [ObservableProperty]
+    [property: JsonIgnore]
+    public ObservableCollection<TreeViewItem> _parseUpdateInfoNodeList = [];
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool IsManditory
-    {
-        get => (bool)GetValue(IsManditoryProperty);
-        set => SetValue(IsManditoryProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ShowSkipButton
-    {
-        get => (bool)GetValue(ShowSkipButtonProperty);
-        set => SetValue(ShowSkipButtonProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ShowRemindLaterButton
-    {
-        get => (bool)GetValue(ShowRemindLaterButtonProperty);
-        set => SetValue(ShowRemindLaterButtonProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool RunUpdateAsAdmin
-    {
-        get => (bool)GetValue(RunUpdateAsAdminProperty);
-        set => SetValue(RunUpdateAsAdminProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool OpenDownloadPage
-    {
-        get => (bool)GetValue(OpenDownloadPageProperty);
-        set => SetValue(OpenDownloadPageProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool LetUserSelectRemindLater
-    {
-        get => (bool)GetValue(LetUserSelectRemindLaterProperty);
-        set => SetValue(LetUserSelectRemindLaterProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool BasicAuth
-    {
-        get => (bool)GetValue(BasicAuthProperty);
-        set => SetValue(BasicAuthProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool BasicAuthChangeLog
-    {
-        get => (bool)GetValue(BasicAuthChangeLogProperty);
-        set => SetValue(BasicAuthChangeLogProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool BasicAuthDownload
-    {
-        get => (bool)GetValue(BasicAuthDownloadProperty);
-        set => SetValue(BasicAuthDownloadProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool DoNotBindOwnerWindow
-    {
-        get => (bool)GetValue(DoNotBindOwnerWindowProperty);
-        set => SetValue(DoNotBindOwnerWindowProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ChangeUpdateZipExtractionPath
-    {
-        get => (bool)GetValue(ChangeUpdateZipExtractionPathProperty);
-        set => SetValue(ChangeUpdateZipExtractionPathProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool CheckSynchronously
-    {
-        get => (bool)GetValue(CheckSynchronouslyProperty);
-        set => SetValue(CheckSynchronouslyProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ClearAppDirectory
-    {
-        get => (bool)GetValue(ClearAppDirectoryProperty);
-        set => SetValue(ClearAppDirectoryProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ExecutablePathOverride
-    {
-        get => (bool)GetValue(ExecutablePathOverrideProperty);
-        set => SetValue(ExecutablePathOverrideProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool FtpProtocol
-    {
-        get => (bool)GetValue(FtpProtocolProperty);
-        set => SetValue(FtpProtocolProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool IconOverride
-    {
-        get => (bool)GetValue(IconOverrideProperty);
-        set => SetValue(IconOverrideProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool PersistSettings
-    {
-        get => (bool)GetValue(PersistSettingsProperty);
-        set => SetValue(PersistSettingsProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ProxyEnabled
-    {
-        get => (bool)GetValue(ProxyEnabledProperty);
-        set => SetValue(ProxyEnabledProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ReportErrors
-    {
-        get => (bool)GetValue(ReportErrorsProperty);
-        set => SetValue(ReportErrorsProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool TimerEnabled
-    {
-        get => (bool)GetValue(TimerEnabledProperty);
-        set => SetValue(TimerEnabledProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool TopMostDisabled
-    {
-        get => (bool)GetValue(TopMostDisabledProperty);
-        set => SetValue(TopMostDisabledProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool UseZipFile
-    {
-        get => (bool)GetValue(UseZipFileProperty);
-        set => SetValue(UseZipFileProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public Mode UpdateMode
-    {
-        get => (Mode)GetValue(UpdateModeProperty);
-        set => SetValue(UpdateModeProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public RemindLaterFormat RemindLaterTimeSpan
-    {
-        get => (RemindLaterFormat)GetValue(RemindLaterTimeSpanProperty);
-        set => SetValue(RemindLaterTimeSpanProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public RemindLaterFormat TimerDurationTimeSpan
-    {
-        get => (RemindLaterFormat)GetValue(TimerDurationTimeSpanProperty);
-        set => SetValue(TimerDurationTimeSpanProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public ushort Interval
-    {
-        get => (ushort)GetValue(IntervalProperty);
-        set => SetValue(IntervalProperty, value);
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public ushort RemindLaterAt
-    {
-        get => (ushort)GetValue(RemindLaterAtProperty);
-        set => SetValue(RemindLaterAtProperty, value);
-    }
-
-    [JsonIgnore]
-    public bool InstalledVersionOverride
-    {
-        get => (bool)GetValue(InstalledVersionOverrideProperty);
-        set
-        {
-            InstalledVersion = value ? new InstalledVersion { Version = _defaultInstalledVersion } : null;
-            SetValue(InstalledVersionOverrideProperty, value);
-        }
-    }
-
-    [JsonIgnore]
-    public ushort MajorVersion
-    {
-        get => (ushort)GetValue(MajorVersionProperty);
-        set => SetValue(MajorVersionProperty, value);
-    }
-
-    [JsonIgnore]
-    public ushort MinorVersion
-    {
-        get => (ushort)GetValue(MinorVersionProperty);
-        set
-        {
-            if (_defaultInstalledVersion.ToString() == $"{MajorVersion}.{value}.{BuildVersion}.{RevisionVersion}")
-                InstalledVersion = null;
-            else
-            {
-                InstalledVersion = new InstalledVersion
-                {
-                    Version = new Version(MajorVersion, value, BuildVersion, RevisionVersion)
-                };
-            }
-            SetValue(MinorVersionProperty, value);
-        }
-    }
-
-    [JsonIgnore]
-    public ushort BuildVersion
-    {
-        get => (ushort)GetValue(BuildVersionProperty);
-        set => SetValue(BuildVersionProperty, value);
-    }
-
-    [JsonIgnore]
-    public ushort RevisionVersion
-    {
-        get => (ushort)GetValue(RevisionVersionProperty);
-        set => SetValue(RevisionVersionProperty, value);
-    }
-
-    [JsonIgnore]
-    public InstalledVersion? InstalledVersion
-    {
-        get;
-        set;
-    }
-
-    [JsonIgnore]
-    public ImageSource? TmpIcon
-    {
-        get => (ImageSource?)GetValue(IconProperty);
-        set
-        {
-            if (value is not null)
-                SetValue(IconProperty, value);
-
-            ImageUri = value?.ToString() ?? string.Empty;
-        }
-    }
-
-    [JsonIgnore]
-    public ObservableCollection<TreeViewItem> TimerNodeList
-    {
-        get => (ObservableCollection<TreeViewItem>)GetValue(TimerNodeListProperty)!;
-        set => SetValue(TimerNodeListProperty, value);
-    }
-
-    [JsonIgnore]
-    public ObservableCollection<TreeViewItem> ApplicationExitNodeList
-    {
-        get => (ObservableCollection<TreeViewItem>)GetValue(ApplicationExitNodeListProperty)!;
-        set => SetValue(ApplicationExitNodeListProperty, value);
-    }
-
-    [JsonIgnore]
-    public ObservableCollection<TreeViewItem> CheckForUpdatesNodeList
-    {
-        get => (ObservableCollection<TreeViewItem>)GetValue(CheckForUpdatesNodeListProperty)!;
-        set => SetValue(CheckForUpdatesNodeListProperty, value);
-    }
-
-    [JsonIgnore]
-    public ObservableCollection<TreeViewItem> ParseUpdateInfoNodeList
-    {
-        get => (ObservableCollection<TreeViewItem>)GetValue(ParseUpdateInfoNodeListProperty)!;
-        set => SetValue(ParseUpdateInfoNodeListProperty, value);
-    }
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
 
+    #region Events
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    public event Action<bool?>? UpdateValidation;
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Events
+
+
+    #region Event Invocators
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    public void OnUpdateValidation(bool? isEnabled = null)
+    {
+        isEnabled ??= !Equals();
+        UpdateValidation?.Invoke(isEnabled);
+    }
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Event Invocators
 
 
     /// <summary>
@@ -443,58 +336,82 @@ public class ViewModelMainConfig : DependencyObject, IEquatable<ViewModelMainCon
     /// </summary>
     public ViewModelMainConfig()
     {
-        _defaultInstalledVersion = new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion);
     }
 
 
     /// <summary>
-    ///     Constructor
+    ///     Copy Constructor
     /// </summary>
     /// <param name="other"></param>
     public ViewModelMainConfig(ViewModelMainConfig? other) : this()
     {
-        if (other is null)
-            return;
-
-        ProxyUri                      = other.ProxyUri;
-        AppTitle                      = other.AppTitle;
-        BasicAuthPassword             = other.BasicAuthPassword;
-        BasicAuthUsername             = other.BasicAuthUsername;
-        ExecutablePath                = other.ExecutablePath;
-        ImageUri                      = other.ImageUri;
-        InstallationPath              = other.InstallationPath;
-        ProxyPassword                 = other.ProxyPassword;
-        ProxyUsername                 = other.ProxyUsername;
-        ShowSkipButton                = other.ShowSkipButton;
-        IsManditory                   = other.IsManditory;
-        ShowRemindLaterButton         = other.ShowRemindLaterButton;
-        RunUpdateAsAdmin              = other.RunUpdateAsAdmin;
-        LetUserSelectRemindLater      = other.LetUserSelectRemindLater;
-        OpenDownloadPage              = other.OpenDownloadPage;
-        BasicAuth                     = other.BasicAuth;
-        BasicAuthChangeLog            = other.BasicAuthChangeLog;
-        DoNotBindOwnerWindow          = other.DoNotBindOwnerWindow;
-        BasicAuthDownload             = other.BasicAuthDownload;
-        CheckSynchronously            = other.CheckSynchronously;
-        ChangeUpdateZipExtractionPath = other.ChangeUpdateZipExtractionPath;
-        ExecutablePathOverride        = other.ExecutablePathOverride;
-        ClearAppDirectory             = other.ClearAppDirectory;
-        IconOverride                  = other.IconOverride;
-        FtpProtocol                   = other.FtpProtocol;
-        PersistSettings               = other.PersistSettings;
-        InstalledVersionOverride      = other.InstalledVersionOverride;
-        ReportErrors                  = other.ReportErrors;
-        ProxyEnabled                  = other.ProxyEnabled;
-        TimerEnabled                  = other.TimerEnabled;
-        TopMostDisabled               = other.TopMostDisabled;
-        UseZipFile                    = other.UseZipFile;
-        UpdateMode                    = other.UpdateMode;
-        RemindLaterTimeSpan           = other.RemindLaterTimeSpan;
-        TimerDurationTimeSpan         = other.TimerDurationTimeSpan;
-        Interval                      = other.Interval;
-        RemindLaterAt                 = other.RemindLaterAt;
+        Copy(other);
     }
 
+
+    private void SetInstalledVersion(Version tmpVer)
+    {
+        if (_defaultInstalledVersion == tmpVer)
+            InstalledVersion = null;
+        else
+        {
+            if (InstalledVersion is not null)
+                InstalledVersion.Version = tmpVer;
+        }
+    }
+
+
+    protected internal ViewModelMainConfig? Copy(ViewModelMainConfig? other)
+    {
+        if (other is null)
+            return null;
+
+        AppTitle                      = other.AppTitle;
+        BasicAuth                     = other.BasicAuth;
+        BasicAuthChangeLog            = other.BasicAuthChangeLog;
+        BasicAuthDownload             = other.BasicAuthDownload;
+        BasicAuthPassword             = other.BasicAuthPassword;
+        BasicAuthUserName             = other.BasicAuthUserName;
+        ChangeUpdateZipExtractionPath = other.ChangeUpdateZipExtractionPath;
+        CheckSynchronously            = other.CheckSynchronously;
+        ClearAppDirectory             = other.ClearAppDirectory;
+        DoNotBindOwnerWindow          = other.DoNotBindOwnerWindow;
+        ExecutablePath                = other.ExecutablePath;
+        ExecutablePathOverride        = other.ExecutablePathOverride;
+        FtpProtocol                   = other.FtpProtocol;
+        IconOverride                  = other.IconOverride;
+        ImageUri                      = other.ImageUri;
+        InstallationPath              = other.InstallationPath;
+        InstalledVersion              = other.InstalledVersion;
+        InstalledVersionOverride      = other.InstalledVersionOverride;
+        Interval                      = other.Interval;
+        IsManditory                   = other.IsManditory;
+        OpenDownloadPage              = other.OpenDownloadPage;
+        PersistSettings               = other.PersistSettings;
+        ProxyEnabled                  = other.ProxyEnabled;
+        MajorVersion                  = other.MajorVersion;
+        MinorVersion                  = other.MinorVersion;
+        BuildVersion                  = other.BuildVersion;
+        RevisionVersion               = other.RevisionVersion;
+        ProxyUri                      = other.ProxyUri;
+        ProxyUserName                 = other.ProxyUserName;
+        ProxyPassword                 = other.ProxyPassword;
+        RemindLaterAt                 = other.RemindLaterAt;
+        RemindLaterTimeSpan           = other.RemindLaterTimeSpan;
+        ReportErrors                  = other.ReportErrors;
+        RunUpdateAsAdmin              = other.RunUpdateAsAdmin;
+        ShowRemindLaterButton         = other.ShowRemindLaterButton;
+        ShowSkipButton                = other.ShowSkipButton;
+        TimerDurationTimeSpan         = other.TimerDurationTimeSpan;
+        TopMostDisabled               = other.TopMostDisabled;
+        UpdateMode                    = other.UpdateMode;
+        UserSelectRemindLater         = other.UserSelectRemindLater;
+        UseZipFile                    = other.UseZipFile;
+
+        return this;
+    }
+
+    public virtual bool Equals() => throw new NotImplementedException(nameof(Equals));
 
     public bool Equals(ViewModelMainConfig? other)
     {
@@ -502,10 +419,6 @@ public class ViewModelMainConfig : DependencyObject, IEquatable<ViewModelMainCon
             return false;
 
         return (
-                   ReferenceEquals(ProxyUri, other.ProxyUri) ||
-                   ProxyUri == other.ProxyUri
-               ) &&
-               (
                    ReferenceEquals(AppTitle, other.AppTitle) ||
                    AppTitle == other.AppTitle
                ) &&
@@ -514,8 +427,8 @@ public class ViewModelMainConfig : DependencyObject, IEquatable<ViewModelMainCon
                    BasicAuthPassword == other.BasicAuthPassword
                ) &&
                (
-                   ReferenceEquals(BasicAuthUsername, other.BasicAuthUsername) ||
-                   BasicAuthUsername == other.BasicAuthUsername
+                   ReferenceEquals(BasicAuthUserName, other.BasicAuthUserName) ||
+                   BasicAuthUserName == other.BasicAuthUserName
                ) &&
                (
                    ReferenceEquals(ExecutablePath, other.ExecutablePath) ||
@@ -530,48 +443,45 @@ public class ViewModelMainConfig : DependencyObject, IEquatable<ViewModelMainCon
                    InstallationPath == other.InstallationPath
                ) &&
                (
-                   ReferenceEquals(ProxyPassword, other.ProxyPassword) ||
-                   ProxyPassword == other.ProxyPassword
+                   ReferenceEquals(Proxy?.Uri, other.Proxy?.Uri) ||
+                   Proxy?.Uri == other.Proxy?.Uri
                ) &&
                (
-                   ReferenceEquals(ProxyUsername, other.ProxyUsername) ||
-                   ProxyUsername == other.ProxyUsername
+                   ReferenceEquals(Proxy?.Password, other.Proxy?.Password) ||
+                   Proxy?.Password == other.Proxy?.Password
                ) &&
                (
-                   InstalledVersionOverride && (
-                   ReferenceEquals(InstalledVersion, other.InstalledVersion) ||
-                   InstalledVersion == other.InstalledVersion)
-               )                                                                    &&
-               ShowSkipButton                == other.ShowSkipButton                &&
-               IsManditory                   == other.IsManditory                   &&
-               ShowRemindLaterButton         == other.ShowRemindLaterButton         &&
-               RunUpdateAsAdmin              == other.RunUpdateAsAdmin              &&
-               LetUserSelectRemindLater      == other.LetUserSelectRemindLater      &&
-               OpenDownloadPage              == other.OpenDownloadPage              &&
-               BasicAuth                     == other.BasicAuth                     &&
-               BasicAuthChangeLog            == other.BasicAuthChangeLog            &&
-               DoNotBindOwnerWindow          == other.DoNotBindOwnerWindow          &&
-               BasicAuthDownload             == other.BasicAuthDownload             &&
-               CheckSynchronously            == other.CheckSynchronously            &&
-               ChangeUpdateZipExtractionPath == other.ChangeUpdateZipExtractionPath &&
-               ExecutablePathOverride        == other.ExecutablePathOverride        &&
-               ClearAppDirectory             == other.ClearAppDirectory             &&
-               IconOverride                  == other.IconOverride                  &&
-               FtpProtocol                   == other.FtpProtocol                   &&
-               PersistSettings               == other.PersistSettings               &&
-               ReportErrors                  == other.ReportErrors                  &&
-               ProxyEnabled                  == other.ProxyEnabled                  &&
-               TimerEnabled                  == other.TimerEnabled                  &&
-               TopMostDisabled               == other.TopMostDisabled               &&
-               UseZipFile                    == other.UseZipFile                    &&
-               UpdateMode                    == other.UpdateMode                    &&
-               RemindLaterTimeSpan           == other.RemindLaterTimeSpan           &&
-               TimerDurationTimeSpan         == other.TimerDurationTimeSpan         &&
-               Interval                      == other.Interval                      &&
-               MajorVersion                  == other.MajorVersion                  &&
-               MinorVersion                  == other.MinorVersion                  &&
-               RevisionVersion               == other.RevisionVersion               &&
-               BuildVersion                  == other.BuildVersion                  &&
-               RemindLaterAt                 == other.RemindLaterAt;
+                   ReferenceEquals(Proxy?.UserName, other.Proxy?.UserName) ||
+                   Proxy?.UserName == other.Proxy?.UserName
+               )                                                                            &&
+               BasicAuth                         == other.BasicAuth                         &&
+               BasicAuthChangeLog                == other.BasicAuthChangeLog                &&
+               BasicAuthDownload                 == other.BasicAuthDownload                 &&
+               ChangeUpdateZipExtractionPath     == other.ChangeUpdateZipExtractionPath     &&
+               CheckSynchronously                == other.CheckSynchronously                &&
+               ClearAppDirectory                 == other.ClearAppDirectory                 &&
+               DoNotBindOwnerWindow              == other.DoNotBindOwnerWindow              &&
+               ExecutablePathOverride            == other.ExecutablePathOverride            &&
+               FtpProtocol                       == other.FtpProtocol                       &&
+               IconOverride                      == other.IconOverride                      &&
+               Interval                          == other.Interval                          &&
+               IsManditory                       == other.IsManditory                       &&
+               BuildVersion                      == other.BuildVersion                      &&
+               MajorVersion                      == other.MajorVersion                      &&
+               MinorVersion                      == other.MinorVersion                      &&
+               RevisionVersion                   == other.RevisionVersion                   &&
+               OpenDownloadPage                  == other.OpenDownloadPage                  &&
+               PersistSettings                   == other.PersistSettings                   &&
+               ProxyEnabled                      == other.ProxyEnabled                      &&
+               RemindLaterAt                     == other.RemindLaterAt                     &&
+               RemindLaterTimeSpan               == other.RemindLaterTimeSpan               &&
+               ReportErrors                      == other.ReportErrors                      &&
+               RunUpdateAsAdmin                  == other.RunUpdateAsAdmin                  &&
+               ShowRemindLaterButton             == other.ShowRemindLaterButton             &&
+               ShowSkipButton                    == other.ShowSkipButton                    &&
+               TimerDurationTimeSpan             == other.TimerDurationTimeSpan             &&
+               TopMostDisabled                   == other.TopMostDisabled                   &&
+               UpdateMode                        == other.UpdateMode                        &&
+               UseZipFile                        == other.UseZipFile;
     }
 }

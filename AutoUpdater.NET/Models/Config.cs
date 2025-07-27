@@ -11,6 +11,7 @@ using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.Models;
 
+[Obsolete]
 public record Config : IConfig
 {
     /// <summary>

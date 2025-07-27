@@ -8,12 +8,13 @@
 
 using AutoUpdaterDotNET.Interfaces;
 using System.ComponentModel;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using AutoUpdaterDotNET.ViewModels;
 
 namespace AutoUpdaterDotNET.Views;
 
@@ -21,8 +22,6 @@ public sealed partial class Window_Main
 {
     [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
     private static partial Regex MyRegex();
-
-    private bool _isLoaded;
 
 
     /// <summary>
@@ -32,15 +31,11 @@ public sealed partial class Window_Main
     {
         InitializeComponent();
 
-        DataContext        =  vm;
-        vm.PropertyChanged += (_, _) => UpdateValidation();
+        DataContext = vm;
 
-        if (!string.IsNullOrEmpty(LabelVersion?.Text))
-        {
-            var format = LabelVersion.Text;
-            var ver    = Assembly.GetEntryAssembly()!.GetName().Version!;
-            LabelVersion.Text = string.Format(format!, $"{ver.Major}.{ver.Minor}.{ver.Build}");
-        }
+        vm.UpdateIcon       += OnUpdateIcon;
+        vm.UpdateVersion    += OnUpdateVersion;
+        vm.UpdateValidation += OnUpdateValidation;
 
         if (Icon is not null)
             vm.TmpIcon = Icon;
@@ -61,6 +56,36 @@ public sealed partial class Window_Main
     }
 
 
+    private void Window_Main_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not IViewModelMain dc)
+            return;
+
+        dc.OnLoaded(sender);
+    }
+
+
+    private void OnUpdateIcon(ImageSource? image)
+    {
+        if (image is not null)
+            Icon = image;
+    }
+
+
+    private void OnUpdateVersion(string? version)
+    {
+        if (LabelVersion is not null && !string.IsNullOrEmpty(version))
+            LabelVersion.Text = version;
+    }
+
+
+    private void OnUpdateValidation(bool? isEnabled)
+    {
+        if (ButtonUpdate is not null)
+            ButtonUpdate.IsEnabled = isEnabled ?? false;
+    }
+
+
     private void TbProxyUri_OnPreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         if (e.Text != "\r")
@@ -70,57 +95,42 @@ public sealed partial class Window_Main
         if (!regex.IsMatch(((TextBox)e.OriginalSource!).Text))
             MessageBox.Show("Invalid Input!", "Validation Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-        UpdateValidation();
+        OnUpdateValidation(null);
     }
-
-
-    private void Window_Main_OnLoaded(object sender, RoutedEventArgs e)
-    {
-        if (DataContext is not IViewModelMain dc)
-            return;
-
-        dc.OnLoaded(sender);
-
-        UpdateValidation();
-
-        _isLoaded = true;
-    }
-
-
-    private void UpdateValidation()
-    {
-        if (DataContext is not IViewModelMain dc)
-            return;
-
-        if (ButtonUpdate is not null)
-            ButtonUpdate.IsEnabled = !dc.Equals();
-    }
-
-
-    private void CheckBox_OnClick(object sender, RoutedEventArgs e) => UpdateValidation();
-
-    private void ComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (!_isLoaded)
-            return;
-
-        UpdateValidation();
-    }
-
-    private void Iud_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-    {
-        if (!_isLoaded)
-            return;
-
-        UpdateValidation();
-    }
-
-    private void TextBox_OnTextChanged(object  sender, TextChangedEventArgs e) => UpdateValidation();
 
 
     private void Window_Main_OnClosing(object? sender, CancelEventArgs e)
     {
         Hide();
         e.Cancel = true;
+    }
+
+
+    private void CbAppTitle_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not CheckBox cb)
+            return;
+
+        Func<string?> title = cb.IsChecked switch
+        {
+            false => () =>
+            {
+                if (tbAppTitle != null)
+                    tbAppTitle.Tag = tbAppTitle.Text;
+                return null;
+            },
+            true => () =>
+            {
+                if (tbAppTitle == null)
+                    return null;
+                tbAppTitle.Text = (string?)tbAppTitle.Tag!;
+                tbAppTitle.Tag = null!;
+                return tbAppTitle.Text;
+            },
+            _ => throw new NotImplementedException()
+        };
+
+        if (DataContext is ViewModelMainConfig vm)
+            vm.AppTitle = title.Invoke();
     }
 }

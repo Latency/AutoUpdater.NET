@@ -7,77 +7,75 @@
 // ReSharper disable InconsistentNaming
 
 using AssemblyLoader;
-using AutoUpdaterDotNET.Commands;
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
-using AutoUpdaterDotNET.Views;
+using AutoUpdaterDotNET.TypeResolvers;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows.Controls;
-using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using AutoUpdaterDotNET.Models;
+using CommunityToolkit.Mvvm.Input;
 using Exception = System.Exception;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public sealed class ViewModelMain : ViewModelMainConfig, IViewModelMain
+public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
 {
-    private ViewModelMainConfig? _configOrig;
-    private static readonly JsonSerializerOptions _jso = new()
-    {
-        WriteIndented = true,
-        //TypeInfoResolver = new DependancyPropertyTypeResolver
-        //{
-        //    Modifiers = { JsonExtensions.AlphabetizeProperties }
-        //}
-    };
+    private readonly ViewModelMainConfig _configOrig;
 
 
     /// <summary>
-    ///     Constructor
+    ///     Default Constructor
     /// </summary>
     public ViewModelMain()
     {
-        CommandCancel      = new RelayCommand(((IViewModelMain)this).ButtonCancel_Click,     AllowCancel);
-        CommandUpdate      = new RelayCommand(((IViewModelMain)this).ButtonUpdate_Click,     AllowUpdate);
-        CommandSaveConfig  = new RelayCommand(((IViewModelMain)this).ButtonSaveConfig_Click, AllowSave);
-        CommandLoadConfig  = new RelayCommand(((IViewModelMain)this).ButtonLoadConfig_Click, AllowLoad);
-        CommandImageChange = new RelayCommand(((IViewModelMain)this).Image_Click,            AllowImageChange);
+        _configOrig = new ViewModelMainConfig(this);
     }
 
-    public bool Equals() => _configOrig!.Equals(this);
+
+    private static readonly JsonSerializerOptions _jso = new()
+    {
+        WriteIndented = true,
+        TypeInfoResolver = new DependancyPropertyTypeResolver<ViewModelMainConfig>
+        {
+            Modifiers = { JsonExtensions.AlphabetizeProperties }
+        }
+    };
+
+
+    public override bool Equals() => _configOrig.Equals(this);
+
+
+    #region Properties
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    public DispatcherTimer UpdateTimer { get; } = new();
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Properties
 
 
     #region Events
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=+
-
-    public event IViewModelMain.ApplicationExitEventHandler? ApplicationExit;
-    public event IViewModelMain.CheckForUpdateEventHandler?  CheckForUpdates;
-    public event IViewModelMain.ParseUpdateInfoHandler?      ParseUpdateInfo;
-    public event PropertyChangedEventHandler?                PropertyChanged;
-
+    public event Action?                           ApplicationExit;
+    public event Action<UpdateInfoEventArgs>?      CheckForUpdates;
+    public event Action<ParseUpdateInfoEventArgs>? ParseUpdateInfo;
+    public event Action<string?>?                  UpdateVersion;
+    public event Action<ImageSource?>?             UpdateIcon;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
 
 
     void IViewModelMain.OnLoaded(object? sender)
     {
-        Func<ushort, TimeSpan> ts = TimerDurationTimeSpan switch
-        {
-            RemindLaterFormat.Seconds => s => TimeSpan.FromSeconds(s),
-            RemindLaterFormat.Minutes => m => TimeSpan.FromMinutes(m),
-            RemindLaterFormat.Hours   => h => TimeSpan.FromHours(h),
-            RemindLaterFormat.Days    => d => TimeSpan.FromDays(d),
-            _                         => throw new ArgumentOutOfRangeException()
-        };
-        UpdateTimer.Interval =  ts.Invoke(Interval);
+        //_win = sender as Window_Main ?? throw new NullReferenceException();
+
+        UpdateTimer.Interval = GetRemindLaterInterval(Interval);
         UpdateTimer.Tick     += (_, _) => { };
 
         InvocationListGenerator(UpdateTimer, nameof(UpdateTimer.Tick), TimerNodeList);
@@ -85,20 +83,29 @@ public sealed class ViewModelMain : ViewModelMainConfig, IViewModelMain
         InvocationListGenerator(this,        nameof(CheckForUpdates),  CheckForUpdatesNodeList);
         InvocationListGenerator(this,        nameof(ParseUpdateInfo),  ParseUpdateInfoNodeList);
 
-        _configOrig = new ViewModelMainConfig(this);
-
-        if (sender is Window_Main { cbInstalledVersionOverride: not null } vm)
-            vm.cbInstalledVersionOverride.IsChecked = false;
+        LoadConfig();
 
         var defaultVersion = GetType().Assembly.Version()!;
-        MajorVersion    = (ushort) defaultVersion.Major;
-        MinorVersion    = (ushort) defaultVersion.Minor;
-        BuildVersion    = (ushort) defaultVersion.Build;
-        RevisionVersion = (ushort) defaultVersion.Revision;
 
-        // Override version from configuration loading here...
+        MajorVersion    = (ushort)defaultVersion.Major;
+        MinorVersion    = (ushort)defaultVersion.Minor;
+        BuildVersion    = (ushort)defaultVersion.Build;
+        RevisionVersion = (ushort)defaultVersion.Revision;
+
+        _defaultInstalledVersion = new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion);
+        UpdateVersion?.Invoke($"Loader Version: {_defaultInstalledVersion}");
 
         return;
+
+        // -------------------------------------------
+        TimeSpan GetRemindLaterInterval(ushort interval)  => TimerDurationTimeSpan switch
+        {
+            RemindLaterFormat.Seconds => TimeSpan.FromSeconds(interval),
+            RemindLaterFormat.Minutes => TimeSpan.FromMinutes(interval),
+            RemindLaterFormat.Hours   => TimeSpan.FromHours  (interval),
+            RemindLaterFormat.Days    => TimeSpan.FromDays   (interval),
+            _                         => throw new ArgumentOutOfRangeException(nameof(interval))
+        };
 
         static void InvocationListGenerator<T>(T obj, string eventHandlerName, ObservableCollection<TreeViewItem> nodeList)
             where T : class
@@ -130,39 +137,59 @@ public sealed class ViewModelMain : ViewModelMainConfig, IViewModelMain
     }
 
 
-    void IViewModelMain.ButtonCancel_Click(object? sender)
+    [RelayCommand]
+    private void Cancel()
     {
-        var win = sender as Window_Main ?? throw new NullReferenceException();
-        win.Hide();
+
     }
 
 
-    void IViewModelMain.ButtonUpdate_Click(object? sender)
+    [RelayCommand]
+    private void Update()
     {
-        var win = sender as Window_Main ?? throw new NullReferenceException();
-        win.Hide();
+        UpdateIcon?.Invoke(TmpIcon);
+        UpdateVersion?.Invoke(InstalledVersion?.Version?.ToString());
+
+
+        SaveConfig();
+
+        _configOrig?.Copy(this);
+        InstalledVersionOverride = false;
+
+        OnUpdateValidation(null);
     }
 
 
-    void IViewModelMain.ButtonSaveConfig_Click(object? sender)
+    [RelayCommand]
+    private void SaveConfig()
     {
-        var win       = sender as Window_Main ?? throw new NullReferenceException();
         var directory = $@"{Directory.GetCurrentDirectory()}\Properties";
+        var file      = $@"{directory}\{Environment.GetEnvironmentVariable("ConfigFile")}";
 
-        var s = new SaveFileDialog
-        {
-            DefaultDirectory = directory,
-            FileName         = "AutoUpdate.json",
-            Filter           = "All Files (*.*)|*.*|Json Files (*.json)|*.json"
-        };
-        var result = s.ShowDialog(win);
-        if (result is null or false)
-            return;
+        //var s = new SaveFileDialog
+        //{
+        //    DefaultDirectory = directory,
+        //    FileName         = config,
+        //    Filter           = "All Files (*.*)|*.*|Json Files (*.json)|*.json"
+        //};
+        //var result = s.ShowDialog(win);
+        //if (result is null or false)
+        //    return;
+
+        //if (Equals())
+        //{
+
+        //    if (File.Exists(file) && File.OpenRead(file).Length == 0)
+        //        File.Delete(file);
+        //    return;
+        //}
 
         try
         {
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
             var json = JsonSerializer.Serialize<ViewModelMainConfig>(this, _jso);
-            File.WriteAllTextAsync(s.FileName, json);
+            File.WriteAllTextAsync(file, json);
         }
         catch (Exception ex)
         {
@@ -171,13 +198,30 @@ public sealed class ViewModelMain : ViewModelMainConfig, IViewModelMain
     }
 
 
-    void IViewModelMain.ButtonLoadConfig_Click(object? sender)
+    [RelayCommand]
+    private void LoadConfig()
     {
-        var win = sender as Window_Main ?? throw new NullReferenceException();
+        const string config = "AutoUpdate.json";
+        var          file   = $@"{Directory.GetCurrentDirectory()}\Properties\{config}";
+
+        if (!File.Exists(file))
+            return;
+
+        try
+        {
+            var vmmc = JsonSerializer.Deserialize<ViewModelMainConfig>(file, _jso);
+            Copy(vmmc);
+            _configOrig.Copy(this);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine(ex.Message);
+        }
     }
 
 
-    void IViewModelMain.Image_Click(object? sender)
+    [RelayCommand]
+    private void ImageChange()
     {
         var fd = new OpenFileDialog
         {
@@ -218,26 +262,4 @@ public sealed class ViewModelMain : ViewModelMainConfig, IViewModelMain
                                        "|Scalable Vector Graphics (*.svg)|*.svg" +
                                        "|Icon (*.ico)|*.ico";
     }
-
-
-    #region Properties
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static bool AllowCancel(object?      _) => true;
-    private static bool AllowUpdate(object?      _) => true;
-    private static bool AllowSave(object?        _) => true;
-    private static bool AllowLoad(object?        _) => true;
-    private static bool AllowImageChange(object? _) => true;
-
-    public ICommand CommandCancel      { get; set; }
-    public ICommand CommandUpdate      { get; set; }
-    public ICommand CommandSaveConfig  { get; set; }
-    public ICommand CommandLoadConfig  { get; set; }
-    public ICommand CommandImageChange { get; set; }
-
-    public DispatcherTimer UpdateTimer { get; } = new();
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Properties
-
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

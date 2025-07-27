@@ -26,6 +26,8 @@ public sealed partial class Window_Update : RestrictedWindow
 
         Title = "{0} is available!";
 
+        vm.ToggleControlBox += ToggleControlBox;
+
         //ButtonSkip.Visibility        = AutoUpdater.ShowSkipButton ? Visibility.Visible : Visibility.Hidden;
         //ButtonRemindLater.Visibility = AutoUpdater.ShowRemindLaterButton ? Visibility.Visible : Visibility.Hidden;
         //var resources = new ComponentResourceManager(typeof(UpdateForm));

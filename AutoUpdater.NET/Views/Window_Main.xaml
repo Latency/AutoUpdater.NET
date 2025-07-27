@@ -15,9 +15,10 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="ThreeDBorderWindow"
         ResizeMode="CanResizeWithGrip"
+        ShowInTaskbar="True"
         MinWidth="500"
         MinHeight="550"
-        Icon="{Binding TmpIcon}"
+        Icon="{StaticResource Project}"
         Loaded="Window_Main_OnLoaded"
         Closing="Window_Main_OnClosing"
 >
@@ -71,7 +72,7 @@
                 Content="Load"
                 Margin="6,6"
                 ToolTip="Save the configuration settings."
-                Command="{Binding CommandLoadConfig}"
+                Command="{Binding LoadConfigCommand}"
                 CommandParameter="{x:Reference Name=WindowMain}" />
 
             <Button
@@ -79,7 +80,7 @@
                 Content="Save"
                 Margin="0,6"
                 ToolTip="Load the configuration settings."
-                Command="{Binding CommandSaveConfig}"
+                Command="{Binding SaveConfigCommand}"
                 CommandParameter="{x:Reference Name=WindowMain}" />
         </StackPanel>
 
@@ -91,7 +92,7 @@
             ToolTip="Cancel the changes."
             HorizontalAlignment="Right"
             VerticalAlignment="Center"
-            Command="{Binding CommandCancel}"
+            Command="{Binding CancelCommand}"
             CommandParameter="{x:Reference Name=WindowMain}" />
 
         <Button
@@ -102,7 +103,7 @@
             ToolTip="Start the update."
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
-            Command="{Binding CommandUpdate}"
+            Command="{Binding UpdateCommand}"
             CommandParameter="{x:Reference Name=WindowMain}" />
 
         <ScrollViewer
@@ -120,7 +121,6 @@
                     IsChecked="{Binding RunUpdateAsAdmin}"
                     ToolTip="Check this to run update process without admin privileges."
                     Content="Run Update As Admin"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
@@ -129,71 +129,70 @@
                     IsChecked="{Binding OpenDownloadPage}"
                     ToolTip="Check this to open the download page instead of downloading the update file when the user clicks on the download button."
                     Content="Open Download Page"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
-                    Name="cbLetUserSelectRemindLater"
-                    IsChecked="{Binding LetUserSelectRemindLater}"
+                    Name="cbUserSelectRemindLater"
+                    IsChecked="{Binding UserSelectRemindLater}"
                     ToolTip="Check this if you want to show the 'Remind Later' or 'Time' options within the AutoUpdater notification window."
                     Content="User Select Remind Later"
-                    Click="CheckBox_OnClick"
                 />
 
-                <!-- ReSharper disable once InconsistentNaming -->
-                <ComboBox
-                    Name="cbRemindLaterTimeSpan"
-                    ToolTip="Select the duration type."
-                    ItemsSource="{Binding Source={StaticResource RemindLaterFormatEnumValues}}"
-                    SelectedValue="{Binding RemindLaterTimeSpan}"
-                    IsSynchronizedWithCurrentItem="True"
-                    HorizontalAlignment="Left"
-                    Margin="10,0,0,0"
-                    SelectionChanged="ComboBox_OnSelectionChanged"
-                >
-                    <ComboBox.Style>
-                        <Style TargetType="ComboBox">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbLetUserSelectRemindLater}"
-                                             Value="False">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbLetUserSelectRemindLater}"
-                                             Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ComboBox.Style>
-                </ComboBox>
+                <StackPanel Orientation="Horizontal">
 
-                <!-- ReSharper disable once InconsistentNaming -->
-                <xctk:IntegerUpDown
-                    Name="iudRemindLaterAt"
-                    Value="{Binding RemindLaterAt}"
-                    DefaultValue="0"
-                    Minimum="0"
-                    ToolTip="Set the duration time."
-                    HorizontalAlignment="Left"
-                    Margin="10,0,0,0"
-                    ValueChanged="Iud_OnValueChanged"
-                >
-                    <xctk:IntegerUpDown.Style>
-                        <Style TargetType="xctk:IntegerUpDown">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbLetUserSelectRemindLater}"
-                                             Value="False">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbLetUserSelectRemindLater}"
-                                             Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </xctk:IntegerUpDown.Style>
-                </xctk:IntegerUpDown>
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <xctk:IntegerUpDown
+                        Name="iudRemindLaterAt"
+                        Value="{Binding RemindLaterAt}"
+                        Minimum="1"
+                        ToolTip="Set the duration time."
+                        HorizontalAlignment="Left"
+                        Margin="10,0,0,0"
+                    >
+                        <xctk:IntegerUpDown.Style>
+                            <Style TargetType="xctk:IntegerUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbUserSelectRemindLater}"
+                                                 Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbUserSelectRemindLater}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </xctk:IntegerUpDown.Style>
+                    </xctk:IntegerUpDown>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <ComboBox
+                        Name="cbRemindLaterTimeSpan"
+                        ToolTip="Select the duration type."
+                        ItemsSource="{Binding Source={StaticResource RemindLaterFormatEnumValues}}"
+                        SelectedValue="{Binding RemindLaterTimeSpan}"
+                        IsSynchronizedWithCurrentItem="True"
+                        HorizontalAlignment="Left"
+                        Margin="10,0,0,0"
+                    >
+                        <ComboBox.Style>
+                            <Style TargetType="ComboBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbUserSelectRemindLater}"
+                                                 Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbUserSelectRemindLater}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ComboBox.Style>
+                    </ComboBox>
+
+                </StackPanel>
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
@@ -201,7 +200,6 @@
                     IsChecked="{Binding IsManditory}"
                     ToolTip="Check this if you want to show the 'ShowSkipButton' or 'ShowRemindLaterButton'."
                     Content="Is Manditory"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
@@ -211,7 +209,6 @@
                     ToolTip="Check this if you want to show the 'Skip' button."
                     Margin="10,0,0,0"
                     Content="Skip Button"
-                    Click="CheckBox_OnClick"
                 >
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
@@ -230,11 +227,10 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbShowRemindLaterButton"
-                    IsChecked="{Binding ShowRemindLaterButton}"
+                    IsChecked="{Binding ShowRemindLaterButton, Mode=TwoWay}"
                     ToolTip="Check this if you want to show the 'Remind Later' button."
                     Margin="10,0,0,0"
                     Content="Remind Later Button"
-                    Click="CheckBox_OnClick"
                 >
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
@@ -260,7 +256,6 @@
                     HorizontalAlignment="Left"
                     Width="150"
                     Margin="10,0,0,0"
-                    SelectionChanged="ComboBox_OnSelectionChanged"
                 >
                     <ComboBox.Style>
                         <Style TargetType="ComboBox">
@@ -282,11 +277,12 @@
                     Name="cbAppTitle"
                     ToolTip="Check this if you want to show a custom application title in AutoUpdater notification window."
                     Content="App Title"
-                    Click="CheckBox_OnClick"
+                    Click="CbAppTitle_OnClick"
                 />
 
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="Title:"
+                    <Label Content="Title:   "
+                           FontFamily="Courier New"
                            Margin="10,0,0,0"
                     >
                         <Label.Style>
@@ -307,9 +303,9 @@
                     <TextBox
                         Name="tbAppTitle"
                         Text="{Binding AppTitle}"
+                        VerticalAlignment="Center"
                         Width="150"
                         ToolTip="Modify this to show a custom application title in AutoUpdater notification window."
-                        TextChanged="TextBox_OnTextChanged"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">
@@ -333,7 +329,6 @@
                     IsChecked="{Binding ReportErrors}"
                     ToolTip="Check this if you want to show any errors."
                     Content="Report Errors"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
@@ -342,11 +337,11 @@
                     IsChecked="{Binding ProxyEnabled}"
                     ToolTip="Check this to configure web proxy credentials."
                     Content="Enable Proxy"
-                    Click="CheckBox_OnClick"
                 />
 
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="Uri:"
+                    <Label Content="Uri:     "
+                           FontFamily="Courier New"
                            Margin="10,0,0,0">
                         <Label.Style>
                             <Style TargetType="Label">
@@ -368,6 +363,7 @@
                         ToolTip="Check this to update file served only through Proxy."
                         Text="{Binding ProxyUri}"
                         Width="150"
+                        VerticalAlignment="Center"
                         PreviewTextInput="TbProxyUri_OnPreviewTextInput"
                     >
                         <TextBox.Style>
@@ -387,6 +383,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Username:"
+                           FontFamily="Courier New"
                            Margin="10,0,0,0">
                         <Label.Style>
                             <Style TargetType="Label">
@@ -406,9 +403,9 @@
                     <TextBox
                         Name="tbProxyUsername"
                         ToolTip="Enter the username for the remote Proxy."
-                        Text="{Binding ProxyUsername}"
+                        Text="{Binding ProxyUserName}"
                         Width="150"
-                        TextChanged="TextBox_OnTextChanged"
+                        VerticalAlignment="Center"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">
@@ -427,6 +424,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Password:"
+                           FontFamily="Courier New"
                            Margin="10,0,0,0">
                         <Label.Style>
                             <Style TargetType="Label">
@@ -448,7 +446,7 @@
                         ToolTip="Enter the password for the remote Proxy, if applicable."
                         Text="{Binding ProxyPassword}"
                         Width="150"
-                        TextChanged="TextBox_OnTextChanged"
+                        VerticalAlignment="Center"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">
@@ -468,14 +466,38 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbTimerEnabled"
-                    IsChecked="{Binding TimerEnabled}"
+                    IsChecked="{Binding TimerEnabled, Mode=TwoWay}"
                     ToolTip="Check this if periodically check for updates."
                     Content="Enable Timer"
-                    Click="CheckBox_OnClick"
                 />
 
                 <StackPanel
                     Orientation="Horizontal">
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <xctk:IntegerUpDown
+                        Name="iudTimers"
+                        Value="{Binding Interval}"
+                        Minimum="1"
+                        HorizontalAlignment="Left"
+                        ToolTip="Modify this for the interval value."
+                        Margin="10,0,0,0"
+                        Height="22"
+                    >
+                        <xctk:IntegerUpDown.Style>
+                            <Style TargetType="xctk:IntegerUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}"
+                                                 Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </xctk:IntegerUpDown.Style>
+                    </xctk:IntegerUpDown>
 
                     <!-- ReSharper disable once InconsistentNaming -->
                     <ComboBox
@@ -487,7 +509,6 @@
                         HorizontalAlignment="Left"
                         Margin="10,0,0,0"
                         Height="22"
-                        SelectionChanged="ComboBox_OnSelectionChanged"
                     >
                         <ComboBox.Style>
                             <Style TargetType="ComboBox">
@@ -506,33 +527,6 @@
                     </ComboBox>
 
                     <!-- ReSharper disable once InconsistentNaming -->
-                    <xctk:IntegerUpDown
-                        Name="iudTimers"
-                        Value="{Binding Interval}"
-                        DefaultValue="0"
-                        Minimum="0"
-                        HorizontalAlignment="Left"
-                        ToolTip="Modify this for the interval value."
-                        Margin="10,0,0,0"
-                        Height="22"
-                        ValueChanged="Iud_OnValueChanged"
-                    >
-                        <xctk:IntegerUpDown.Style>
-                            <Style TargetType="xctk:IntegerUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}"
-                                                 Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </xctk:IntegerUpDown.Style>
-                    </xctk:IntegerUpDown>
-
-                    <!-- ReSharper disable once InconsistentNaming -->
                     <TreeView
                         Name="tvTimers"
                         Margin="10,0,0,0"
@@ -547,7 +541,8 @@
                                                  Value="False">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="True">
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}"
+                                                 Value="True">
                                         <Setter Property="Visibility" Value="Visible" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -562,7 +557,6 @@
                     IsChecked="{Binding BasicAuth}"
                     ToolTip="Check this to set basic authentication on credentials."
                     Content="Basic Authentication"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
@@ -572,7 +566,6 @@
                     IsChecked="{Binding BasicAuthChangeLog}"
                     ToolTip="Check this to set provide basic authentication change log credentials needed to access update resources."
                     Content="Change Log"
-                    Click="CheckBox_OnClick"
                 >
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
@@ -592,10 +585,9 @@
                 <CheckBox
                     Name="cbBasicAuthDownload"
                     Margin="10,0,0,0"
-                    IsChecked="{Binding BasicAuthChangeLog}"
+                    IsChecked="{Binding BasicAuthDownload}"
                     ToolTip="Check this to set provide basic authentication download credentials needed to access update resources."
                     Content="Download"
-                    Click="CheckBox_OnClick"
                 >
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
@@ -613,6 +605,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Username:"
+                           FontFamily="Courier New"
                            Margin="10,0,0,0">
                         <Label.Style>
                             <Style TargetType="Label">
@@ -630,11 +623,11 @@
 
                     <!-- ReSharper disable once InconsistentNaming -->
                     <TextBox
-                        Name="tbBasicAuthUsername"
+                        Name="tbBasicAuthUserName"
                         ToolTip="Enter the username for the basic authentication."
-                        Text="{Binding BasicAuthUsername}"
+                        Text="{Binding BasicAuthUserName}"
                         Width="150"
-                        TextChanged="TextBox_OnTextChanged"
+                        VerticalAlignment="Center"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">
@@ -653,6 +646,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Password:"
+                           FontFamily="Courier New"
                            Margin="10,0,0,0">
                         <Label.Style>
                             <Style TargetType="Label">
@@ -674,7 +668,7 @@
                         ToolTip="Enter the password for the basic authentication, if applicable."
                         Text="{Binding BasicAuthPassword}"
                         Width="150"
-                        TextChanged="TextBox_OnTextChanged"
+                        VerticalAlignment="Center"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">
@@ -697,7 +691,6 @@
                     IsChecked="{Binding FtpProtocol}"
                     ToolTip="Check this if the protocol used is only able to be accessed via FTP."
                     Content="FTP instead of HTTP"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
@@ -706,7 +699,6 @@
                     IsChecked="{Binding PersistSettings}"
                     ToolTip="Check this to persist 'Remind Later' and 'Skip' values in a JSON file instead of the registry."
                     Content="Persist Settings"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
@@ -715,7 +707,6 @@
                     IsChecked="{Binding UseZipFile}"
                     ToolTip="Check this to persist 'Remind Later' and 'Skip' values in a JSON file instead of the registry."
                     Content="Use ZIP File"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
@@ -725,7 +716,6 @@
                     Margin="10,0,0,0"
                     ToolTip="Check this to clear application directory before update zip is extracted.&#x0a;This only works when using a zip file as an update file."
                     Content="Clear App Directory"
-                    Click="CheckBox_OnClick"
                 >
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
@@ -748,7 +738,6 @@
                     IsChecked="{Binding ExecutablePathOverride}"
                     ToolTip="Check this to execute different executable after the update.&#x0a;This only works when using a zip file as an update file."
                     Content="Executable Path Override"
-                    Click="CheckBox_OnClick"
                 >
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
@@ -765,7 +754,8 @@
                 </CheckBox>
 
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="Executable Path:"
+                    <Label Content="Executable Path:  "
+                           FontFamily="Courier New"
                            Margin="20,0,0,0">
                         <Label.Style>
                             <Style TargetType="Label">
@@ -789,7 +779,6 @@
                         ToolTip="Enter the customized executable path to be executed after the update."
                         Text="{Binding ExecutablePath}"
                         Width="150"
-                        TextChanged="TextBox_OnTextChanged"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">
@@ -815,7 +804,6 @@
                     IsChecked="{Binding ChangeUpdateZipExtractionPath}"
                     ToolTip="Check this to change the update zip extraction path.&#x0a;This only works when using a zip file as an update file."
                     Content="Change Update ZIP Extraction Path"
-                    Click="CheckBox_OnClick"
                 >
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
@@ -833,6 +821,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Installation Path:"
+                           FontFamily="Courier New"
                            Margin="20,0,0,0">
                         <Label.Style>
                             <Style TargetType="Label">
@@ -858,7 +847,6 @@
                         ToolTip="Enter the customized update zip extraction path."
                         Text="{Binding InstallationPath}"
                         Width="150"
-                        TextChanged="TextBox_OnTextChanged"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">
@@ -885,16 +873,14 @@
                     IsChecked="{Binding CheckSynchronously}"
                     ToolTip="Check this to update synchronously."
                     Content="Check Synchronously"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbInstalledVersionOverride"
-                    IsChecked="{Binding InstalledVersionOverride}"
+                    IsChecked="{Binding InstalledVersionOverride, Mode=TwoWay}"
                     ToolTip="Check this to assign installed version manually and don't want to rely on the library to determine the installed version from the originating assembly."
                     Content="Installed Version Override"
-                    Click="CheckBox_OnClick"
                 />
 
                 <StackPanel
@@ -909,7 +895,6 @@
                         Minimum="0"
                         HorizontalAlignment="Left"
                         ToolTip="Modify this for the interval value."
-                        ValueChanged="Iud_OnValueChanged"
                     >
                         <xctk:IntegerUpDown.Style>
                             <Style TargetType="xctk:IntegerUpDown">
@@ -953,51 +938,6 @@
                         DefaultValue="0"
                         Minimum="0"
                         ToolTip="Modify this for the minor version's value."
-                        ValueChanged="Iud_OnValueChanged"
-                    >
-                        <xctk:IntegerUpDown.Style>
-                            <Style TargetType="xctk:IntegerUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                 Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                 Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </xctk:IntegerUpDown.Style>
-                    </xctk:IntegerUpDown>
-
-                    <Label Content="."
-                           FontWeight="Heavy"
-                           VerticalAlignment="Bottom">
-                        <Label.Style>
-                            <Style TargetType="Label">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                 Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                 Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Label.Style>
-                    </Label>
-
-                    <!-- ReSharper disable once InconsistentNaming -->
-                    <xctk:IntegerUpDown
-                        Name="iudSubPatchVersion"
-                        Value="{Binding RevisionVersion}"
-                        DefaultValue="0"
-                        Minimum="0"
-                        ToolTip="Modify this for the sub-patch version's value."
-                        ValueChanged="Iud_OnValueChanged"
                     >
                         <xctk:IntegerUpDown.Style>
                             <Style TargetType="xctk:IntegerUpDown">
@@ -1041,7 +981,49 @@
                         DefaultValue="0"
                         Minimum="0"
                         ToolTip="Modify this for the build version's value."
-                        ValueChanged="Iud_OnValueChanged"
+                    >
+                        <xctk:IntegerUpDown.Style>
+                            <Style TargetType="xctk:IntegerUpDown">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
+                                                 Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </xctk:IntegerUpDown.Style>
+                    </xctk:IntegerUpDown>
+
+                    <Label Content="."
+                           FontWeight="Heavy"
+                           VerticalAlignment="Bottom">
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
+                                                 Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <xctk:IntegerUpDown
+                        Name="iudRevisionVersion"
+                        Value="{Binding RevisionVersion}"
+                        DefaultValue="0"
+                        Minimum="0"
+                        ToolTip="Modify this for the sub-patch version's value."
                     >
                         <xctk:IntegerUpDown.Style>
                             <Style TargetType="xctk:IntegerUpDown">
@@ -1067,7 +1049,6 @@
                     IsChecked="{Binding DoNotBindOwnerWindow}"
                     ToolTip="Check this to not bind dialog windows to parent owner."
                     Content="Do Not Bind To Owner Window"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
@@ -1076,7 +1057,6 @@
                     IsChecked="{Binding TopMostDisabled}"
                     ToolTip="Check this to not set window as 'TopMost'.&#x0a;It is not standard to do this if TopMost is set 'false' in other windows."
                     Content="Top Most Disabled"
-                    Click="CheckBox_OnClick"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
@@ -1109,9 +1089,8 @@
 
                     <!-- ReSharper disable once InconsistentNaming -->
                     <Button
-                        Command="{Binding CommandImageChange}"
+                        Command="{Binding ImageChangeCommand}"
                         CommandParameter="{x:Reference Name=WindowMain}"
-                        Click="CheckBox_OnClick"
                     >
                         <Button.Style>
                             <Style TargetType="Button">
@@ -1160,11 +1139,10 @@
                    Grid.Column="1"
                    Grid.ColumnSpan="2"
                    Grid.Row="2"
-                   Text="Loader Version: {0}"
+                   Text="{Binding Version}"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Bottom"
                    Foreground="DarkSlateGray" />
-
     </Grid>
 
 

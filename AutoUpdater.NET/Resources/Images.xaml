@@ -5,6 +5,6 @@
     <BitmapImage x:Key="clock_play"    UriSource="pack://application:,,,/AutoUpdater.NET;component/png/clock_play.png" />
     <BitmapImage x:Key="download"      UriSource="pack://application:,,,/AutoUpdater.NET;component/png/download.png" />
     <BitmapImage x:Key="hand_point"    UriSource="pack://application:,,,/AutoUpdater.NET;component/png/hand_point.png" />
-    <BitmapImage x:Key="project"       UriSource="pack://application:,,,/AutoUpdater.NET;component/png/project.png" />
+    <BitmapImage x:Key="Project"       UriSource="pack://application:,,,/AutoUpdater.NET;component/png/project.png" />
     <BitmapImage x:Key="update"        UriSource="pack://application:,,,/AutoUpdater.NET;component/png/update.png" />
 </ResourceDictionary>

@@ -4,12 +4,11 @@
 // Author:   Latency McLaughlin
 // Date:     06/29/2025
 // ****************************************************************************
-
 using System.Text.Json.Serialization;
 
 namespace AutoUpdaterDotNET.Models;
 
-public class InstalledVersion
+public record InstalledVersion
 {
     /// <summary>
     ///     Overridden version of the assembly.
