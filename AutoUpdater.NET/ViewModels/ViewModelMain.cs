@@ -42,7 +42,8 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
 
     private static readonly JsonSerializerOptions _jso = new()
     {
-        WriteIndented = true,
+        WriteIndented       = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
         TypeInfoResolver = new DependancyPropertyTypeResolver<ViewModelMainConfig>
         {
             Modifiers = { JsonExtensions.AlphabetizeProperties }
@@ -75,7 +76,7 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
     {
         //_win = sender as Window_Main ?? throw new NullReferenceException();
 
-        UpdateTimer.Interval = GetRemindLaterInterval(Interval);
+        UpdateTimer.Interval = GetRemindLaterInterval(TimerInterval);
         UpdateTimer.Tick     += (_, _) => { };
 
         InvocationListGenerator(UpdateTimer, nameof(UpdateTimer.Tick), TimerNodeList);
@@ -186,10 +187,29 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
 
         try
         {
+            var tmp = new Dictionary<string, object>();
+
+            if (IsManditory)
+            {
+                tmp.TryAdd(nameof(ShowSkipButton),        ShowSkipButton);
+                tmp.TryAdd(nameof(ShowRemindLaterButton), ShowRemindLaterButton);
+
+                ShowSkipButton        = false;
+                ShowRemindLaterButton = false;
+            }
+
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             var json = JsonSerializer.Serialize<ViewModelMainConfig>(this, _jso);
             File.WriteAllTextAsync(file, json);
+
+            if (IsManditory)
+            {
+                foreach (var item in tmp)
+                    GetType().GetProperty(item.Key)?.SetValue(this, item.Value);
+
+                tmp.Clear();
+            }
         }
         catch (Exception ex)
         {

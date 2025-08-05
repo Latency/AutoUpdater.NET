@@ -39,7 +39,7 @@ public interface IViewModelMainConfig : IEquatable<ViewModelMainConfig>
     bool                               ClearAppDirectory             { get; set; }
     bool                               ExecutablePathOverride        { get; set; }
     bool                               FtpProtocol                   { get; set; }
-    bool                               IconOverride                  { get; set; }
+    bool                               IsIconOverride                { get; set; }
     bool                               PersistSettings               { get; set; }
     bool                               ProxyEnabled                  { get; set; }
     bool                               ReportErrors                  { get; set; }
@@ -48,7 +48,7 @@ public interface IViewModelMainConfig : IEquatable<ViewModelMainConfig>
     bool                               UseZipFile                    { get; set; }
     Mode                               UpdateMode                    { get; set; }
     RemindLaterFormat                  TimerDurationTimeSpan         { get; set; }
-    ushort                             Interval                      { get; set; }
+    ushort                             TimerInterval                 { get; set; }
     bool                               UserSelectRemindLater         { get; set; }
     ushort                             RemindLaterAt                 { get; set; }
     RemindLaterFormat                  RemindLaterTimeSpan           { get; set; }

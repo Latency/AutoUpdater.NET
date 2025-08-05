@@ -30,6 +30,13 @@
                 <x:Type TypeName="enums:RemindLaterFormat" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+        <ObjectDataProvider x:Key="TimerDurationFormatEnumValues"
+                            MethodName="GetValues"
+                            ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:RemindLaterFormat" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
         <ObjectDataProvider x:Key="UpdateModeEnumValues"
                             MethodName="GetValues"
                             ObjectType="{x:Type sys:Enum}">
@@ -196,7 +203,7 @@
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
-                    Name="cbManditory"
+                    Name="cbIsManditory"
                     IsChecked="{Binding IsManditory}"
                     ToolTip="Check this if you want to show the 'ShowSkipButton' or 'ShowRemindLaterButton'."
                     Content="Is Manditory"
@@ -213,10 +220,10 @@
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="True">
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsManditory}" Value="True">
                                     <Setter Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="False">
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsManditory}" Value="False">
                                     <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -227,7 +234,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbShowRemindLaterButton"
-                    IsChecked="{Binding ShowRemindLaterButton, Mode=TwoWay}"
+                    IsChecked="{Binding ShowRemindLaterButton}"
                     ToolTip="Check this if you want to show the 'Remind Later' button."
                     Margin="10,0,0,0"
                     Content="Remind Later Button"
@@ -235,10 +242,10 @@
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="True">
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsManditory}" Value="True">
                                     <Setter Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="False">
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsManditory}" Value="False">
                                     <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -260,10 +267,10 @@
                     <ComboBox.Style>
                         <Style TargetType="ComboBox">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="True">
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsManditory}" Value="False">
                                     <Setter Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbManditory}" Value="False">
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsManditory}" Value="True">
                                     <Setter Property="Visibility" Value="Visible" />
                                     <Setter Property="SelectedValue" Value="{x:Static enums:Mode.ForcedDownload}" />
                                 </DataTrigger>
@@ -477,7 +484,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <xctk:IntegerUpDown
                         Name="iudTimers"
-                        Value="{Binding Interval}"
+                        Value="{Binding TimerInterval}"
                         Minimum="1"
                         HorizontalAlignment="Left"
                         ToolTip="Modify this for the interval value."
@@ -503,7 +510,7 @@
                     <ComboBox
                         Name="cbTimerDuration"
                         ToolTip="Select the interval duration within the combo-box."
-                        ItemsSource="{Binding Source={StaticResource RemindLaterFormatEnumValues}}"
+                        ItemsSource="{Binding Source={StaticResource TimerDurationFormatEnumValues}}"
                         SelectedValue="{Binding TimerDurationTimeSpan}"
                         IsSynchronizedWithCurrentItem="True"
                         HorizontalAlignment="Left"
@@ -1061,8 +1068,8 @@
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
-                    Name="cbIconOverride"
-                    IsChecked="{Binding IconOverride}"
+                    Name="cbIsIconOverride"
+                    IsChecked="{Binding IsIconOverride}"
                     ToolTip="Check this to change the Icon shown on the updater dialog."
                     Content="Icon Override"
                 />
@@ -1074,11 +1081,11 @@
                         <Label.Style>
                             <Style TargetType="Label">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIconOverride}"
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsIconOverride}"
                                                  Value="False">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIconOverride}"
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsIconOverride}"
                                                  Value="True">
                                         <Setter Property="Visibility" Value="Visible" />
                                     </DataTrigger>
@@ -1095,11 +1102,11 @@
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIconOverride}"
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsIconOverride}"
                                                  Value="False">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIconOverride}" Value="True">
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbIsIconOverride}" Value="True">
                                         <Setter Property="Visibility" Value="Visible" />
                                     </DataTrigger>
                                 </Style.Triggers>

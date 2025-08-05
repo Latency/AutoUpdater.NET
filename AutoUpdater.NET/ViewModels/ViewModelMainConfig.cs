@@ -24,9 +24,19 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    protected Version _defaultInstalledVersion;
+    protected Version _defaultInstalledVersion = null!;
 
     private ProxyEnabled? _defaultProxy;
+
+    private TimerEnabled? _defaultTimer, _defaultRemindLaterTimer;
+
+    private IsManditory? _defaultIsManditory;
+
+    private IconOverride? _defaultIconOverride;
+
+    private ZipFile? _defaultZipFile;
+
+    private FilePath? _defaultZipExtractionPath, _defaultExecutablePathOverride;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
@@ -49,25 +59,40 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _basicAuthUserName;
     partial void OnBasicAuthUserNameChanged(string? value) => OnUpdateValidation();
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [property: JsonIgnore]
     [ObservableProperty]
     public string? _executablePath;
-    partial void OnExecutablePathChanged(string? value) => OnUpdateValidation();
+    partial void OnExecutablePathChanged(string? value)
+    {
+        if (ZipFile?.ExecutablePathOverride is not null)
+            ZipFile.ExecutablePathOverride.Path = value;
+        OnUpdateValidation();
+    }
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
     public string? _imageUri;
     partial void OnImageUriChanged(string? value) => OnUpdateValidation();
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [property: JsonIgnore]
     [ObservableProperty]
     public string? _installationPath;
-    partial void OnInstallationPathChanged(string? value) => OnUpdateValidation();
+    partial void OnInstallationPathChanged(string? value)
+    {
+        if (ZipFile?.ChangeUpdateZipExtractionPath is not null)
+            ZipFile.ChangeUpdateZipExtractionPath.Path = value;
+        OnUpdateValidation();
+    }
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    #region IsManditory
+    [property: JsonIgnore]
     [ObservableProperty]
     public bool _isManditory;
-    partial void OnIsManditoryChanged(bool value) => OnUpdateValidation();
+    partial void OnIsManditoryChanged(bool value)
+    {
+        Manditory = value ? _defaultIsManditory ??= new IsManditory() : null;
+        OnUpdateValidation();
+    }
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
@@ -78,6 +103,26 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     public bool _showRemindLaterButton;
     partial void OnShowRemindLaterButtonChanged(bool value) => OnUpdateValidation();
+
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public Mode _updateMode;
+    partial void OnUpdateModeChanged(Mode value)
+    {
+        if (Manditory is not null)
+            Manditory.UpdateMode = value;
+
+        if (_defaultIsManditory == Manditory)
+            _defaultIsManditory = null;
+
+        OnUpdateValidation();
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("IsManditory")]
+    public IsManditory? Manditory { get; set; }
+
+    #endregion IsManditory
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
@@ -111,33 +156,24 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public bool _changeUpdateZipExtractionPath;
-    partial void OnChangeUpdateZipExtractionPathChanged(bool value) => OnUpdateValidation();
-
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [ObservableProperty]
     public bool _checkSynchronously;
     partial void OnCheckSynchronouslyChanged(bool value) => OnUpdateValidation();
-
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [ObservableProperty]
-    public bool _clearAppDirectory;
-    partial void OnClearAppDirectoryChanged(bool value) => OnUpdateValidation();
-
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [ObservableProperty]
-    public bool _executablePathOverride;
-    partial void OnExecutablePathOverrideChanged(bool value) => OnUpdateValidation();
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _ftpProtocol;
     partial void OnFtpProtocolChanged(bool value) => OnUpdateValidation();
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    #region Icon Override
+    [property: JsonIgnore]
     [ObservableProperty]
-    public bool _iconOverride;
-    partial void OnIconOverrideChanged(bool value) => OnUpdateValidation();
+    public bool _IsIconOverride;
+    partial void OnIsIconOverrideChanged(bool value) => IconOverride = value ? _defaultIconOverride ??= new IconOverride  { Uri = TmpIcon?.ToString() } : null;
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IconOverride? IconOverride { get; set; }
+
+    #endregion Icon Override
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
@@ -145,9 +181,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     partial void OnPersistSettingsChanged(bool value) => OnUpdateValidation();
 
     #region ProxyEnabled
-
-    [ObservableProperty]
     [property: JsonIgnore]
+    [ObservableProperty]
     public bool _proxyEnabled;
     partial void OnProxyEnabledChanged(bool value) => Proxy = value ? _defaultProxy ??= new ProxyEnabled() : null;
 
@@ -183,7 +218,6 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProxyEnabled? Proxy { get; set; }
-
     #endregion ProxyEnabled
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -193,50 +227,115 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public bool _timerEnabled;
-    partial void OnTimerEnabledChanged(bool value) => OnUpdateValidation();
-
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [ObservableProperty]
     public bool _topMostDisabled;
     partial void OnTopMostDisabledChanged(bool value) => OnUpdateValidation();
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    #region Use ZipFile
+    [property: JsonIgnore]
     [ObservableProperty]
     public bool _useZipFile;
-    partial void OnUseZipFileChanged(bool value) => OnUpdateValidation();
+    partial void OnUseZipFileChanged(bool value) => ZipFile = value ? _defaultZipFile ??= new ZipFile() : null;
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [property: JsonIgnore]
     [ObservableProperty]
-    public Mode _updateMode;
-    partial void OnUpdateModeChanged(Mode value) => OnUpdateValidation();
+    public bool _clearAppDirectory;
+    partial void OnClearAppDirectoryChanged(bool value)
+    {
+        if (ZipFile is not null)
+            ZipFile.ClearAppDirectory = value;
+        OnUpdateValidation();
+    }
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public bool _executablePathOverride;
+    partial void OnExecutablePathOverrideChanged(bool value) => ZipFile!.ExecutablePathOverride = value ? _defaultExecutablePathOverride ??= new FilePath() : null;
+
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public bool _changeUpdateZipExtractionPath;
+    partial void OnChangeUpdateZipExtractionPathChanged(bool value) => ZipFile!.ChangeUpdateZipExtractionPath = value? _defaultZipExtractionPath ??= new FilePath() : null;
+
+    #endregion Use ZipFile
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ZipFile? ZipFile { get; set; }
+    #region TimerEnabled
+
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public bool _timerEnabled;
+    partial void OnTimerEnabledChanged(bool value) => Timer = value ? _defaultTimer ??= new TimerEnabled() : null;
+
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public ushort _timerInterval = 1;
+    partial void OnTimerIntervalChanged(ushort value)
+    {
+        if (Timer is not null)
+            Timer.Interval = value;
+
+        if (_defaultTimer == Timer)
+            _defaultTimer = null;
+
+        OnUpdateValidation();
+    }
+
+    [property: JsonIgnore]
     [ObservableProperty]
     public RemindLaterFormat _timerDurationTimeSpan;
-    partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat value) => OnUpdateValidation();
+    partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat value)
+    {
+        if (Timer is not null)
+            Timer.TimeSpan = value;
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [ObservableProperty]
-    public ushort _interval = 1;
-    partial void OnIntervalChanged(ushort value) => OnUpdateValidation();
+        if (_defaultTimer == Timer)
+            _defaultTimer = null;
+
+        OnUpdateValidation();
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TimerEnabled? Timer { get; set; }
+    #endregion TimerEnabled
 
     #region UserSelectRemindLater
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [property: JsonIgnore]
     [ObservableProperty]
     public bool _userSelectRemindLater;
-    partial void OnUserSelectRemindLaterChanged(bool value) => OnUpdateValidation();
+    partial void OnUserSelectRemindLaterChanged(bool value) => RemmindLaterTimer = value ? _defaultRemindLaterTimer ??= new TimerEnabled() : null;
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [property: JsonIgnore]
     [ObservableProperty]
     public ushort _remindLaterAt = 1;
-    partial void OnRemindLaterAtChanged(ushort value) => OnUpdateValidation();
+    partial void OnRemindLaterAtChanged(ushort value)
+    {
+        if (RemmindLaterTimer is not null)
+            RemmindLaterTimer.Interval = value;
 
+        if (_defaultRemindLaterTimer == Timer)
+            _defaultRemindLaterTimer = null;
+
+        OnUpdateValidation();
+    }
+
+    [property: JsonIgnore]
     [ObservableProperty]
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public RemindLaterFormat _remindLaterTimeSpan;
-    partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat value) => OnUpdateValidation();
+    partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat value)
+    {
+        if (RemmindLaterTimer is not null)
+            RemmindLaterTimer.TimeSpan = value;
+
+        if (_defaultRemindLaterTimer == Timer)
+            _defaultRemindLaterTimer = null;
+
+        OnUpdateValidation();
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TimerEnabled? RemmindLaterTimer { get; set; }
 
     #endregion UserSelectRemindLater
 
@@ -331,6 +430,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     #endregion Event Invocators
 
 
+    #region Constructors
     /// <summary>
     ///     Default Constructor
     /// </summary>
@@ -347,6 +447,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     {
         Copy(other);
     }
+    #endregion Constructors
 
 
     private void SetInstalledVersion(Version tmpVer)
@@ -384,7 +485,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         InstallationPath              = other.InstallationPath;
         InstalledVersion              = other.InstalledVersion;
         InstalledVersionOverride      = other.InstalledVersionOverride;
-        Interval                      = other.Interval;
+        TimerInterval                 = other.TimerInterval;
         IsManditory                   = other.IsManditory;
         OpenDownloadPage              = other.OpenDownloadPage;
         PersistSettings               = other.PersistSettings;
@@ -463,8 +564,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                DoNotBindOwnerWindow              == other.DoNotBindOwnerWindow              &&
                ExecutablePathOverride            == other.ExecutablePathOverride            &&
                FtpProtocol                       == other.FtpProtocol                       &&
-               IconOverride                      == other.IconOverride                      &&
-               Interval                          == other.Interval                          &&
+               TimerInterval                     == other.TimerInterval                     &&
                IsManditory                       == other.IsManditory                       &&
                BuildVersion                      == other.BuildVersion                      &&
                MajorVersion                      == other.MajorVersion                      &&
@@ -482,6 +582,6 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                TimerDurationTimeSpan             == other.TimerDurationTimeSpan             &&
                TopMostDisabled                   == other.TopMostDisabled                   &&
                UpdateMode                        == other.UpdateMode                        &&
-               UseZipFile                        == other.UseZipFile;
+               UserSelectRemindLater             == other.UserSelectRemindLater;
     }
 }
