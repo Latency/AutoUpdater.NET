@@ -6,6 +6,7 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 #pragma warning disable MVVMTK0042
+#pragma warning disable CS0657 // Not a valid attribute location for this declaration
 
 using AssemblyLoader;
 using AutoUpdaterDotNET.Enums;
@@ -555,6 +556,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                    ReferenceEquals(Proxy?.UserName, other.Proxy?.UserName) ||
                    Proxy?.UserName == other.Proxy?.UserName
                )                                                                            &&
+               IsMandatory()                                                                &&
                BasicAuth                         == other.BasicAuth                         &&
                BasicAuthChangeLog                == other.BasicAuthChangeLog                &&
                BasicAuthDownload                 == other.BasicAuthDownload                 &&
@@ -565,7 +567,6 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                ExecutablePathOverride            == other.ExecutablePathOverride            &&
                FtpProtocol                       == other.FtpProtocol                       &&
                TimerInterval                     == other.TimerInterval                     &&
-               IsManditory                       == other.IsManditory                       &&
                BuildVersion                      == other.BuildVersion                      &&
                MajorVersion                      == other.MajorVersion                      &&
                MinorVersion                      == other.MinorVersion                      &&
@@ -577,11 +578,18 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                RemindLaterTimeSpan               == other.RemindLaterTimeSpan               &&
                ReportErrors                      == other.ReportErrors                      &&
                RunUpdateAsAdmin                  == other.RunUpdateAsAdmin                  &&
-               ShowRemindLaterButton             == other.ShowRemindLaterButton             &&
-               ShowSkipButton                    == other.ShowSkipButton                    &&
                TimerDurationTimeSpan             == other.TimerDurationTimeSpan             &&
                TopMostDisabled                   == other.TopMostDisabled                   &&
-               UpdateMode                        == other.UpdateMode                        &&
                UserSelectRemindLater             == other.UserSelectRemindLater;
+
+
+        bool IsMandatory()
+        {
+            if (IsManditory == other.IsManditory)
+                return ShowRemindLaterButton == other.ShowRemindLaterButton &&
+                       ShowSkipButton        == other.ShowSkipButton;
+
+            return UpdateMode == other.UpdateMode;
+        }
     }
 }

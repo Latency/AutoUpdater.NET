@@ -20,5 +20,5 @@ public record ProxyEnabled
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? Password { get; set; }
 
-    public override string? ToString() => $"Uri: {Uri}, UserName: {UserName}, Password: {Password}";
+    public override string ToString() => $"Uri: {Uri}, UserName: {UserName}, Password: {Password}";
 }

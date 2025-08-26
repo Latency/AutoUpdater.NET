@@ -22,7 +22,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AutoUpdaterDotNET.Models;
 using CommunityToolkit.Mvvm.Input;
-using Exception = System.Exception;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -44,7 +43,7 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
     {
         WriteIndented       = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
-        TypeInfoResolver = new DependancyPropertyTypeResolver<ViewModelMainConfig>
+        TypeInfoResolver    = new DependancyPropertyTypeResolver<ViewModelMainConfig>
         {
             Modifiers = { JsonExtensions.AlphabetizeProperties }
         }
@@ -154,10 +153,10 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
 
         SaveConfig();
 
-        _configOrig?.Copy(this);
+        _configOrig.Copy(this);
         InstalledVersionOverride = false;
 
-        OnUpdateValidation(null);
+        OnUpdateValidation();
     }
 
 

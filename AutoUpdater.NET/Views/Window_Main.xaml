@@ -256,7 +256,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <ComboBox
                     Name="cbUpdateMode"
-                    ToolTip="Normal - Ignores 'Remind Later' and 'Skip' values set previously and will hide both buttons.&#x0a;Forced - Same as Normal mode, minus showing the close box.&#x0a;ForcedDownload - Will start downloading and applying update without showing standard update dialog in addition to Forced mode behaviour."
+                    ToolTip="Normal                - Ignores 'Remind Later' and 'Skip' values set previously and will hide both buttons.&#x0a;Forced                 - Same as Normal mode, minus showing the close box.&#x0a;ForcedDownload - Will start downloading and applying update without showing standard update dialog in addition to Forced mode behaviour."
                     ItemsSource="{Binding Source={StaticResource UpdateModeEnumValues}}"
                     SelectedValue="{Binding UpdateMode}"
                     IsSynchronizedWithCurrentItem="True"
