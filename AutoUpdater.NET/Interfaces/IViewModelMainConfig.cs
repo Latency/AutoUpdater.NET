@@ -19,18 +19,18 @@ public interface IViewModelMainConfig : IEquatable<ViewModelMainConfig>
     event Action<bool?>? UpdateValidation;
     void OnUpdateValidation(bool? isEnabled);
 
-    string                             AppTitle                      { get; set; }
-    string                             BasicAuthPassword             { get; set; }
-    string                             BasicAuthUserName             { get; set; }
-    string                             ExecutablePath                { get; set; }
-    string                             ImageUri                      { get; }
-    string                             InstallationPath              { get; set; }
-    bool                               IsManditory                   { get; set; }
-    bool                               ShowSkipButton                { get; set; }
-    bool                               ShowRemindLaterButton         { get; set; }
-    bool                               RunUpdateAsAdmin              { get; set; }
-    bool                               OpenDownloadPage              { get; set; }
-    bool                               BasicAuth                     { get; set; }
+    string AppTitle              { get; set; }
+    string BasicAuthPassword     { get; set; }
+    string BasicAuthUserName     { get; set; }
+    string ExecutablePath        { get; set; }
+    string ImageUri              { get; }
+    string InstallationPath      { get; set; }
+    bool   IsManditory           { get; set; }
+    bool   ShowSkipButton        { get; set; }
+    bool   ShowRemindLaterButton { get; set; }
+    bool   RunUpdateAsAdmin      { get; set; }
+    bool   OpenDownloadPage      { get; set; }
+    BasicAuth?                         BasicAuth                     { get; set; }
     bool                               BasicAuthChangeLog            { get; set; }
     bool                               BasicAuthDownload             { get; set; }
     bool                               DoNotBindOwnerWindow          { get; set; }

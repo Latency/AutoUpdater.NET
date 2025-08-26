@@ -1,6 +1,6 @@
 ﻿// ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     ProxyEnabled.cs
+// File:     BasicAuth.cs
 // Author:   Latency McLaughlin
 // Date:     06/29/2025
 // ****************************************************************************
@@ -9,10 +9,13 @@ using System.Text.Json.Serialization;
 
 namespace AutoUpdaterDotNET.Models;
 
-public record ProxyEnabled : UsernamePassword
+public record BasicAuth : UsernamePassword
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string? Uri { get; set; }
+    public bool ChangeLog{ get; set; }
 
-    public override string ToString() => $"Uri: {Uri}, UserName: {UserName}, Password: {Password}";
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Download { get; set; }
+
+    public override string ToString() => $"ChangeLog: {ChangeLog}, Download: {Download}";
 }

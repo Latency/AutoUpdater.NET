@@ -18,5 +18,5 @@ public record TimerEnabled
     [JsonComment("0 - Seconds\n1 - Minutes\n2 - Hours\n3 - Days")]
     public RemindLaterFormat TimeSpan { get; set; }
 
-    public override string? ToString() => $"Interval: {Interval}, TimeSpan: {TimeSpan}";
+    public override string ToString() => $"Interval: {Interval}, TimeSpan: {TimeSpan}";
 }

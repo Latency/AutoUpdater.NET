@@ -35,6 +35,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     private IconOverride? _defaultIconOverride;
 
+    private BasicAuth? _defaultBasicAuth;
+
     private ZipFile? _defaultZipFile;
 
     private FilePath? _defaultZipExtractionPath, _defaultExecutablePathOverride;
@@ -48,17 +50,11 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
     public string? _appTitle;
-    partial void OnAppTitleChanged(string? value) => OnUpdateValidation();
-
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [ObservableProperty]
-    public string? _basicAuthPassword;
-    partial void OnBasicAuthPasswordChanged(string? value) => OnUpdateValidation();
-
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [ObservableProperty]
-    public string? _basicAuthUserName;
-    partial void OnBasicAuthUserNameChanged(string? value) => OnUpdateValidation();
+    partial void OnAppTitleChanged(string? value)
+    {
+        AppTitle = !string.IsNullOrEmpty(value) ? value : null;
+        OnUpdateValidation();
+    }
 
     [property: JsonIgnore]
     [ObservableProperty]
@@ -122,7 +118,6 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("IsManditory")]
     public IsManditory? Manditory { get; set; }
-
     #endregion IsManditory
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -135,20 +130,60 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public bool _openDownloadPage;
     partial void OnOpenDownloadPageChanged(bool value) => OnUpdateValidation();
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    #region Basic Auth
+    [property: JsonIgnore]
     [ObservableProperty]
-    public bool _basicAuth;
-    partial void OnBasicAuthChanged(bool value) => OnUpdateValidation();
+    public bool _isBasicAuth;
+    partial void OnIsBasicAuthChanged(bool value)
+    {
+        BasicAuth = value ? _defaultBasicAuth ??= new BasicAuth() : null;
+        OnUpdateValidation();
+    }
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("BasicAuthentication")]
+    public BasicAuth? BasicAuth { get; set; }
+
+    [property: JsonIgnore]
     [ObservableProperty]
     public bool _basicAuthChangeLog;
-    partial void OnBasicAuthChangeLogChanged(bool value) => OnUpdateValidation();
+    partial void OnBasicAuthChangeLogChanged(bool value)
+    {
+        if (BasicAuth is not null)
+            BasicAuth.ChangeLog = value;
+        OnUpdateValidation();
+    }
 
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [property: JsonIgnore]
     [ObservableProperty]
     public bool _basicAuthDownload;
-    partial void OnBasicAuthDownloadChanged(bool value) => OnUpdateValidation();
+    partial void OnBasicAuthDownloadChanged(bool value)
+    {
+        if (BasicAuth is not null)
+            BasicAuth.Download = value;
+        OnUpdateValidation();
+    }
+
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public string? _basicAuthUserName;
+    partial void OnBasicAuthUserNameChanged(string? value)
+    {
+        if (BasicAuth is not null)
+            BasicAuth.UserName = !string.IsNullOrEmpty(value) ? value : null;
+        OnUpdateValidation();
+    }
+
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public string? _basicAuthPassword;
+    partial void OnBasicAuthPasswordChanged(string? value)
+    {
+        if (BasicAuth is not null)
+            BasicAuth.Password = !string.IsNullOrEmpty(value) ? value : null;
+        OnUpdateValidation();
+    }
+    #endregion Basic Auth
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
@@ -193,7 +228,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     partial void OnProxyUriChanged(string? value)
     {
         if (Proxy is not null)
-            Proxy.Uri = value;
+            Proxy.Uri = !string.IsNullOrEmpty(value) ? value : null;
         OnUpdateValidation();
     }
 
@@ -203,7 +238,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     partial void OnProxyUserNameChanged(string? value)
     {
         if (Proxy is not null)
-            Proxy.UserName = value;
+            Proxy.UserName = !string.IsNullOrEmpty(value) ? value : null;
         OnUpdateValidation();
     }
 
@@ -213,7 +248,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     partial void OnProxyPasswordChanged(string? value)
     {
         if (Proxy is not null)
-            Proxy.Password = value;
+            Proxy.Password = !string.IsNullOrEmpty(value) ? value : null;
         OnUpdateValidation();
     }
 
@@ -336,6 +371,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("UserSelectRemmindLater")]
     public TimerEnabled? RemmindLaterTimer { get; set; }
 
     #endregion UserSelectRemindLater

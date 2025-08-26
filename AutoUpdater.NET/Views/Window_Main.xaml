@@ -561,7 +561,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbBasicAuth"
-                    IsChecked="{Binding BasicAuth}"
+                    IsChecked="{Binding IsBasicAuth}"
                     ToolTip="Check this to set basic authentication on credentials."
                     Content="Basic Authentication"
                 />
