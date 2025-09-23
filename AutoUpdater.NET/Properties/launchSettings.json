@@ -1,9 +1,9 @@
-﻿{
+{
   "profiles": {
     "AutoUpdater": {
       "commandName": "Project",
       "environmentVariables": {
-          "ConfigFile": "AutoUpdate.json",
+        "ConfigFile": "AutoUpdate.json",
         "UpdateUnavailableMessage": "There is no update available. Please try again later.",
         "UpdateUnavailableCaption": "Update Unavailable",
         "UpdateCheckFailedMessage": "There is a problem reaching update server. Please check your internet connection and try again later.",

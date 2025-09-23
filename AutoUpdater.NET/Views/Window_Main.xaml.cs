@@ -37,10 +37,8 @@ public sealed partial class Window_Main
         vm.UpdateVersion    += OnUpdateVersion;
         vm.UpdateValidation += OnUpdateValidation;
 
-        if (Icon is not null)
-            vm.TmpIcon = Icon;
-        else
-            vm.TmpIcon = Application.Current!.Resources["project"] as BitmapImage;
+        vm.TmpIcon = Application.Current!.Resources["Project"] as BitmapImage;
+        OnUpdateIcon(vm.TmpIcon);
     }
 
 

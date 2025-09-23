@@ -9,6 +9,7 @@ using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace AutoUpdaterDotNET.Views;
 
@@ -16,15 +17,20 @@ public partial class App
 {
     private static IServiceProvider? _serviceProvider;
 
-
     protected override void OnStartup(StartupEventArgs? e)
     {
         var serviceCollection = new ServiceCollection();
         ConfigureServices(serviceCollection);
 
+        // <BitmapImage x: Key = "Project" UriSource = "pack://application:,,,/AutoUpdater.NET;component/png/project.png" />
+        // Dynamic replacement for 'Styles/Images.cs' targeting 'Project' key.
+        var imgResourceDict = Current!.Resources.MergedDictionaries[0]!;
+        var file = Environment.GetEnvironmentVariable("IconFile");
+        imgResourceDict.Add("Project", !string.IsNullOrEmpty(file) ? new BitmapImage(new Uri(file)) : null);
+
         _serviceProvider = serviceCollection.BuildServiceProvider();
-        var mainWindow = _serviceProvider.GetRequiredService<Window_Main>();
-        mainWindow.ShowDialog();
+        var mainFrm = _serviceProvider.GetRequiredService<Window_Main>();
+        mainFrm.ShowDialog();
     }
 
 
