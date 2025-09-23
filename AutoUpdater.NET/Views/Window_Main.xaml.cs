@@ -81,8 +81,7 @@ public sealed partial class Window_Main
 
     private void OnUpdateValidation(bool? isEnabled)
     {
-        if (ButtonUpdate is not null)
-            ButtonUpdate.IsEnabled = isEnabled ?? false;
+        ButtonUpdate?.IsEnabled = isEnabled ?? false;
     }
 
 
@@ -115,8 +114,7 @@ public sealed partial class Window_Main
         {
             false => () =>
             {
-                if (tbAppTitle != null)
-                    tbAppTitle.Tag = tbAppTitle.Text;
+                tbAppTitle?.Tag = tbAppTitle.Text;
                 return null;
             },
             true => () =>

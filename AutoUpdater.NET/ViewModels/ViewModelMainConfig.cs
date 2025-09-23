@@ -61,8 +61,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _executablePath;
     partial void OnExecutablePathChanged(string? value)
     {
-        if (ZipFile?.ExecutablePathOverride is not null)
-            ZipFile.ExecutablePathOverride.Path = value;
+        ZipFile?.ExecutablePathOverride?.Path = value;
         OnUpdateValidation();
     }
 
@@ -76,8 +75,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _installationPath;
     partial void OnInstallationPathChanged(string? value)
     {
-        if (ZipFile?.ChangeUpdateZipExtractionPath is not null)
-            ZipFile.ChangeUpdateZipExtractionPath.Path = value;
+        ZipFile?.ChangeUpdateZipExtractionPath?.Path = value;
         OnUpdateValidation();
     }
 
@@ -106,8 +104,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public Mode _updateMode;
     partial void OnUpdateModeChanged(Mode value)
     {
-        if (Manditory is not null)
-            Manditory.UpdateMode = value;
+        Manditory?.UpdateMode = value;
 
         if (_defaultIsManditory == Manditory)
             _defaultIsManditory = null;
@@ -149,8 +146,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public bool _basicAuthChangeLog;
     partial void OnBasicAuthChangeLogChanged(bool value)
     {
-        if (BasicAuth is not null)
-            BasicAuth.ChangeLog = value;
+        BasicAuth?.ChangeLog = value;
         OnUpdateValidation();
     }
 
@@ -159,8 +155,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public bool _basicAuthDownload;
     partial void OnBasicAuthDownloadChanged(bool value)
     {
-        if (BasicAuth is not null)
-            BasicAuth.Download = value;
+        BasicAuth?.Download = value;
         OnUpdateValidation();
     }
 
@@ -169,8 +164,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _basicAuthUserName;
     partial void OnBasicAuthUserNameChanged(string? value)
     {
-        if (BasicAuth is not null)
-            BasicAuth.UserName = !string.IsNullOrEmpty(value) ? value : null;
+        BasicAuth?.UserName = !string.IsNullOrEmpty(value) ? value : null;
         OnUpdateValidation();
     }
 
@@ -179,8 +173,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _basicAuthPassword;
     partial void OnBasicAuthPasswordChanged(string? value)
     {
-        if (BasicAuth is not null)
-            BasicAuth.Password = !string.IsNullOrEmpty(value) ? value : null;
+        BasicAuth?.Password = !string.IsNullOrEmpty(value) ? value : null;
         OnUpdateValidation();
     }
     #endregion Basic Auth
@@ -227,8 +220,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _proxyUri;
     partial void OnProxyUriChanged(string? value)
     {
-        if (Proxy is not null)
-            Proxy.Uri = !string.IsNullOrEmpty(value) ? value : null;
+        Proxy?.Uri = !string.IsNullOrEmpty(value) ? value : null;
         OnUpdateValidation();
     }
 
@@ -237,8 +229,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _proxyUserName;
     partial void OnProxyUserNameChanged(string? value)
     {
-        if (Proxy is not null)
-            Proxy.UserName = !string.IsNullOrEmpty(value) ? value : null;
+        Proxy?.UserName = !string.IsNullOrEmpty(value) ? value : null;
         OnUpdateValidation();
     }
 
@@ -247,8 +238,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _proxyPassword;
     partial void OnProxyPasswordChanged(string? value)
     {
-        if (Proxy is not null)
-            Proxy.Password = !string.IsNullOrEmpty(value) ? value : null;
+        Proxy?.Password = !string.IsNullOrEmpty(value) ? value : null;
         OnUpdateValidation();
     }
 
@@ -277,8 +267,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public bool _clearAppDirectory;
     partial void OnClearAppDirectoryChanged(bool value)
     {
-        if (ZipFile is not null)
-            ZipFile.ClearAppDirectory = value;
+        ZipFile?.ClearAppDirectory = value;
         OnUpdateValidation();
     }
 
@@ -308,8 +297,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public ushort _timerInterval = 1;
     partial void OnTimerIntervalChanged(ushort value)
     {
-        if (Timer is not null)
-            Timer.Interval = value;
+        Timer?.Interval = value;
 
         if (_defaultTimer == Timer)
             _defaultTimer = null;
@@ -322,8 +310,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public RemindLaterFormat _timerDurationTimeSpan;
     partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat value)
     {
-        if (Timer is not null)
-            Timer.TimeSpan = value;
+        Timer?.TimeSpan = value;
 
         if (_defaultTimer == Timer)
             _defaultTimer = null;
@@ -347,8 +334,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public ushort _remindLaterAt = 1;
     partial void OnRemindLaterAtChanged(ushort value)
     {
-        if (RemmindLaterTimer is not null)
-            RemmindLaterTimer.Interval = value;
+        RemmindLaterTimer?.Interval = value;
 
         if (_defaultRemindLaterTimer == Timer)
             _defaultRemindLaterTimer = null;
@@ -361,8 +347,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public RemindLaterFormat _remindLaterTimeSpan;
     partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat value)
     {
-        if (RemmindLaterTimer is not null)
-            RemmindLaterTimer.TimeSpan = value;
+        RemmindLaterTimer?.TimeSpan = value;
 
         if (_defaultRemindLaterTimer == Timer)
             _defaultRemindLaterTimer = null;
@@ -492,10 +477,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (_defaultInstalledVersion == tmpVer)
             InstalledVersion = null;
         else
-        {
-            if (InstalledVersion is not null)
-                InstalledVersion.Version = tmpVer;
-        }
+            InstalledVersion?.Version = tmpVer;
     }
 
 
