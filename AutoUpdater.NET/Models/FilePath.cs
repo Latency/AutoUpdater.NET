@@ -6,6 +6,7 @@
 // ****************************************************************************
 
 using AutoUpdaterDotNET.Attributes;
+using System.Text.Json.Serialization;
 
 namespace AutoUpdaterDotNET.Models;
 
@@ -15,5 +16,6 @@ public record FilePath
     ///     File path location.
     /// </summary>
     [JsonComment("File path location")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Path { get; set; }
 }

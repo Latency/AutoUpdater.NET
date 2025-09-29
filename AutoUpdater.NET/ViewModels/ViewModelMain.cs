@@ -140,7 +140,7 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
     [RelayCommand]
     private void Cancel()
     {
-
+        Copy(_configOrig);
     }
 
 

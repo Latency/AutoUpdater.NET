@@ -18,7 +18,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using AutoUpdaterDotNET.Interfaces;
 
-
 namespace AutoUpdaterDotNET.ViewModels;
 
 public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfig
@@ -39,13 +38,23 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     private ZipFile? _defaultZipFile;
 
-    private FilePath? _defaultZipExtractionPath, _defaultExecutablePathOverride;
+    private FilePath? _defaultZipExtractionPathOverride, _defaultExecutablePathOverride;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
 
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    #region AppTitle
+    [property: JsonIgnore]
+    [ObservableProperty]
+    public bool _isAppTitle;
+    partial void OnIsAppTitleChanged(bool value)
+    {
+        _isAppTitle = value;
+        OnUpdateValidation();
+    }
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
@@ -55,6 +64,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         AppTitle = !string.IsNullOrEmpty(value) ? value : null;
         OnUpdateValidation();
     }
+    #endregion AppTitle
 
     [property: JsonIgnore]
     [ObservableProperty]
@@ -75,7 +85,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _installationPath;
     partial void OnInstallationPathChanged(string? value)
     {
-        ZipFile?.ChangeUpdateZipExtractionPath?.Path = value;
+        ZipFile?.ZipExtractionPathOverride?.Path = value;
         OnUpdateValidation();
     }
 
@@ -92,12 +102,12 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _showSkipButton;
-    partial void OnShowSkipButtonChanged(bool value) => OnUpdateValidation();
+    partial void OnShowSkipButtonChanged(bool value) => OnUpdateValidation(value);
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _showRemindLaterButton;
-    partial void OnShowRemindLaterButtonChanged(bool value) => OnUpdateValidation();
+    partial void OnShowRemindLaterButtonChanged(bool value) => OnUpdateValidation(value);
 
     [property: JsonIgnore]
     [ObservableProperty]
@@ -120,12 +130,12 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _runUpdateAsAdmin;
-    partial void OnRunUpdateAsAdminChanged(bool value) => OnUpdateValidation();
+    partial void OnRunUpdateAsAdminChanged(bool value) => OnUpdateValidation(value);
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _openDownloadPage;
-    partial void OnOpenDownloadPageChanged(bool value) => OnUpdateValidation();
+    partial void OnOpenDownloadPageChanged(bool value) => OnUpdateValidation(value);
 
     #region Basic Auth
     [property: JsonIgnore]
@@ -181,23 +191,27 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _doNotBindOwnerWindow;
-    partial void OnDoNotBindOwnerWindowChanged(bool value) => OnUpdateValidation();
+    partial void OnDoNotBindOwnerWindowChanged(bool value) => OnUpdateValidation(value);
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _checkSynchronously;
-    partial void OnCheckSynchronouslyChanged(bool value) => OnUpdateValidation();
+    partial void OnCheckSynchronouslyChanged(bool value) => OnUpdateValidation(value);
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _ftpProtocol;
-    partial void OnFtpProtocolChanged(bool value) => OnUpdateValidation();
+    partial void OnFtpProtocolChanged(bool value) => OnUpdateValidation(value);
 
     #region Icon Override
     [property: JsonIgnore]
     [ObservableProperty]
     public bool _IsIconOverride;
-    partial void OnIsIconOverrideChanged(bool value) => IconOverride = value ? _defaultIconOverride ??= new IconOverride  { Uri = TmpIcon?.ToString() } : null;
+    partial void OnIsIconOverrideChanged(bool value)
+    {
+        IconOverride = value ? _defaultIconOverride ??= new IconOverride { Uri = TmpIcon?.ToString() } : null;
+        OnUpdateValidation(value);
+    }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IconOverride? IconOverride { get; set; }
@@ -207,13 +221,17 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _persistSettings;
-    partial void OnPersistSettingsChanged(bool value) => OnUpdateValidation();
+    partial void OnPersistSettingsChanged(bool value) => OnUpdateValidation(value);
 
     #region ProxyEnabled
     [property: JsonIgnore]
     [ObservableProperty]
     public bool _proxyEnabled;
-    partial void OnProxyEnabledChanged(bool value) => Proxy = value ? _defaultProxy ??= new ProxyEnabled() : null;
+    partial void OnProxyEnabledChanged(bool value)
+    {
+        Proxy = value ? _defaultProxy ??= new ProxyEnabled() : null;
+        OnUpdateValidation(value);
+    }
 
     [property: JsonIgnore]
     [ObservableProperty]
@@ -249,18 +267,22 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _reportErrors;
-    partial void OnReportErrorsChanged(bool value) => OnUpdateValidation();
+    partial void OnReportErrorsChanged(bool value) => OnUpdateValidation(value);
 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public bool _topMostDisabled;
-    partial void OnTopMostDisabledChanged(bool value) => OnUpdateValidation();
+    partial void OnTopMostDisabledChanged(bool value) => OnUpdateValidation(value);
 
     #region Use ZipFile
     [property: JsonIgnore]
     [ObservableProperty]
     public bool _useZipFile;
-    partial void OnUseZipFileChanged(bool value) => ZipFile = value ? _defaultZipFile ??= new ZipFile() : null;
+    partial void OnUseZipFileChanged(bool value)
+    {
+        ZipFile = value ? _defaultZipFile ??= new ZipFile() : null;
+        OnUpdateValidation(value);
+    }
 
     [property: JsonIgnore]
     [ObservableProperty]
@@ -274,13 +296,20 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore]
     [ObservableProperty]
     public bool _executablePathOverride;
-    partial void OnExecutablePathOverrideChanged(bool value) => ZipFile!.ExecutablePathOverride = value ? _defaultExecutablePathOverride ??= new FilePath() : null;
+    partial void OnExecutablePathOverrideChanged(bool value)
+    {
+        ZipFile!.ExecutablePathOverride = value ? _defaultExecutablePathOverride ??= new FilePath() : null;
+        OnUpdateValidation(value);
+    }
 
     [property: JsonIgnore]
     [ObservableProperty]
-    public bool _changeUpdateZipExtractionPath;
-    partial void OnChangeUpdateZipExtractionPathChanged(bool value) => ZipFile!.ChangeUpdateZipExtractionPath = value? _defaultZipExtractionPath ??= new FilePath() : null;
-
+    public bool _zipExtractionPathOverride;
+    partial void OnZipExtractionPathOverrideChanged(bool value)
+    {
+        ZipFile!.ZipExtractionPathOverride = value ? _defaultZipExtractionPathOverride ??= new FilePath() : null;
+        OnUpdateValidation(value);
+    }
     #endregion Use ZipFile
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -290,7 +319,11 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore]
     [ObservableProperty]
     public bool _timerEnabled;
-    partial void OnTimerEnabledChanged(bool value) => Timer = value ? _defaultTimer ??= new TimerEnabled() : null;
+    partial void OnTimerEnabledChanged(bool value)
+    {
+        Timer = value ? _defaultTimer ??= new TimerEnabled() : null;
+        OnUpdateValidation(value);
+    }
 
     [property: JsonIgnore]
     [ObservableProperty]
@@ -327,7 +360,11 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore]
     [ObservableProperty]
     public bool _userSelectRemindLater;
-    partial void OnUserSelectRemindLaterChanged(bool value) => RemmindLaterTimer = value ? _defaultRemindLaterTimer ??= new TimerEnabled() : null;
+    partial void OnUserSelectRemindLaterChanged(bool value)
+    {
+        RemmindLaterTimer = value ? _defaultRemindLaterTimer ??= new TimerEnabled() : null;
+        OnUpdateValidation(value);
+    }
 
     [property: JsonIgnore]
     [ObservableProperty]
@@ -366,7 +403,11 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     [property: JsonIgnore]
     public bool _installedVersionOverride;
-    partial void OnInstalledVersionOverrideChanging(bool value) => InstalledVersion = value ? new InstalledVersion { Version = _defaultInstalledVersion } : null;
+    partial void OnInstalledVersionOverrideChanging(bool value)
+    {
+        InstalledVersion = value ? new InstalledVersion { Version = _defaultInstalledVersion } : null;
+        OnUpdateValidation(value);
+    }
 
     [ObservableProperty]
     [property: JsonIgnore]
@@ -412,7 +453,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     [property: JsonIgnore]
     public ImageSource? _tmpIcon = null;
-    partial void OnTmpIconChanged(ImageSource? value) => OnUpdateValidation();
+    partial void OnTmpIconChanged(ImageSource? value) => OnUpdateValidation(value is not null);
 
     [ObservableProperty]
     [property: JsonIgnore]
@@ -478,6 +519,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
             InstalledVersion = null;
         else
             InstalledVersion?.Version = tmpVer;
+
+        OnUpdateValidation();
     }
 
 
@@ -486,47 +529,52 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (other is null)
             return null;
 
-        AppTitle                      = other.AppTitle;
-        BasicAuth                     = other.BasicAuth;
-        BasicAuthChangeLog            = other.BasicAuthChangeLog;
-        BasicAuthDownload             = other.BasicAuthDownload;
-        BasicAuthPassword             = other.BasicAuthPassword;
-        BasicAuthUserName             = other.BasicAuthUserName;
-        ChangeUpdateZipExtractionPath = other.ChangeUpdateZipExtractionPath;
-        CheckSynchronously            = other.CheckSynchronously;
-        ClearAppDirectory             = other.ClearAppDirectory;
-        DoNotBindOwnerWindow          = other.DoNotBindOwnerWindow;
-        ExecutablePath                = other.ExecutablePath;
-        ExecutablePathOverride        = other.ExecutablePathOverride;
-        FtpProtocol                   = other.FtpProtocol;
-        IconOverride                  = other.IconOverride;
-        ImageUri                      = other.ImageUri;
-        InstallationPath              = other.InstallationPath;
-        InstalledVersion              = other.InstalledVersion;
-        InstalledVersionOverride      = other.InstalledVersionOverride;
-        TimerInterval                 = other.TimerInterval;
-        IsManditory                   = other.IsManditory;
-        OpenDownloadPage              = other.OpenDownloadPage;
-        PersistSettings               = other.PersistSettings;
-        ProxyEnabled                  = other.ProxyEnabled;
-        MajorVersion                  = other.MajorVersion;
-        MinorVersion                  = other.MinorVersion;
-        BuildVersion                  = other.BuildVersion;
-        RevisionVersion               = other.RevisionVersion;
-        ProxyUri                      = other.ProxyUri;
-        ProxyUserName                 = other.ProxyUserName;
-        ProxyPassword                 = other.ProxyPassword;
-        RemindLaterAt                 = other.RemindLaterAt;
-        RemindLaterTimeSpan           = other.RemindLaterTimeSpan;
-        ReportErrors                  = other.ReportErrors;
-        RunUpdateAsAdmin              = other.RunUpdateAsAdmin;
-        ShowRemindLaterButton         = other.ShowRemindLaterButton;
-        ShowSkipButton                = other.ShowSkipButton;
-        TimerDurationTimeSpan         = other.TimerDurationTimeSpan;
-        TopMostDisabled               = other.TopMostDisabled;
-        UpdateMode                    = other.UpdateMode;
-        UserSelectRemindLater         = other.UserSelectRemindLater;
-        UseZipFile                    = other.UseZipFile;
+        AppTitle                  = other.AppTitle;
+        BasicAuth                 = other.BasicAuth;
+        BasicAuthChangeLog        = other.BasicAuthChangeLog;
+        BasicAuthDownload         = other.BasicAuthDownload;
+        BasicAuthPassword         = other.BasicAuthPassword;
+        BasicAuthUserName         = other.BasicAuthUserName;
+        BuildVersion              = other.BuildVersion;
+        CheckSynchronously        = other.CheckSynchronously;
+        ClearAppDirectory         = other.ClearAppDirectory;
+        DoNotBindOwnerWindow      = other.DoNotBindOwnerWindow;
+        ExecutablePath            = other.ExecutablePath;
+        ExecutablePathOverride    = other.ExecutablePathOverride;
+        FtpProtocol               = other.FtpProtocol;
+        IconOverride              = other.IconOverride;
+        ImageUri                  = other.ImageUri;
+        InstallationPath          = other.InstallationPath;
+        InstalledVersion          = other.InstalledVersion;
+        InstalledVersionOverride  = other.InstalledVersionOverride;
+        IsAppTitle                = other.IsAppTitle;
+        IsBasicAuth               = other.IsBasicAuth;
+        IsIconOverride            = other.IsIconOverride;
+        IsManditory               = other.IsManditory;
+        MajorVersion              = other.MajorVersion;
+        MinorVersion              = other.MinorVersion;
+        OpenDownloadPage          = other.OpenDownloadPage;
+        PersistSettings           = other.PersistSettings;
+        ProxyEnabled              = other.ProxyEnabled;
+        ProxyPassword             = other.ProxyPassword;
+        ProxyUri                  = other.ProxyUri;
+        ProxyUserName             = other.ProxyUserName;
+        RemindLaterAt             = other.RemindLaterAt;
+        RemindLaterTimeSpan       = other.RemindLaterTimeSpan;
+        ReportErrors              = other.ReportErrors;
+        RevisionVersion           = other.RevisionVersion;
+        RunUpdateAsAdmin          = other.RunUpdateAsAdmin;
+        ShowRemindLaterButton     = other.ShowRemindLaterButton;
+        ShowSkipButton            = other.ShowSkipButton;
+        TimerDurationTimeSpan     = other.TimerDurationTimeSpan;
+        TimerEnabled              = other.TimerEnabled;
+        TimerInterval             = other.TimerInterval;
+        TmpIcon                   = other.TmpIcon;
+        TopMostDisabled           = other.TopMostDisabled;
+        UpdateMode                = other.UpdateMode;
+        UserSelectRemindLater     = other.UserSelectRemindLater;
+        UseZipFile                = other.UseZipFile;
+        ZipExtractionPathOverride = other.ZipExtractionPathOverride;
 
         return this;
     }
@@ -573,32 +621,31 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                (
                    ReferenceEquals(Proxy?.UserName, other.Proxy?.UserName) ||
                    Proxy?.UserName == other.Proxy?.UserName
-               )                                                                            &&
-               IsMandatory()                                                                &&
-               BasicAuth                         == other.BasicAuth                         &&
-               BasicAuthChangeLog                == other.BasicAuthChangeLog                &&
-               BasicAuthDownload                 == other.BasicAuthDownload                 &&
-               ChangeUpdateZipExtractionPath     == other.ChangeUpdateZipExtractionPath     &&
-               CheckSynchronously                == other.CheckSynchronously                &&
-               ClearAppDirectory                 == other.ClearAppDirectory                 &&
-               DoNotBindOwnerWindow              == other.DoNotBindOwnerWindow              &&
-               ExecutablePathOverride            == other.ExecutablePathOverride            &&
-               FtpProtocol                       == other.FtpProtocol                       &&
-               TimerInterval                     == other.TimerInterval                     &&
-               BuildVersion                      == other.BuildVersion                      &&
-               MajorVersion                      == other.MajorVersion                      &&
-               MinorVersion                      == other.MinorVersion                      &&
-               RevisionVersion                   == other.RevisionVersion                   &&
-               OpenDownloadPage                  == other.OpenDownloadPage                  &&
-               PersistSettings                   == other.PersistSettings                   &&
-               ProxyEnabled                      == other.ProxyEnabled                      &&
-               RemindLaterAt                     == other.RemindLaterAt                     &&
-               RemindLaterTimeSpan               == other.RemindLaterTimeSpan               &&
-               ReportErrors                      == other.ReportErrors                      &&
-               RunUpdateAsAdmin                  == other.RunUpdateAsAdmin                  &&
-               TimerDurationTimeSpan             == other.TimerDurationTimeSpan             &&
-               TopMostDisabled                   == other.TopMostDisabled                   &&
-               UserSelectRemindLater             == other.UserSelectRemindLater;
+               )                                                            &&
+               IsMandatory()                                                &&
+               BasicAuth                 == other.BasicAuth                 &&
+               BasicAuthChangeLog        == other.BasicAuthChangeLog        &&
+               BasicAuthDownload         == other.BasicAuthDownload         &&
+               BuildVersion              == other.BuildVersion              &&
+               CheckSynchronously        == other.CheckSynchronously        &&
+               ClearAppDirectory         == other.ClearAppDirectory         &&
+               DoNotBindOwnerWindow      == other.DoNotBindOwnerWindow      &&
+               FtpProtocol               == other.FtpProtocol               &&
+               MajorVersion              == other.MajorVersion              &&
+               MinorVersion              == other.MinorVersion              &&
+               OpenDownloadPage          == other.OpenDownloadPage          &&
+               PersistSettings           == other.PersistSettings           &&
+               ProxyEnabled              == other.ProxyEnabled              &&
+               RemindLaterAt             == other.RemindLaterAt             &&
+               RemindLaterTimeSpan       == other.RemindLaterTimeSpan       &&
+               ReportErrors              == other.ReportErrors              &&
+               RevisionVersion           == other.RevisionVersion           &&
+               RunUpdateAsAdmin          == other.RunUpdateAsAdmin          &&
+               TimerDurationTimeSpan     == other.TimerDurationTimeSpan     &&
+               TimerInterval             == other.TimerInterval             &&
+               TopMostDisabled           == other.TopMostDisabled           &&
+               UserSelectRemindLater     == other.UserSelectRemindLater     &&
+               ZipExtractionPathOverride == other.ZipExtractionPathOverride;
 
 
         bool IsMandatory()
@@ -608,6 +655,74 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                        ShowSkipButton        == other.ShowSkipButton;
 
             return UpdateMode == other.UpdateMode;
+        }
+    }
+
+
+    public override bool Equals(object? obj) => Equals(obj as ViewModelMainConfig);
+
+    public override int GetHashCode()
+    {
+        // Combine hash codes of relevant fields
+        unchecked // Allows arithmetic overflow without throwing an exception
+        {
+            var hash = 17;                                                              // A prime number
+            hash = hash * 3 + (AppTitle          != null ? AppTitle.GetHashCode() : 0); // Another prime number
+            hash = hash * 3 + (BasicAuthPassword != null ? BasicAuthPassword.GetHashCode() : 0);
+            hash = hash * 3 + (BasicAuthUserName != null ? BasicAuthUserName.GetHashCode() : 0);
+            hash = hash * 3 + (ExecutablePath    != null ? ExecutablePath.GetHashCode() : 0);
+            hash = hash * 3 + (ImageUri          != null ? ImageUri.GetHashCode() : 0);
+            hash = hash * 3 + (InstallationPath  != null ? InstallationPath.GetHashCode() : 0);
+
+            // ReSharper disable NonReadonlyMemberInGetHashCode
+            if (Proxy is not null)
+            {
+                hash = hash * 3 + (Proxy.Uri      != null ? Proxy.Uri.GetHashCode() : 0);
+                hash = hash * 3 + (Proxy.Password != null ? Proxy.Password.GetHashCode() : 0);
+                hash = hash * 3 + (Proxy.UserName != null ? Proxy.UserName.GetHashCode() : 0);
+            }
+            // ReSharper restore NonReadonlyMemberInGetHashCode
+
+            if (IsManditory)
+            {
+                hash = hash * 3 + ShowRemindLaterButton.GetHashCode();
+                hash = hash * 3 + ShowSkipButton.GetHashCode();
+            }
+            else
+            {
+                hash = hash * 3 + UpdateMode.GetHashCode();
+            }
+
+            // ReSharper disable NonReadonlyMemberInGetHashCode
+            hash = hash * 3 + (BasicAuth != null ? BasicAuth.GetHashCode() : 0);
+            // ReSharper restore NonReadonlyMemberInGetHashCode
+
+            hash = hash * 3 + BasicAuthChangeLog.GetHashCode();
+            hash = hash * 3 + BasicAuthDownload.GetHashCode();
+            hash = hash * 3 + ZipExtractionPathOverride.GetHashCode();
+            hash = hash * 3 + CheckSynchronously.GetHashCode();
+            hash = hash * 3 + ClearAppDirectory.GetHashCode();
+            hash = hash * 3 + DoNotBindOwnerWindow.GetHashCode();
+            hash = hash * 3 + ExecutablePathOverride.GetHashCode();
+            hash = hash * 3 + FtpProtocol.GetHashCode();
+            hash = hash * 3 + TimerInterval.GetHashCode();
+            hash = hash * 3 + BuildVersion.GetHashCode();
+            hash = hash * 3 + MajorVersion.GetHashCode();
+            hash = hash * 3 + MinorVersion.GetHashCode();
+            hash = hash * 3 + RevisionVersion.GetHashCode();
+            hash = hash * 3 + OpenDownloadPage.GetHashCode();
+            hash = hash * 3 + PersistSettings.GetHashCode();
+            hash = hash * 3 + ProxyEnabled.GetHashCode();
+            hash = hash * 3 + RemindLaterAt.GetHashCode();
+            hash = hash * 3 + RemindLaterTimeSpan.GetHashCode();
+            hash = hash * 3 + ReportErrors.GetHashCode();
+            hash = hash * 3 + RunUpdateAsAdmin.GetHashCode();
+            hash = hash * 3 + TimerDurationTimeSpan.GetHashCode();
+            hash = hash * 3 + TopMostDisabled.GetHashCode();
+            hash = hash * 3 + (TmpIcon != null ? TmpIcon.GetHashCode() : 0);
+            hash = hash * 3 + UserSelectRemindLater.GetHashCode();
+
+            return hash;
         }
     }
 }

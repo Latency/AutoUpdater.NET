@@ -14,10 +14,10 @@ namespace AutoUpdaterDotNET.Models;
 /// </summary>
 public record ZipFile
 {
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool      ClearAppDirectory             { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public FilePath? ExecutablePathOverride        { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public FilePath? ChangeUpdateZipExtractionPath { get; set; }
+    public FilePath? ZipExtractionPathOverride     { get; set; }
 }

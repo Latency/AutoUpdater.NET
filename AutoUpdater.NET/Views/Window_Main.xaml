@@ -107,6 +107,7 @@
             Grid.Column="2"
             Content="Update"
             ToolTip="Start the update."
+            IsEnabled="False"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Command="{Binding UpdateCommand}"
@@ -283,7 +284,7 @@
                     Name="cbAppTitle"
                     ToolTip="Check this if you want to show a custom application title in AutoUpdater notification window."
                     Content="App Title"
-                    Click="CbAppTitle_OnClick"
+                    IsChecked="{Binding IsAppTitle}"
                 />
 
                 <StackPanel Orientation="Horizontal">
@@ -472,7 +473,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbTimerEnabled"
-                    IsChecked="{Binding TimerEnabled, Mode=TwoWay}"
+                    IsChecked="{Binding TimerEnabled}"
                     ToolTip="Check this if periodically check for updates."
                     Content="Enable Timer"
                 />
@@ -805,11 +806,11 @@
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
-                    Name="cbChangeUpdateZipExtractionPath"
+                    Name="cbZipExtractionPathOverride"
                     Margin="10,0,0,0"
-                    IsChecked="{Binding ChangeUpdateZipExtractionPath}"
+                    IsChecked="{Binding ZipExtractionPathOverride}"
                     ToolTip="Check this to change the update zip extraction path.&#x0a;This only works when using a zip file as an update file."
-                    Content="Change Update ZIP Extraction Path"
+                    Content="ZIP Extraction Path Override"
                 >
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
@@ -833,12 +834,12 @@
                             <Style TargetType="Label">
                                 <Style.Triggers>
                                     <DataTrigger
-                                        Binding="{Binding IsChecked, ElementName=cbChangeUpdateZipExtractionPath}"
+                                        Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}"
                                         Value="False">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </DataTrigger>
                                     <DataTrigger
-                                        Binding="{Binding IsChecked, ElementName=cbChangeUpdateZipExtractionPath}"
+                                        Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}"
                                         Value="True">
                                         <Setter Property="Visibility" Value="Visible" />
                                     </DataTrigger>
@@ -858,12 +859,12 @@
                             <Style TargetType="TextBox">
                                 <Style.Triggers>
                                     <DataTrigger
-                                        Binding="{Binding IsChecked, ElementName=cbChangeUpdateZipExtractionPath}"
+                                        Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}"
                                         Value="False">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </DataTrigger>
                                     <DataTrigger
-                                        Binding="{Binding IsChecked, ElementName=cbChangeUpdateZipExtractionPath}"
+                                        Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}"
                                         Value="True">
                                         <Setter Property="Visibility" Value="Visible" />
                                     </DataTrigger>
@@ -884,7 +885,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbInstalledVersionOverride"
-                    IsChecked="{Binding InstalledVersionOverride, Mode=TwoWay}"
+                    IsChecked="{Binding InstalledVersionOverride}"
                     ToolTip="Check this to assign installed version manually and don't want to rely on the library to determine the installed version from the originating assembly."
                     Content="Installed Version Override"
                 />

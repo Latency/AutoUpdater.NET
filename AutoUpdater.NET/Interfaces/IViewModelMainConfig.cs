@@ -19,12 +19,12 @@ public interface IViewModelMainConfig : IEquatable<ViewModelMainConfig>
     event Action<bool?>? UpdateValidation;
     void OnUpdateValidation(bool? isEnabled);
 
-    string AppTitle              { get; set; }
-    string BasicAuthPassword     { get; set; }
-    string BasicAuthUserName     { get; set; }
-    string ExecutablePath        { get; set; }
-    string ImageUri              { get; }
-    string InstallationPath      { get; set; }
+    string? AppTitle             { get; set; }
+    string? BasicAuthPassword    { get; set; }
+    string? BasicAuthUserName    { get; set; }
+    string? ExecutablePath       { get; set; }
+    string? ImageUri             { get; }
+    string? InstallationPath     { get; set; }
     bool   IsManditory           { get; set; }
     bool   ShowSkipButton        { get; set; }
     bool   ShowRemindLaterButton { get; set; }
@@ -34,7 +34,7 @@ public interface IViewModelMainConfig : IEquatable<ViewModelMainConfig>
     bool                               BasicAuthChangeLog            { get; set; }
     bool                               BasicAuthDownload             { get; set; }
     bool                               DoNotBindOwnerWindow          { get; set; }
-    bool                               ChangeUpdateZipExtractionPath { get; set; }
+    bool                               ZipExtractionPathOverride     { get; set; }
     bool                               CheckSynchronously            { get; set; }
     bool                               ClearAppDirectory             { get; set; }
     bool                               ExecutablePathOverride        { get; set; }
