@@ -11,7 +11,7 @@ using AutoUpdaterDotNET.Converters;
 namespace AutoUpdaterDotNET.Attributes;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-public class JsonCommentAttribute(string comment) :  JsonConverterAttribute
+public class JsonCommentAttribute(string comment) : JsonConverterAttribute
 {
     public override JsonConverter CreateConverter(Type typeToConvert) => new JsonCommentConverter(comment);
 }

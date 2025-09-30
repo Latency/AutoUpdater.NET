@@ -727,12 +727,18 @@
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False">
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
                                     <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True">
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True" />
+                                    </MultiDataTrigger.Conditions>
                                     <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
+                                </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
                     </CheckBox.Style>
@@ -749,12 +755,18 @@
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False">
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
                                     <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True">
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True" />
+                                    </MultiDataTrigger.Conditions>
                                     <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
+                                </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
                     </CheckBox.Style>
@@ -767,14 +779,24 @@
                         <Label.Style>
                             <Style TargetType="Label">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}"
-                                                 Value="False">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}"
-                                                 Value="True">
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Label.Style>
@@ -790,14 +812,24 @@
                         <TextBox.Style>
                             <Style TargetType="TextBox">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}"
-                                                 Value="False">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}"
-                                                 Value="True">
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBox.Style>
@@ -815,12 +847,18 @@
                     <CheckBox.Style>
                         <Style TargetType="CheckBox">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False">
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
                                     <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True">
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True" />
+                                    </MultiDataTrigger.Conditions>
                                     <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
+                                </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
                     </CheckBox.Style>
@@ -833,16 +871,24 @@
                         <Label.Style>
                             <Style TargetType="Label">
                                 <Style.Triggers>
-                                    <DataTrigger
-                                        Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}"
-                                        Value="False">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger
-                                        Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}"
-                                        Value="True">
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Label.Style>
@@ -858,16 +904,24 @@
                         <TextBox.Style>
                             <Style TargetType="TextBox">
                                 <Style.Triggers>
-                                    <DataTrigger
-                                        Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}"
-                                        Value="False">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger
-                                        Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}"
-                                        Value="True">
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBox.Style>

@@ -12,9 +12,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using AutoUpdaterDotNET.ViewModels;
 
 namespace AutoUpdaterDotNET.Views;
 
@@ -29,15 +27,14 @@ public sealed partial class Window_Main
     /// </summary>
     public Window_Main(IViewModelMain vm)
     {
-        InitializeComponent();
-
         DataContext = vm;
+
+        InitializeComponent();
 
         vm.UpdateIcon       += OnUpdateIcon;
         vm.UpdateVersion    += OnUpdateVersion;
         vm.UpdateValidation += OnUpdateValidation;
 
-        vm.TmpIcon = Application.Current!.Resources["Project"] as BitmapImage;
         OnUpdateIcon(vm.TmpIcon);
     }
 
@@ -63,10 +60,10 @@ public sealed partial class Window_Main
     }
 
 
-    private void OnUpdateIcon(ImageSource? image)
+    private void OnUpdateIcon(BitmapImage? imagePath)
     {
-        if (image is not null)
-            Icon = image;
+        if (imagePath is not null)
+            Icon = imagePath;
     }
 
 
@@ -100,33 +97,5 @@ public sealed partial class Window_Main
     {
         Hide();
         e.Cancel = true;
-    }
-
-
-    private void CbAppTitle_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is not CheckBox cb)
-            return;
-
-        Func<string?> title = cb.IsChecked switch
-        {
-            false => () =>
-            {
-                tbAppTitle?.Tag = tbAppTitle.Text;
-                return null;
-            },
-            true => () =>
-            {
-                if (tbAppTitle == null)
-                    return null;
-                tbAppTitle.Text = (string?)tbAppTitle.Tag!;
-                tbAppTitle.Tag = null!;
-                return tbAppTitle.Text;
-            },
-            _ => throw new NotImplementedException()
-        };
-
-        if (DataContext is ViewModelMainConfig vm)
-            vm.AppTitle = title.Invoke();
     }
 }

@@ -17,11 +17,11 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AutoUpdaterDotNET.Models;
 using CommunityToolkit.Mvvm.Input;
+using AutoUpdaterDotNET.Extensions;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -65,10 +65,24 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
     public event Action?                           ApplicationExit;
     public event Action<UpdateInfoEventArgs>?      CheckForUpdates;
     public event Action<ParseUpdateInfoEventArgs>? ParseUpdateInfo;
-    public event Action<string?>?                  UpdateVersion;
-    public event Action<ImageSource?>?             UpdateIcon;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
+
+
+    private void SetVersion()
+    {
+        if (!InstalledVersionOverride)
+        {
+            var defaultVersion = GetType().Assembly.Version()!;
+
+            MajorVersion    = (ushort)defaultVersion.Major;
+            MinorVersion    = (ushort)defaultVersion.Minor;
+            BuildVersion    = (ushort)defaultVersion.Build;
+            RevisionVersion = (ushort)defaultVersion.Revision;
+        }
+
+        base.Update();
+    }
 
 
     void IViewModelMain.OnLoaded(object? sender)
@@ -78,6 +92,8 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
         UpdateTimer.Interval = GetRemindLaterInterval(TimerInterval);
         UpdateTimer.Tick     += (_, _) => { };
 
+        UpdateIcon += OnUpdateIcon;
+
         InvocationListGenerator(UpdateTimer, nameof(UpdateTimer.Tick), TimerNodeList);
         InvocationListGenerator(this,        nameof(ApplicationExit),  ApplicationExitNodeList);
         InvocationListGenerator(this,        nameof(CheckForUpdates),  CheckForUpdatesNodeList);
@@ -85,16 +101,7 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
 
         LoadConfig();
 
-        var defaultVersion = GetType().Assembly.Version()!;
-
-        MajorVersion    = (ushort)defaultVersion.Major;
-        MinorVersion    = (ushort)defaultVersion.Minor;
-        BuildVersion    = (ushort)defaultVersion.Build;
-        RevisionVersion = (ushort)defaultVersion.Revision;
-
-        _defaultInstalledVersion = new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion);
-        UpdateVersion?.Invoke($"Loader Version: {_defaultInstalledVersion}");
-
+        SetVersion();
         return;
 
         // -------------------------------------------
@@ -137,26 +144,23 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
     }
 
 
-    [RelayCommand]
-    private void Cancel()
-    {
-        Copy(_configOrig);
-    }
+    private void OnUpdateIcon(BitmapImage? img) => _configOrig.TmpIcon = img;
 
 
     [RelayCommand]
-    private void Update()
+    private void Cancel() => Copy(_configOrig);
+
+
+    [RelayCommand]
+    public override void Update()
     {
-        UpdateIcon?.Invoke(TmpIcon);
-        UpdateVersion?.Invoke(InstalledVersion?.Version?.ToString());
-
-
         SaveConfig();
+        SetVersion();
 
         _configOrig.Copy(this);
-        InstalledVersionOverride = false;
 
-        OnUpdateValidation();
+        _UpdateIcon(TmpIcon);
+        _UpdateValidation(false);
     }
 
 
@@ -186,29 +190,10 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
 
         try
         {
-            var tmp = new Dictionary<string, object>();
-
-            if (IsManditory)
-            {
-                tmp.TryAdd(nameof(ShowSkipButton),        ShowSkipButton);
-                tmp.TryAdd(nameof(ShowRemindLaterButton), ShowRemindLaterButton);
-
-                ShowSkipButton        = false;
-                ShowRemindLaterButton = false;
-            }
-
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             var json = JsonSerializer.Serialize<ViewModelMainConfig>(this, _jso);
             File.WriteAllTextAsync(file, json);
-
-            if (IsManditory)
-            {
-                foreach (var item in tmp)
-                    GetType().GetProperty(item.Key)?.SetValue(this, item.Value);
-
-                tmp.Clear();
-            }
         }
         catch (Exception ex)
         {
@@ -220,15 +205,13 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
     [RelayCommand]
     private void LoadConfig()
     {
-        const string config = "AutoUpdate.json";
-        var          file   = $@"{Directory.GetCurrentDirectory()}\Properties\{config}";
-
+        var file = $@"{Directory.GetCurrentDirectory()}\Properties\AutoUpdate.json";
         if (!File.Exists(file))
             return;
 
         try
         {
-            var vmmc = JsonSerializer.Deserialize<ViewModelMainConfig>(file, _jso);
+            var vmmc = JsonSerializer.Deserialize<ViewModelMainConfig>(file);
             Copy(vmmc);
             _configOrig.Copy(this);
         }
@@ -254,16 +237,9 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
             return;
 
         var imageUri = Path.GetRelativePath(Environment.CurrentDirectory, fd.FileName);
-        var uri      = new Uri(imageUri, imageUri.StartsWith("pack:") ? UriKind.Absolute : UriKind.Relative);
-        var bitmap   = new BitmapImage();
-        bitmap.BeginInit();
-        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-        bitmap.UriSource   = uri;
-        bitmap.EndInit();
+        var uri = new Uri(imageUri, imageUri.StartsWith("pack:") ? UriKind.Absolute : UriKind.Relative);
 
-        TmpIcon = bitmap;
-
-        OnPropertyChanged(nameof(TmpIcon));
+        TmpIcon = uri.ConvertToBitmapImage();
 
         return;
 

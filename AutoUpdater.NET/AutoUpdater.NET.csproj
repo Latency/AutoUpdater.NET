@@ -15,7 +15,6 @@
         <UseWpf>true</UseWpf>
         <Version>2.0.0</Version>
         <OutputType>WinExe</OutputType>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
         <LangVersion Condition="'$(LangVersion)' == ''">preview</LangVersion>
 	    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
@@ -24,7 +23,6 @@
     <ItemGroup>
       <Compile Remove="Views\DownloadUpdateDialog.cs" />
       <Compile Remove="Views\DownloadUpdateDialog.Designer.cs" />
-      <Content Remove="bin\Debug\net10.0-windows\README.md" />
     </ItemGroup>
 
 	<ItemGroup>

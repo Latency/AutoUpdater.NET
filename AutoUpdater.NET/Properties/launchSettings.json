@@ -9,6 +9,7 @@
         "UpdateCheckFailedMessage": "There is a problem reaching update server. Please check your internet connection and try again later.",
         "UpdateCheckFailedCaption": "Update Check Failed",
         "DownloadSpeedMessage": "Downloading at {0}/s",
+        "IconFile": "C:\\Users\\H616959\\source\\repos\\AutoUpdater.NET\\AutoUpdater.NET\\png\\Project.png",
         "FileIntegrityCheckFailedMessage": "File integrity check failed and reported some errors.",
         "FileIntegrityCheckFailedCaption": "Checksum differs",
         "HashAlgorithmNotSupportedCaption": "Unsupported Hash Algorithm",

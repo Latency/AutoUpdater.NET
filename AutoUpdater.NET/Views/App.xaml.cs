@@ -9,7 +9,7 @@ using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
-using System.Windows.Media.Imaging;
+using AutoUpdaterDotNET.Extensions;
 
 namespace AutoUpdaterDotNET.Views;
 
@@ -22,11 +22,17 @@ public partial class App
         var serviceCollection = new ServiceCollection();
         ConfigureServices(serviceCollection);
 
-        // <BitmapImage x: Key = "Project" UriSource = "pack://application:,,,/AutoUpdater.NET;component/png/project.png" />
-        // Dynamic replacement for 'Styles/Images.cs' targeting 'Project' key.
-        var imgResourceDict = Current!.Resources.MergedDictionaries[0]!;
-        var file = Environment.GetEnvironmentVariable("IconFile");
-        imgResourceDict.Add("Project", !string.IsNullOrEmpty(file) ? new BitmapImage(new Uri(file)) : null);
+        var resourceUri = new Uri("pack://application:,,,/png/Project.png");
+        var streamInfo  = GetResourceStream(resourceUri);
+
+        if (streamInfo is not null)
+        {
+            // <BitmapImage x: Key = "Project" UriSource = "pack://application:,,,/AutoUpdater.NET;component/png/project.png" />
+            // Dynamic addition to 'Styles/Images.cs' targeting 'Project' as key.
+            var imgResourceDict = Current!.Resources.MergedDictionaries[0]!;
+            var bmp             = streamInfo.Stream!.ConvertStreamToBitmapImage(resourceUri);
+            imgResourceDict.Add("Project", bmp);
+        }
 
         _serviceProvider = serviceCollection.BuildServiceProvider();
         var mainFrm = _serviceProvider.GetRequiredService<Window_Main>();

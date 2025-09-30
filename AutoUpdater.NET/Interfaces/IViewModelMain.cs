@@ -6,7 +6,6 @@
 // ****************************************************************************
 // ReSharper disable UnusedMemberInSuper.Global
 
-using System.Windows.Media;
 using AutoUpdaterDotNET.Models;
 using System.Windows.Threading;
 
@@ -26,8 +25,6 @@ public interface IViewModelMain : IViewModelMainConfig
     event Action?                           ApplicationExit;
     event Action<UpdateInfoEventArgs>?      CheckForUpdates;
     event Action<ParseUpdateInfoEventArgs>? ParseUpdateInfo;
-    event Action<string?>                   UpdateVersion;
-    event Action<ImageSource?>?             UpdateIcon;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
 
@@ -35,8 +32,6 @@ public interface IViewModelMain : IViewModelMainConfig
     #region Methods
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     void OnLoaded(object? sender);
-
-    bool Equals();
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Methods
 }

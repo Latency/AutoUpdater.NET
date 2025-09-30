@@ -1,27 +1,9 @@
 <Project>
 
-	<PropertyGroup>
-		<PropertySourceFile>$(MSBuildProjectDirectory)\Properties\launchSettings.json</PropertySourceFile>
-		<IconTag>IconFile</IconTag>
-		<IconFile>$(MSBuildProjectDirectory)\png\Project.png</IconFile>
-	</PropertyGroup>
-
-	<Choose>
-		<When Condition="Exists('$(IconFile)')">
-			<PropertyGroup>
-				<IconText>        &quot;$(IconTag)&quot;: &quot;$(IconFile.Replace('\','\\'))&quot;,</IconText>
-			</PropertyGroup>
-		</When>
-		<Otherwise>
-			<PropertyGroup>
-				<IconText/>
-			</PropertyGroup>
-		</Otherwise>
-	</Choose>
-
-	<Target Name="LaunchSettings" AfterTargets="AssignProjectConfiguration">
+	<!-- Create a Target to execute tasks -->
+	<Target Name="LaunchSettings" AfterTargets="PrepareForBuild">
+		<Message Text="Building in $(Configuration) mode..." Importance="high" />	
 		<Message Text="Modifing '$(PropertySourceFile)'..." Importance="high" />
-		<Message Text="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" Importance="High" />
 		<InsertIntoFile FilePath="$(PropertySourceFile)" LineNumber="12" Text="$(IconText)" />
 	</Target>
 
