@@ -1,4 +1,4 @@
-﻿// ****************************************************************************
+// ****************************************************************************
 // Project:  AutoUpdater.NET
 // File:     ViewModelMainConfig.cs
 // Author:   Latency McLaughlin
@@ -58,8 +58,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnIsAppTitleChanged(bool value)
     {
-        AppTitle = value ? _defaultAppTitle : null;
-
+        _appTitle = value ? _defaultAppTitle : null;
         UpdateValidation?.Invoke(!Equals());
     }
 
@@ -68,8 +67,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public string? _appTitle;
     partial void OnAppTitleChanged(string? value)
     {
-        AppTitle = _isAppTitle && !string.IsNullOrEmpty(value) ? _defaultAppTitle = value : null;
-
+        _defaultAppTitle = value;
         UpdateValidation?.Invoke(!Equals());
     }
     #endregion AppTitle
@@ -78,6 +76,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [property: JsonIgnore]
     [ObservableProperty]
     public bool _isManditory;
+
     partial void OnIsManditoryChanged(bool value)
     {
         Manditory = value ? _defaultIsManditory ??= new IsManditory() : null;
@@ -414,8 +413,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [property: JsonIgnore]
     [ObservableProperty]
-    public RemindLaterFormat _timerDurationTimeSpan;
-    partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat value)
+    public RemindLaterFormat? _timerDurationTimeSpan;
+    partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat? value)
     {
         Timer?.TimeSpan = value;
 
@@ -456,8 +455,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [property: JsonIgnore]
     [ObservableProperty]
-    public RemindLaterFormat _remindLaterTimeSpan;
-    partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat value)
+    public RemindLaterFormat? _remindLaterTimeSpan;
+    partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat? value)
     {
         RemmindLaterTimer?.TimeSpan = value;
 
@@ -650,32 +649,33 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         InstallationPath          = other.InstallationPath;
         InstalledVersion          = other.InstalledVersion;
         InstalledVersionOverride  = other.InstalledVersionOverride;
-        IsAppTitle                = other.IsAppTitle;
+        IsAppTitle                = other.AppTitle != null;
         IsBasicAuth               = other.IsBasicAuth;
         IsIconOverride            = other.IsIconOverride;
-        IsManditory               = other.IsManditory;
+        IsManditory               = other.Manditory != null;  // IsManditory
+        Manditory                 = other.Manditory;
         MajorVersion              = other.MajorVersion;
         MinorVersion              = other.MinorVersion;
         OpenDownloadPage          = other.OpenDownloadPage;
         PersistSettings           = other.PersistSettings;
-        ProxyEnabled              = other.ProxyEnabled;
-        ProxyPassword             = other.ProxyPassword;
-        ProxyUri                  = other.ProxyUri;
-        ProxyUserName             = other.ProxyUserName;
-        RemindLaterAt             = other.RemindLaterAt;
-        RemindLaterTimeSpan       = other.RemindLaterTimeSpan;
+        ProxyEnabled              = other.Proxy != null;                    // Enable Proxy
+        ProxyPassword             = other.Proxy?.Password;                  // Enable Proxy
+        ProxyUri                  = other.Proxy?.Uri;                       // Enable Proxy
+        ProxyUserName             = other.Proxy?.UserName;                  // Enable Proxy
+        RemindLaterAt             = other.RemmindLaterTimer?.Interval ?? 1; // User Select Remind Later
+        RemindLaterTimeSpan       = other.RemmindLaterTimer?.TimeSpan;      // User Select Remind Later
         ReportErrors              = other.ReportErrors;
         RevisionVersion           = other.RevisionVersion;
         RunUpdateAsAdmin          = other.RunUpdateAsAdmin;
         ShowRemindLaterButton     = other.ShowRemindLaterButton;
         ShowSkipButton            = other.ShowSkipButton;
-        TimerDurationTimeSpan     = other.TimerDurationTimeSpan;
-        TimerEnabled              = other.TimerEnabled;
-        TimerInterval             = other.TimerInterval;
+        TimerDurationTimeSpan     = other.Timer?.TimeSpan ?? RemindLaterFormat.Seconds; // Enable Timer
+        TimerEnabled              = other.Timer != null;                                // Enable Timer
+        TimerInterval             = other.Timer?.Interval ?? 1;                         // Enable Timer
         TmpIcon                   = other.TmpIcon;
         TopMostDisabled           = other.TopMostDisabled;
-        UpdateMode                = other.UpdateMode;
-        UserSelectRemindLater     = other.UserSelectRemindLater;
+        UpdateMode                = other.Manditory?.UpdateMode ?? Mode.Normal; // IsManditory
+        UserSelectRemindLater     = other.RemmindLaterTimer != null;            // User Select Remind Later
         UseZipFile                = other.UseZipFile;
         ZipExtractionPathOverride = other.ZipExtractionPathOverride;
 

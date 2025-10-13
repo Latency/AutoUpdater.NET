@@ -5,6 +5,7 @@
 // Date:     06/19/2025
 // ****************************************************************************
 
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -28,6 +29,7 @@ public sealed class DependancyPropertyTypeResolver<T> : DefaultJsonTypeInfoResol
         // Exclude properties from BaseClass
         foreach (var prop in jsonTypeInfo.Properties.ToList())
         {
+            Trace.WriteLine(prop.Name);
             if (prop.DeclaringType == typeof(DependencyObject) || prop.PropertyType == typeof(Dispatcher))
             {
                 jsonTypeInfo.Properties.Remove(prop);

@@ -155,6 +155,13 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
     public override void Update()
     {
         SaveConfig();
+
+        _Update();
+    }
+
+
+    private void _Update()
+    {
         SetVersion();
 
         _configOrig.Copy(this);
@@ -209,11 +216,14 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
         if (!File.Exists(file))
             return;
 
+        var json = File.ReadAllText(file);
+
         try
         {
-            var vmmc = JsonSerializer.Deserialize<ViewModelMainConfig>(file);
+            var vmmc = JsonSerializer.Deserialize<ViewModelMainConfig>(json, _jso);
             Copy(vmmc);
-            _configOrig.Copy(this);
+
+            _Update();
         }
         catch (Exception ex)
         {
