@@ -49,11 +49,11 @@ public interface IViewModelMainConfig : IEquatable<ViewModelMainConfig>
     bool               TopMostDisabled           { get; set; }
     bool               UseZipFile                { get; set; }
     Mode               UpdateMode                { get; set; }
-    RemindLaterFormat? TimerDurationTimeSpan     { get; set; }
+    RemindLaterFormat  TimerDurationTimeSpan     { get; set; }
     ushort             TimerInterval             { get; set; }
     bool               UserSelectRemindLater     { get; set; }
     ushort             RemindLaterAt             { get; set; }
-    RemindLaterFormat? RemindLaterTimeSpan       { get; set; }
+    RemindLaterFormat  RemindLaterTimeSpan       { get; set; }
     bool              InstalledVersionOverride  { get; set; }
     InstalledVersion? InstalledVersion          { get; set; }
     ProxyEnabled?     Proxy                     { get; set; }

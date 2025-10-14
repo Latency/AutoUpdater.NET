@@ -232,7 +232,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public bool _IsIconOverride;
     partial void OnIsIconOverrideChanged(bool value)
     {
-        IconOverride = value ? _defaultIconOverride ??= new IconOverride { Uri = TmpIcon?.ToString() } : null;
+        var uri = TmpIcon?.ToString();
+        IconOverride = value ? _defaultIconOverride ??= new IconOverride { Uri = uri is null ? null : new Uri(uri) } : null;
 
         UpdateValidation?.Invoke(!Equals());
     }
@@ -314,10 +315,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public bool _useZipFile;
     partial void OnUseZipFileChanged(bool value)
     {
-        if (!value)
-            ZipFile = null;
-        else
-            ZipFile = _clearAppDirectory || (_executablePathOverride && !string.IsNullOrEmpty(_executablePath)) || (_zipExtractionPathOverride && !string.IsNullOrEmpty(_installationPath)) ? _defaultZipFile ??= new ZipFile() : null;
+        ZipFile = !value ? null : new ZipFile(); // _clearAppDirectory || (_executablePathOverride && !string.IsNullOrEmpty(_executablePath)) || (_zipExtractionPathOverride && !string.IsNullOrEmpty(_installationPath)) ? _defaultZipFile ??= new ZipFile() : null;
 
         UpdateValidation?.Invoke(!Equals());
     }
@@ -413,8 +411,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [property: JsonIgnore]
     [ObservableProperty]
-    public RemindLaterFormat? _timerDurationTimeSpan;
-    partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat? value)
+    public RemindLaterFormat _timerDurationTimeSpan = RemindLaterFormat.Seconds;
+    partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat value)
     {
         Timer?.TimeSpan = value;
 
@@ -455,8 +453,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [property: JsonIgnore]
     [ObservableProperty]
-    public RemindLaterFormat? _remindLaterTimeSpan;
-    partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat? value)
+    public RemindLaterFormat _remindLaterTimeSpan = RemindLaterFormat.Seconds;
+    partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat value)
     {
         RemmindLaterTimer?.TimeSpan = value;
 
@@ -561,15 +559,15 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     #region Event Invocators
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    protected void _UpdateValidation(bool?  value = null)       => UpdateValidation?.Invoke(value);
+    protected void _UpdateValidation(bool?  value = null) => UpdateValidation?.Invoke(value);
     protected void _UpdateIcon(BitmapImage? value)
     {
         if (!IsIconOverride)
         {
             var uri = _defaultIconOverride?.Uri;
-            if (!string.IsNullOrEmpty(uri))
+            if (!string.IsNullOrEmpty(uri?.ToString()))
             {
-                TmpIcon = new Uri(uri).ConvertToBitmapImage();
+                TmpIcon = uri.ConvertToBitmapImage();
                 value   = TmpIcon;
             }
         }
@@ -590,7 +588,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         TmpIcon              = Application.Current!.Resources["Project"] as BitmapImage;
         _defaultIconOverride = new IconOverride
         {
-            Uri = TmpIcon?.ToString()
+            Uri = string.IsNullOrEmpty(TmpIcon?.ToString()) ? null : new Uri(TmpIcon.ToString()!)
         };
         _defaultInstalledVersion = Assembly.GetExecutingAssembly().Version()!;
     }
@@ -632,52 +630,69 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (other is null)
             return null;
 
-        AppTitle                  = other.AppTitle;
-        BasicAuth                 = other.BasicAuth;
-        BasicAuthChangeLog        = other.BasicAuthChangeLog;
-        BasicAuthDownload         = other.BasicAuthDownload;
-        BasicAuthPassword         = other.BasicAuthPassword;
-        BasicAuthUserName         = other.BasicAuthUserName;
-        BuildVersion              = other.BuildVersion;
-        CheckSynchronously        = other.CheckSynchronously;
-        ClearAppDirectory         = other.ClearAppDirectory;
-        DoNotBindOwnerWindow      = other.DoNotBindOwnerWindow;
-        ExecutablePath            = other.ExecutablePath;
-        ExecutablePathOverride    = other.ExecutablePathOverride;
-        FtpProtocol               = other.FtpProtocol;
-        IconOverride              = other.IconOverride;
-        InstallationPath          = other.InstallationPath;
-        InstalledVersion          = other.InstalledVersion;
-        InstalledVersionOverride  = other.InstalledVersionOverride;
-        IsAppTitle                = other.AppTitle != null;
-        IsBasicAuth               = other.IsBasicAuth;
-        IsIconOverride            = other.IsIconOverride;
-        IsManditory               = other.Manditory != null;  // IsManditory
-        Manditory                 = other.Manditory;
-        MajorVersion              = other.MajorVersion;
-        MinorVersion              = other.MinorVersion;
-        OpenDownloadPage          = other.OpenDownloadPage;
-        PersistSettings           = other.PersistSettings;
-        ProxyEnabled              = other.Proxy != null;                    // Enable Proxy
-        ProxyPassword             = other.Proxy?.Password;                  // Enable Proxy
-        ProxyUri                  = other.Proxy?.Uri;                       // Enable Proxy
-        ProxyUserName             = other.Proxy?.UserName;                  // Enable Proxy
-        RemindLaterAt             = other.RemmindLaterTimer?.Interval ?? 1; // User Select Remind Later
-        RemindLaterTimeSpan       = other.RemmindLaterTimer?.TimeSpan;      // User Select Remind Later
-        ReportErrors              = other.ReportErrors;
-        RevisionVersion           = other.RevisionVersion;
-        RunUpdateAsAdmin          = other.RunUpdateAsAdmin;
-        ShowRemindLaterButton     = other.ShowRemindLaterButton;
-        ShowSkipButton            = other.ShowSkipButton;
-        TimerDurationTimeSpan     = other.Timer?.TimeSpan ?? RemindLaterFormat.Seconds; // Enable Timer
-        TimerEnabled              = other.Timer != null;                                // Enable Timer
-        TimerInterval             = other.Timer?.Interval ?? 1;                         // Enable Timer
-        TmpIcon                   = other.TmpIcon;
-        TopMostDisabled           = other.TopMostDisabled;
-        UpdateMode                = other.Manditory?.UpdateMode ?? Mode.Normal; // IsManditory
-        UserSelectRemindLater     = other.RemmindLaterTimer != null;            // User Select Remind Later
-        UseZipFile                = other.UseZipFile;
-        ZipExtractionPathOverride = other.ZipExtractionPathOverride;
+        RunUpdateAsAdmin = other.RunUpdateAsAdmin;
+        OpenDownloadPage = other.OpenDownloadPage;
+
+        RemmindLaterTimer     = other.RemmindLaterTimer;                                        // User Select Remind Later
+        UserSelectRemindLater = other.RemmindLaterTimer != null;                                // User Select Remind Later
+        RemindLaterAt         = other.RemmindLaterTimer?.Interval ?? 1;                         // User Select Remind Later
+        RemindLaterTimeSpan   = other.RemmindLaterTimer?.TimeSpan ?? RemindLaterFormat.Seconds; // User Select Remind Later
+
+        Manditory             = other.Manditory;                            // IsManditory
+        IsManditory           = other.Manditory != null;                    // IsManditory
+        UpdateMode            = other.Manditory?.UpdateMode ?? Mode.Normal; // IsManditory (True) -> Update Mode
+        ShowSkipButton        = other.ShowSkipButton;                       // IsManditory (False) -> Show Skip Button
+        ShowRemindLaterButton = other.ShowRemindLaterButton;                // IsManditory (False) -> Show Remind Later Button
+
+        AppTitle    = other.AppTitle;                             // App Title -> Title
+        IsAppTitle  = other.AppTitle != null;                     // App Title
+
+        ReportErrors = other.ReportErrors;
+
+        Proxy         = other.Proxy;           // Enable Proxy
+        ProxyEnabled  = other.Proxy != null;   // Enable Proxy
+        ProxyUri      = other.Proxy?.Uri;      // Enable Proxy -> Uri
+        ProxyUserName = other.Proxy?.UserName; // Enable Proxy -> UserName
+        ProxyPassword = other.Proxy?.Password; // Enable Proxy -> Password
+
+        Timer                 = other.Timer;                                        // Enable Timer
+        TimerEnabled          = other.Timer != null;                                // Enable Timer
+        TimerInterval         = other.Timer?.Interval ?? 1;                         // Enable Timer -> SpinBox
+        TimerDurationTimeSpan = other.Timer?.TimeSpan ?? RemindLaterFormat.Seconds; // Enable Timer -> ComboBox
+
+        BasicAuth          = other.BasicAuth;                     // Basic Authentication
+        IsBasicAuth        = other.BasicAuth != null;             // Basic Authentication
+        BasicAuthChangeLog = other.BasicAuth?.ChangeLog ?? false; // Basic Authentication -> Change Log
+        BasicAuthDownload  = other.BasicAuth?.Download  ?? false; // Basic Authentication -> Download
+        BasicAuthPassword  = other.BasicAuth?.Password;           // Basic Authentication -> Password
+        BasicAuthUserName  = other.BasicAuth?.UserName;           // Basic Authentication -> UserName
+
+        FtpProtocol          = other.FtpProtocol;
+        PersistSettings      = other.PersistSettings;
+
+        ZipFile                   = other.ZipFile;                                    // Use Zip File
+        UseZipFile                = other.ZipFile != null;                            // Use Zip File
+        ClearAppDirectory         = other.ZipFile?.ClearAppDirectory ?? false;        // Use Zip File -> Clear App Directory
+        ExecutablePathOverride    = other.ZipFile?.ExecutablePathOverride != null;    // Use Zip File -> Executable Path Override
+        ExecutablePath            = other.ZipFile?.ExecutablePathOverride?.Path;      // Use Zip File -> Executable Path Override
+        ZipExtractionPathOverride = other.ZipFile?.ZipExtractionPathOverride != null; // Use Zip File -> Zip Extraction Path Override
+        InstallationPath          = other.ZipFile?.ZipExtractionPathOverride?.Path;   // Use Zip File -> Zip Extraction Path Override
+
+        CheckSynchronously = other.CheckSynchronously;
+
+        InstalledVersion         = other.InstalledVersion;                                   // Installed Version Override
+        InstalledVersionOverride = other.InstalledVersion != null;                           // Installed Version Override
+        MajorVersion             = (ushort)(other.InstalledVersion?.Version?.Major    ?? 1); // Installed Version Override -> SpinBox [Major]
+        MinorVersion             = (ushort)(other.InstalledVersion?.Version?.Minor    ?? 0); // Installed Version Override -> SpinBox [Minor]
+        BuildVersion             = (ushort)(other.InstalledVersion?.Version?.Build    ?? 0); // Installed Version Override -> SpinBox [Build]
+        RevisionVersion          = (ushort)(other.InstalledVersion?.Version?.Revision ?? 0); // Installed Version Override -> SpinBox [Revision]
+
+        DoNotBindOwnerWindow = other.DoNotBindOwnerWindow;
+        TopMostDisabled      = other.TopMostDisabled;
+
+        IconOverride   = other.IconOverride;                                                               // Icon Override
+        IsIconOverride = other.IconOverride != null;                                                       // Icon Override
+        TmpIcon        = other.IconOverride?.Uri is null ? null : new BitmapImage(other.IconOverride.Uri); // Icon Override -> (ICO)
 
         return this;
     }

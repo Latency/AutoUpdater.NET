@@ -15,5 +15,7 @@ public record IconOverride
     /// <summary>
     ///     File path location for the image to override.
     /// </summary>
-    public string? Uri { get; set; }
+    public Uri? Uri { get; set; }
+
+    public override string? ToString() => Uri?.ToString();
 }
