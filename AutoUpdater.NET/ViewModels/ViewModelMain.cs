@@ -22,6 +22,7 @@ using System.Windows.Threading;
 using AutoUpdaterDotNET.Models;
 using CommunityToolkit.Mvvm.Input;
 using AutoUpdaterDotNET.Extensions;
+using AutoUpdaterDotNET.Modifiers;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -45,7 +46,7 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
         ReadCommentHandling = JsonCommentHandling.Skip,
         TypeInfoResolver    = new DependancyPropertyTypeResolver<ViewModelMainConfig>
         {
-            Modifiers = { JsonExtensions.AlphabetizeProperties }
+            Modifiers = { Modifier.AlphabetizeProperties }
         }
     };
 

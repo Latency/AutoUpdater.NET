@@ -618,7 +618,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         else
         {
             InstalledVersion         ??= new InstalledVersion();
-            InstalledVersion.Version =   tmpVer;
+            InstalledVersion.Version   = tmpVer;
         }
 
         UpdateValidation?.Invoke(!Equals());
@@ -644,8 +644,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         ShowSkipButton        = other.ShowSkipButton;                       // IsManditory (False) -> Show Skip Button
         ShowRemindLaterButton = other.ShowRemindLaterButton;                // IsManditory (False) -> Show Remind Later Button
 
-        AppTitle    = other.AppTitle;                             // App Title -> Title
-        IsAppTitle  = other.AppTitle != null;                     // App Title
+        AppTitle   = other.AppTitle;         // App Title -> Title
+        IsAppTitle = other.AppTitle != null; // App Title
 
         ReportErrors = other.ReportErrors;
 
