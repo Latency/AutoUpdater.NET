@@ -1,0 +1,21 @@
+<Project>
+
+	<ItemGroup>
+		<PropertySourceFiles Include="$(MSBuildProjectDirectory)\Properties\launchSettings.$(Configuration).json" />
+		<RootSourceFiles Include="$(MSBuildProjectDirectory)\appSettings.$(Configuration).json" />
+	</ItemGroup>
+
+	<Target Name="LaunchSettings" AfterTargets="AssignProjectConfiguration">
+		<Message Text="Copying '@(PropertySourceFiles)' to '$(MSBuildProjectDirectory)\Properties\launchSettings.json'..." Importance="high" />
+		<Copy SourceFiles="@(PropertySourceFiles)"
+		      DestinationFiles="$(MSBuildProjectDirectory)\Properties\launchSettings.json"
+		      Condition="Exists('%(FullPath)')"
+		      OverwriteReadOnlyFiles="True" />
+		<Message Text="Copying '@(RootSourceFiles)' to '$(MSBuildProjectDirectory)\appSettings.json'..." Importance="high" />
+		<Copy SourceFiles="@(RootSourceFiles)"
+		      DestinationFiles="$(MSBuildProjectDirectory)\appSettings.json"
+		      Condition="Exists('%(FullPath)')"
+		      OverwriteReadOnlyFiles="True" />
+	</Target>
+
+</Project>

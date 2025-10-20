@@ -1,0 +1,44 @@
+{
+  "help": "https://go.microsoft.com/fwlink/?linkid=866610",
+  "root": true,
+
+  "dependentFileProviders": {
+    "add": {
+      "addedExtension": {},
+      "pathSegment": {
+        "add": {
+          ".*": [
+            ".config",
+            ".cs",
+            ".json"
+          ]
+        }
+      },
+      "extensionToExtension": {
+        "add": {
+        }
+      },
+      "fileToFile": {
+        "add": {
+          "Users.cs": [
+            "ClientBase.cs"
+          ],
+          "Xilinxs.cs": [
+            "ClientBase.cs"
+          ],
+          "package-lock.json": [
+            "package.json"
+          ]
+        }
+      },
+      "fileSuffixToExtension": {
+        "add": {
+        }
+      },
+      "allExtensions": {
+        "add": {
+        }
+      }
+    }
+  }
+}

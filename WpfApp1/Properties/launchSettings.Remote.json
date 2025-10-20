@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WpfApp1": {
+      "commandName": "Project",
+      "environmentVariables": {
+          "Test": "Uo"
+      }
+    }
+  }
+}

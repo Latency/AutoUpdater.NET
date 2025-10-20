@@ -25,17 +25,9 @@ public sealed partial class Window_Main
     /// <summary>
     ///     Constructor
     /// </summary>
-    public Window_Main(IViewModelMain vm)
+    public Window_Main()
     {
-        DataContext = vm;
-
         InitializeComponent();
-
-        vm.UpdateIcon       += OnUpdateIcon;
-        vm.UpdateVersion    += OnUpdateVersion;
-        vm.UpdateValidation += OnUpdateValidation;
-
-        OnUpdateIcon(vm.TmpIcon);
     }
 
 
@@ -55,6 +47,15 @@ public sealed partial class Window_Main
     {
         if (DataContext is not IViewModelMain dc)
             return;
+
+        if (DataContext is IViewModelMain vm)
+        {
+            vm.UpdateIcon       += OnUpdateIcon;
+            vm.UpdateVersion    += OnUpdateVersion;
+            vm.UpdateValidation += OnUpdateValidation;
+
+            OnUpdateIcon(vm.TmpIcon);
+        }
 
         dc.OnLoaded(sender);
     }
