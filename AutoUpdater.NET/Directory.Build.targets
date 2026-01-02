@@ -1,5 +1,8 @@
 <Project>
 
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../../'))"
+		Condition="Exists($([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../../')))" />
+
 	<!-- Create a Target to execute tasks -->
 	<Target Name="LaunchSettings" AfterTargets="PrepareForBuild">
 		<Message Text="Building in $(Configuration) mode..." Importance="high" />	

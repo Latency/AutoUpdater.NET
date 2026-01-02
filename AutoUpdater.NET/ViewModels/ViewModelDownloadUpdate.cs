@@ -5,26 +5,12 @@
 // Date:     06/10/2025
 // ****************************************************************************
 
-using System.Windows;
-using AutoUpdaterDotNET.Interfaces;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public sealed class ViewModelDownloadUpdate : DependencyObject, IViewModelDownloadUpdate
+public sealed partial class ViewModelDownloadUpdate : ObservableObject
 {
-    public static readonly DependencyProperty ProgressPercentageProperty = DependencyProperty.Register(nameof(ProgressPercentage), typeof(double), typeof(ViewModelDownloadUpdate), new PropertyMetadata(0.0));
-
-
-    /// <summary>
-    ///     Constructor
-    /// </summary>
-    public ViewModelDownloadUpdate()
-    { }
-
-
-    public double ProgressPercentage
-    {
-        get => (double)GetValue(ProgressPercentageProperty);
-        set => SetValue(ProgressPercentageProperty, value);
-    }
+    [ObservableProperty]
+    public partial double ProgressPercentage { get; set; }
 }

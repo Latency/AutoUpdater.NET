@@ -6,13 +6,13 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Interfaces;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using AutoUpdaterDotNET.ViewModels;
 
 namespace AutoUpdaterDotNET.Views;
 
@@ -45,10 +45,10 @@ public sealed partial class Window_Main
 
     private void Window_Main_OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (DataContext is not IViewModelMain dc)
+        if (DataContext is not ViewModelMain dc)
             return;
 
-        if (DataContext is IViewModelMain vm)
+        if (DataContext is ViewModelMain vm)
         {
             vm.UpdateIcon       += OnUpdateIcon;
             vm.UpdateVersion    += OnUpdateVersion;
@@ -57,7 +57,7 @@ public sealed partial class Window_Main
             OnUpdateIcon(vm.TmpIcon);
         }
 
-        dc.OnLoaded(sender);
+        dc.OnLoaded();
     }
 
 

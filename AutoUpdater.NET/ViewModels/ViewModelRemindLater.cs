@@ -4,29 +4,20 @@
 // Author:   Latency McLaughlin
 // Date:     06/10/2025
 // ****************************************************************************
-
 // ReSharper disable InconsistentNaming
 
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using AutoUpdaterDotNET.Commands;
 using AutoUpdaterDotNET.Enums;
-using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Views;
+using CommunityToolkit.Mvvm.Input;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public sealed class ViewModelRemindLater : DependencyObject, IViewModelRemindLater
+public sealed partial class ViewModelRemindLater : DependencyObject
 {
-    /// <summary>
-    ///     Constructor
-    /// </summary>
-    public ViewModelRemindLater() => CommandButtonOk = new RelayCommand(((IViewModelRemindLater)this).ButtonOk_Click, AllowReminder);
-
-
-    // ReSharper disable once AsyncVoidMethod
-    void IViewModelRemindLater.ButtonOk_Click(object? sender)
+    [RelayCommand]
+    public void RemindLater(object? sender)
     {
         var (vm, btnOk, args) = (sender as Tuple<Window_RemindLater, Button, RoutedEventArgs>)!;
 
@@ -76,17 +67,10 @@ public sealed class ViewModelRemindLater : DependencyObject, IViewModelRemindLat
     }
 
     #region Properties
-
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static bool AllowReminder(object? _) => true;
-
-    public ICommand CommandButtonOk { get; set; }
-
-
     public RemindLaterFormat RemindLaterFormat { get; private set; }
 
     public int RemindLaterAt { get; private set; }
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
     #endregion Properties
 }

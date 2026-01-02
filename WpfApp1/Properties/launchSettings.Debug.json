@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "WpfApp1": {
-      "commandName": "Project",
-      "environmentVariables": {
-      }
-    }
-  }
-}

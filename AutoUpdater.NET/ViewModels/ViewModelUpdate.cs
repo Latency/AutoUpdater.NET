@@ -5,25 +5,35 @@
 // Date:     06/10/2025
 // ****************************************************************************
 
-using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelUpdate : ObservableObject, IViewModelUpdate
+public partial class ViewModelUpdate : ObservableObject
 {
-    public event Action<bool?>? ToggleControlBox;
+    public ViewModelMainConfig Config { get; }
 
 
-    [RelayCommand]
-    public void Skip() => ToggleControlBox?.Invoke(true);
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    public ViewModelUpdate(IServiceProvider provider)
+    {
+        Config = provider.GetRequiredService<ViewModelMain>();
 
+        ToggleControlBox += OnToggleControlBox;
 
-    [RelayCommand]
-    public void RemindLater() => ToggleControlBox?.Invoke(false);
+        if (Config is { IsManditory: true, UpdateMode: Mode.Forced })
+        {
+            var win = provider.GetRequiredService<Window_Update>();
+            win.ControlBox = false;
+        }
+    }
 
-
-    [RelayCommand]
-    public void Update() => ToggleControlBox?.Invoke(null);
+    private void OnToggleControlBox(bool? obj)
+    {
+    }
 }

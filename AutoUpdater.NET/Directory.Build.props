@@ -1,14 +1,13 @@
 <Project>
 
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../../'))"
+		Condition="Exists($([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../../')))" />
+	
 	<PropertyGroup>
 		<PropertySourceFile>$(MSBuildProjectDirectory)\Properties\launchSettings.json</PropertySourceFile>
 		<IconTag>IconFile</IconTag>
 		<IconFile>$(MSBuildProjectDirectory)\png\Project.png</IconFile>
 		<IconText>        &quot;$(IconTag)&quot;: &quot;$(IconFile.Replace('\','\\'))&quot;,</IconText>	
 	</PropertyGroup>
-
-	<ItemGroup Condition="Exists('..\Logo\Logo.png')">
-		<Resource Include="..\Logo\Logo.png" Link="png\Project.png" />
-	</ItemGroup>
-
+	
 </Project>

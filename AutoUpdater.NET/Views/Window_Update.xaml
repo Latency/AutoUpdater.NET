@@ -6,14 +6,17 @@
                            xmlns:viewModels="clr-namespace:AutoUpdaterDotNET.ViewModels"
                            xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
                            xmlns:views="clr-namespace:AutoUpdaterDotNET.Views"
+                           xmlns:converters="clr-namespace:AutoUpdaterDotNET.Converters"
                            mc:Ignorable="d"
                            d:DataContext="{d:DesignInstance viewModels:ViewModelUpdate }"
-                           Title="Remind me later for update"
+                           Title="Software Update"
                            Width="500"
                            Height="168"
-                           Icon="{StaticResource update}"
+                           Icon="{StaticResource update}" Activated="RestrictedWindow_Activated"
 >
     <controls:RestrictedWindow.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
         <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Height" Value="30" />
             <Setter Property="Width" Value="130" />
@@ -55,25 +58,28 @@
                Grid.Row="0"
                FontWeight="Bold"
                FontSize="14"
-               Content="A new version of {0} is available!" />
+               Tag="A new version of {0} is available!"
+               Content="A new version of {0} is available!"
+               x:FieldModifier="public" />
 
         <TextBlock x:Name="LabelDescription"
                    TextWrapping="Wrap"
                    FontSize="10"
                    Grid.Column="1"
                    Grid.Row="1"
-                   Text=" {0} is now available!  You have version {1} installed.  Would you liked to download it now?" />
+                   Tag="{}{0} is now available!  You have version {1} installed.  Would you like to download it now?"
+                   Text="{}{0} is now available!  You have version {1} installed.  Would you like to download it now?"
+                   x:FieldModifier="public" />
 
         <Button x:Name="ButtonSkip"
                 Grid.Column="1"
                 Grid.Row="2"
                 Grid.ColumnSpan="2"
                 Margin="-20,0,0,0"
+                Visibility="{Binding Config.ShowSkipButton, Converter={StaticResource BooleanToVisibilityConverter}}"
                 Command="{Binding SkipCommand}"
-                CommandParameter="{Binding RelativeSource=
-                                   {RelativeSource
-                                    Mode=FindAncestor,
-                                    AncestorType={x:Type views:Window_Update}}}">
+                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_Update}}}"
+        >
             <WrapPanel>
                 <Image Source="{StaticResource hand_point}"
                        Width="15"
@@ -90,11 +96,9 @@
                 Grid.Row="2"
                 Grid.ColumnSpan="2"
                 Margin="124,0,0,0"
+                Visibility="{Binding Config.ShowRemindLaterButton, Converter={StaticResource BooleanToVisibilityConverter}}"
                 Command="{Binding RemindLaterCommand}"
-                CommandParameter="{Binding RelativeSource=
-                                   {RelativeSource
-                                    Mode=FindAncestor,
-                                    AncestorType={x:Type views:Window_Update}}}">
+                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_Update}}}">
             <WrapPanel>
                 <Image Source="{StaticResource clock_go}"
                        Width="15"

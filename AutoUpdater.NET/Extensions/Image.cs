@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 
 namespace AutoUpdaterDotNET.Extensions;
 
-internal static class ImageExtensions
+public static class ImageExtensions
 {
     public static BitmapImage? ConvertToBitmapImage(this Uri resourceUri) => CreateNewBitmapImage(image => image.UriSource = resourceUri);
 

@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-	    <TargetFramework>net10.0-windows</TargetFramework>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net10.0-windows</TargetFramework>
 		<AssemblyTitle>AutoUpdater.NET</AssemblyTitle>
         <Description>AutoUpdater.NET is a class library that allows .NET developers to easily add auto update functionality to their WinForms or WPF application projects.</Description>
         <Nullable>enable</Nullable>
@@ -14,7 +15,6 @@
         <Title>AutoUpdater.NET</Title>
         <UseWpf>true</UseWpf>
         <Version>2.0.0</Version>
-        <OutputType>WinExe</OutputType>
         <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
         <LangVersion Condition="'$(LangVersion)' == ''">preview</LangVersion>
 	    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
@@ -25,26 +25,35 @@
       <Compile Remove="Views\DownloadUpdateDialog.Designer.cs" />
     </ItemGroup>
 
-	<ItemGroup>
-      <ApplicationDefinition Include="Views\App.xaml" />
-    </ItemGroup>
-
     <ItemGroup>
-	    <PackageReference Include="AssemblyLoader" Version="1.2.3" />
+	    <PackageReference Include="AssemblyLoader" Version="1.2.3" Condition="!@(PackageReference-&gt;Contains('AssemblyLoader'))" />
 	    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 	    <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
-	    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0-rc.1.25451.107" />
-	    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-rc.1.25451.107" />
+	    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <Resource Include="png\clock_go.png" />
-      <Resource Include="png\clock_play.png" />
-      <Resource Include="png\download.png" />
-      <Resource Include="png\hand_point.png" />
-      <Resource Include="png\update.png" />
+      <Resource Include="Resources\clock_go.png" />
+      <Resource Include="Resources\clock_play.png" />
+      <Resource Include="Resources\download.png" />
+      <Resource Include="Resources\hand_point.png" />
+      <Resource Include="Resources\update.png" />
     </ItemGroup>
 
-	<Import Project="D:\Source\Directory.PostBuild.props" Condition="Exists('D:\Source\Directory.PostBuild.props')" />
+	<ItemGroup>
+		<Resource Include="Styles\Colors.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Resource>
+		<Resource Include="Styles\Images.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Resource>
+		<Resource Include="Styles\Button.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Resource>
+	</ItemGroup>
 
+    <ItemGroup>
+      <Resource Update="D:\Source\project.png" Link="Resources\project.png" />
+    </ItemGroup>
+	
 </Project>

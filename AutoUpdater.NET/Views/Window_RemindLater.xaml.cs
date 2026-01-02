@@ -4,13 +4,10 @@
 // Author:   Latency McLaughlin
 // Date:     06/10/2025
 // ****************************************************************************
-
 // ReSharper disable InconsistentNaming
 
-using System.Windows;
-using System.Windows.Controls;
 using AutoUpdaterDotNET.Controls;
-using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.ViewModels;
 
 namespace AutoUpdaterDotNET.Views;
 
@@ -19,13 +16,8 @@ namespace AutoUpdaterDotNET.Views;
 /// </summary>
 public sealed partial class Window_RemindLater : RestrictedWindow
 {
-    public Window_RemindLater(IViewModelRemindLater vm)
+    public Window_RemindLater(ViewModelRemindLater vm)
     {
         InitializeComponent();
-
-        DataContext = vm;
-
-        if (ButtonOk != null)
-            ButtonOk.Click += (sender, e) => vm.CommandButtonOk.Execute(new Tuple<Window_RemindLater, Button?, RoutedEventArgs>(this, sender as Button, e));
     }
 }

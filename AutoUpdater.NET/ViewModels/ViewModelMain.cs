@@ -8,7 +8,6 @@
 
 using AssemblyLoader;
 using AutoUpdaterDotNET.Enums;
-using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.TypeResolvers;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
@@ -26,7 +25,7 @@ using AutoUpdaterDotNET.Modifiers;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
+public partial class ViewModelMain : ViewModelMainConfig
 {
     private readonly ViewModelMainConfig _configOrig;
 
@@ -86,10 +85,8 @@ public partial class ViewModelMain : ViewModelMainConfig, IViewModelMain
     }
 
 
-    void IViewModelMain.OnLoaded(object? sender)
+    public void OnLoaded()
     {
-        //_win = sender as Window_Main ?? throw new NullReferenceException();
-
         UpdateTimer.Interval = GetRemindLaterInterval(TimerInterval);
         UpdateTimer.Tick     += (_, _) => { };
 

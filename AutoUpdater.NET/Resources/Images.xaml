@@ -1,9 +1,0 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
->
-    <BitmapImage x:Key="clock_go"      UriSource="pack://application:,,,/AutoUpdater.NET;component/png/clock_go.png" />
-    <BitmapImage x:Key="clock_play"    UriSource="pack://application:,,,/AutoUpdater.NET;component/png/clock_play.png" />
-    <BitmapImage x:Key="download"      UriSource="pack://application:,,,/AutoUpdater.NET;component/png/download.png" />
-    <BitmapImage x:Key="hand_point"    UriSource="pack://application:,,,/AutoUpdater.NET;component/png/hand_point.png" />
-    <BitmapImage x:Key="update"        UriSource="pack://application:,,,/AutoUpdater.NET;component/png/update.png" />
-</ResourceDictionary>

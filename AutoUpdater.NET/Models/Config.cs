@@ -11,7 +11,7 @@ using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.Models;
 
-[Obsolete]
+[Obsolete("This has been replaced with ViewModelMain.Config.cs")]
 public record Config : IConfig
 {
     /// <summary>
