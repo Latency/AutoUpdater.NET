@@ -1,19 +1,19 @@
 ﻿// ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     BooleanToVisibilityConverter.cs
+// File:     ControlBoxVisibilityConverter.cs
 // Author:   Latency McLaughlin
-// Date:     12/31/2025
+// Date:     01/02/2026
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Enums;
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
 
 namespace AutoUpdaterDotNET.Converters;
 
-public class BooleanToVisibilityConverter : IValueConverter
+public class ControlBoxVisibilityConverter : IValueConverter
 {
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => (bool)value! ? Visibility.Visible : Visibility.Hidden;
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => (Mode)value! is not (Mode.Forced or Mode.ForcedDownload);
 
     public object ConvertBack(object? value, Type targetTypes, object? parameter, CultureInfo culture) => throw new NotImplementedException();
 }

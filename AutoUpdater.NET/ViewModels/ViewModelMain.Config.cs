@@ -53,8 +53,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool IsAppTitle { get; set; }
-
-    // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnIsAppTitleChanged(bool value)
     {
         AppTitle = value ? _defaultAppTitle : null;
@@ -64,7 +62,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
     public partial string? AppTitle { get; set; }
-
     partial void OnAppTitleChanged(string? value)
     {
         _defaultAppTitle = value;
@@ -76,7 +73,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool IsManditory { get; set; }
-
     partial void OnIsManditoryChanged(bool value)
     {
         Manditory = value ? _defaultIsManditory ??= new IsManditory() : null;
@@ -98,8 +94,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool ShowSkipButton { get; set; }
-
-    // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnShowSkipButtonChanged(bool value)
     {
         _defaultManditory[0] = value;
@@ -110,8 +104,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool ShowRemindLaterButton { get; set; }
-
-    // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnShowRemindLaterButtonChanged(bool value)
     {
         _defaultManditory[1] = value;
@@ -122,7 +114,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial Mode UpdateMode { get; set; }
-
     partial void OnUpdateModeChanged(Mode value)
     {
         Manditory?.UpdateMode = value;
@@ -134,21 +125,19 @@ public partial class ViewModelMainConfig : ObservableObject
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("IsManditory")]
-    public IsManditory? Manditory { get; set; }
+    [ObservableProperty]
+    public partial IsManditory? Manditory { get; set; }
     #endregion IsManditory
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool RunUpdateAsAdmin { get; set; }
-
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnRunUpdateAsAdminChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool OpenDownloadPage { get; set; }
-
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnOpenDownloadPageChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
@@ -156,12 +145,12 @@ public partial class ViewModelMainConfig : ObservableObject
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("BasicAuthentication")]
-    public BasicAuth? BasicAuth { get; set; }
+    [ObservableProperty]
+    public partial BasicAuth? BasicAuth { get; set; }
 
     [JsonIgnore]
     [ObservableProperty]
     public partial bool IsBasicAuth { get; set; }
-
     partial void OnIsBasicAuthChanged(bool value)
     {
         BasicAuth = value && (BasicAuthChangeLog || BasicAuthDownload || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(BasicAuthPassword)) ? _defaultBasicAuth ??= new BasicAuth() : null;
@@ -172,7 +161,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool BasicAuthChangeLog { get; set; }
-
     partial void OnBasicAuthChangeLogChanged(bool value)
     {
         BasicAuth            = value || BasicAuthDownload || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(BasicAuthPassword) ? _defaultBasicAuth ??= new BasicAuth() : null;
@@ -184,7 +172,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool BasicAuthDownload { get; set; }
-
     partial void OnBasicAuthDownloadChanged(bool value)
     {
         BasicAuth           = BasicAuthChangeLog || value || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(BasicAuthPassword) ? _defaultBasicAuth ??= new BasicAuth() : null;
@@ -196,7 +183,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial string? BasicAuthUserName { get; set; }
-
     partial void OnBasicAuthUserNameChanged(string? value)
     {
         BasicAuth           = BasicAuthChangeLog || BasicAuthDownload || !string.IsNullOrEmpty(value) || !string.IsNullOrEmpty(BasicAuthPassword) ? _defaultBasicAuth ??= new BasicAuth() : null;
@@ -208,7 +194,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial string? BasicAuthPassword { get; set; }
-
     partial void OnBasicAuthPasswordChanged(string? value)
     {
         BasicAuth           = BasicAuthChangeLog || BasicAuthDownload || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(value) ? _defaultBasicAuth ??= new BasicAuth() : null;
@@ -221,21 +206,18 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool DoNotBindOwnerWindow { get; set; }
-
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnDoNotBindOwnerWindowChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool CheckSynchronously { get; set; }
-
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnCheckSynchronouslyChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool FtpProtocol { get; set; }
-
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnFtpProtocolChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
@@ -243,7 +225,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool IsIconOverride { get; set; }
-
     partial void OnIsIconOverrideChanged(bool value)
     {
         var uri = TmpIcon?.ToString();
@@ -253,14 +234,14 @@ public partial class ViewModelMainConfig : ObservableObject
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IconOverride? IconOverride { get; set; }
+    [ObservableProperty]
+    public partial IconOverride? IconOverride { get; set; }
 
     #endregion Icon Override
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool PersistSettings { get; set; }
-
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnPersistSettingsChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
@@ -268,7 +249,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool ProxyEnabled { get; set; }
-
     partial void OnProxyEnabledChanged(bool value)
     {
         Proxy = value && (!string.IsNullOrEmpty(ProxyUri) || !string.IsNullOrEmpty(ProxyUserName) || !string.IsNullOrEmpty(ProxyPassword)) ? _defaultProxy ??= new ProxyEnabled() : null;
@@ -279,7 +259,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial string? ProxyUri { get; set; }
-
     partial void OnProxyUriChanged(string? value)
     {
         Proxy      = !string.IsNullOrEmpty(value) || !string.IsNullOrEmpty(ProxyUserName) || !string.IsNullOrEmpty(ProxyPassword) ? _defaultProxy ??= new ProxyEnabled() : null;
@@ -291,7 +270,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial string? ProxyUserName { get; set; }
-
     partial void OnProxyUserNameChanged(string? value)
     {
         Proxy           = !string.IsNullOrEmpty(ProxyUri) || !string.IsNullOrEmpty(value) || !string.IsNullOrEmpty(ProxyPassword) ? _defaultProxy ??= new ProxyEnabled() : null;
@@ -303,7 +281,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial string? ProxyPassword { get; set; }
-
     partial void OnProxyPasswordChanged(string? value)
     {
         Proxy           = !string.IsNullOrEmpty(ProxyUri) || !string.IsNullOrEmpty(ProxyUserName) || !string.IsNullOrEmpty(value) ? _defaultProxy ??= new ProxyEnabled() : null;
@@ -313,20 +290,19 @@ public partial class ViewModelMainConfig : ObservableObject
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public ProxyEnabled? Proxy { get; set; }
+    [ObservableProperty]
+    public partial ProxyEnabled? Proxy { get; set; }
     #endregion ProxyEnabled
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool ReportErrors { get; set; }
-
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnReportErrorsChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool TopMostDisabled { get; set; }
-
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnTopMostDisabledChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
@@ -334,7 +310,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool UseZipFile { get; set; }
-
     partial void OnUseZipFileChanged(bool value)
     {
         ZipFile = !value ? null : new ZipFile(); // _clearAppDirectory || (_executablePathOverride && !string.IsNullOrEmpty(_executablePath)) || (_zipExtractionPathOverride && !string.IsNullOrEmpty(_installationPath)) ? _defaultZipFile ??= new ZipFile() : null;
@@ -345,7 +320,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool ClearAppDirectory { get; set; }
-
     partial void OnClearAppDirectoryChanged(bool value)
     {
         ZipFile                    = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(ExecutablePath)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(InstallationPath)) ? _defaultZipFile ??= new ZipFile() : null;
@@ -357,7 +331,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool ExecutablePathOverride { get; set; }
-
     partial void OnExecutablePathOverrideChanged(bool value)
     {
         ZipFile                               = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(ExecutablePath)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(InstallationPath)) ? _defaultZipFile ??= new ZipFile() : null;
@@ -370,7 +343,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial string? ExecutablePath { get; set; }
-
     partial void OnExecutablePathChanged(string? value)
     {
         ZipFile                               = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(value)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(InstallationPath)) ? _defaultZipFile ??= new ZipFile() : null;
@@ -383,7 +355,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool ZipExtractionPathOverride { get; set; }
-
     partial void OnZipExtractionPathOverrideChanged(bool value)
     {
         ZipFile                                  = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(ExecutablePath)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(InstallationPath)) ? _defaultZipFile ??= new ZipFile() : null;
@@ -396,7 +367,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial string? InstallationPath { get; set; }
-
     partial void OnInstallationPathChanged(string? value)
     {
         ZipFile                                  = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(ExecutablePath)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(value)) ? _defaultZipFile ??= new ZipFile() : null;
@@ -409,13 +379,14 @@ public partial class ViewModelMainConfig : ObservableObject
     #endregion Use ZipFile
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public ZipFile? ZipFile { get; set; }
+    [ObservableProperty]
+    public partial ZipFile? ZipFile { get; set; }
+
     #region TimerEnabled
 
     [JsonIgnore]
     [ObservableProperty]
     public partial bool TimerEnabled { get; set; }
-
     partial void OnTimerEnabledChanged(bool value)
     {
         Timer = value ? _defaultTimer ??= new TimerEnabled() : null;
@@ -426,7 +397,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial ushort TimerInterval { get; set; } = 1;
-
     partial void OnTimerIntervalChanged(ushort value)
     {
         Timer?.Interval = value;
@@ -440,7 +410,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial RemindLaterFormat TimerDurationTimeSpan { get; set; } = RemindLaterFormat.Seconds;
-
     partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat value)
     {
         Timer?.TimeSpan = value;
@@ -452,7 +421,8 @@ public partial class ViewModelMainConfig : ObservableObject
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public TimerEnabled? Timer { get; set; }
+    [ObservableProperty]
+    public partial TimerEnabled? Timer { get; set; }
     #endregion TimerEnabled
 
     #region UserSelectRemindLater
@@ -460,7 +430,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial bool UserSelectRemindLater { get; set; }
-
     partial void OnUserSelectRemindLaterChanged(bool value)
     {
         RemmindLaterTimer = value ? _defaultRemindLaterTimer ??= new TimerEnabled() : null;
@@ -471,7 +440,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial ushort RemindLaterAt { get; set; } = 1;
-
     partial void OnRemindLaterAtChanged(ushort value)
     {
         RemmindLaterTimer?.Interval = value;
@@ -485,7 +453,6 @@ public partial class ViewModelMainConfig : ObservableObject
     [JsonIgnore]
     [ObservableProperty]
     public partial RemindLaterFormat RemindLaterTimeSpan { get; set; } = RemindLaterFormat.Seconds;
-
     partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat value)
     {
         RemmindLaterTimer?.TimeSpan = value;
@@ -498,59 +465,56 @@ public partial class ViewModelMainConfig : ObservableObject
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("UserSelectRemmindLater")]
-    public TimerEnabled? RemmindLaterTimer { get; set; }
+    [ObservableProperty]
+    public partial TimerEnabled? RemmindLaterTimer { get; set; }
 
     #endregion UserSelectRemindLater
 
     #region Version
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public InstalledVersion? InstalledVersion { get; set; }
-
     [ObservableProperty]
-    [JsonIgnore]
-    public partial bool InstalledVersionOverride { get; set; }
+    public partial InstalledVersion? InstalledVersion { get; set; }
 
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial bool InstalledVersionOverride { get; set; }
     partial void OnInstalledVersionOverrideChanged(bool value)
     {
         InstalledVersion = value ? new InstalledVersion { Version = new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion) } : null;
         UpdateValidation?.Invoke(!Equals());
     }
 
-    [ObservableProperty]
     [JsonIgnore]
+    [ObservableProperty]
     public partial ushort MajorVersion { get; set; } = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Major;
-
     partial void OnMajorVersionChanged(ushort value)
     {
         var tmpVer = new Version(value, MinorVersion, BuildVersion, RevisionVersion);
         SetInstalledVersion(tmpVer);
     }
 
-    [ObservableProperty]
     [JsonIgnore]
+    [ObservableProperty]
     public partial ushort MinorVersion { get; set; } = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Minor;
-
     partial void OnMinorVersionChanged(ushort value)
     {
         var tmpVer = new Version(MajorVersion, value, BuildVersion, RevisionVersion);
         SetInstalledVersion(tmpVer);
     }
 
-    [ObservableProperty]
     [JsonIgnore]
+    [ObservableProperty]
     public partial ushort BuildVersion { get; set; } = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Build;
-
     partial void OnBuildVersionChanged(ushort value)
     {
         var tmpVer = new Version(MajorVersion, MinorVersion, value, RevisionVersion);
         SetInstalledVersion(tmpVer);
     }
 
-    [ObservableProperty]
     [JsonIgnore]
+    [ObservableProperty]
     public partial ushort RevisionVersion { get; set; } = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Revision;
-
     partial void OnRevisionVersionChanged(ushort value)
     {
         var tmpVer = new Version(MajorVersion, MinorVersion, BuildVersion, value);
@@ -559,10 +523,9 @@ public partial class ViewModelMainConfig : ObservableObject
 
     #endregion Version
 
-    [ObservableProperty]
     [JsonIgnore]
+    [ObservableProperty]
     public partial BitmapImage? TmpIcon { get; set; } = null;
-
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnTmpIconChanged(BitmapImage? value) => UpdateValidation?.Invoke(!Equals());
 

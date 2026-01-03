@@ -26,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-	    <PackageReference Include="AssemblyLoader" Version="1.2.3" Condition="!@(PackageReference-&gt;Contains('AssemblyLoader'))" />
+	    <PackageReference Include="AssemblyLoader" Version="1.2.3" />
 	    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 	    <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
 	    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
@@ -38,22 +38,6 @@
       <Resource Include="Resources\download.png" />
       <Resource Include="Resources\hand_point.png" />
       <Resource Include="Resources\update.png" />
-    </ItemGroup>
-
-	<ItemGroup>
-		<Resource Include="Styles\Colors.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Resource>
-		<Resource Include="Styles\Images.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Resource>
-		<Resource Include="Styles\Button.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Resource>
-	</ItemGroup>
-
-    <ItemGroup>
-      <Resource Update="D:\Source\project.png" Link="Resources\project.png" />
     </ItemGroup>
 	
 </Project>

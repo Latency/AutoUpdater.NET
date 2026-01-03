@@ -5,24 +5,51 @@
 // Date:     06/10/2025
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Interops;
 using System.Windows;
 using System.Windows.Interop;
-using AutoUpdaterDotNET.Interops;
 
 namespace AutoUpdaterDotNET.Controls;
 
 public abstract class RestrictedWindow : Window
 {
+    public static readonly DependencyProperty ControlBoxProperty = DependencyProperty.Register(nameof(ControlBox),                                        // Name of the property
+                                                                                               typeof(bool?),                                             // Type of the property
+                                                                                               typeof(RestrictedWindow),                                  // Owner class type
+                                                                                               new FrameworkPropertyMetadata(true, OnControlBoxChanged)); // Property metadata (default value, property changed callback, etc.)
+
+    #region Fields
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // ReSharper disable InconsistentNaming
+    private const int GWL_STYLE  = -16;
+    private const int WS_SYSMENU = 0x80000;
+    // ReSharper restore InconsistentNaming
+
     // Handle to current window.
-    private nint _hWnd;
+    private static nint _hWnd;
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Fields
 
 
+    #region Properties
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    public bool? ControlBox
+    {
+        get => (bool?)GetValue(ControlBoxProperty);
+        set => SetValue(ControlBoxProperty, value!);
+    }
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Properties
+
+
+    #region Constructor
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     /// <summary>
     ///     Default Constructor
     /// </summary>
     protected RestrictedWindow()
     {
-        ControlBox            = false;
+        ControlBox            = true;
         ResizeMode            = ResizeMode.NoResize;
         ShowActivated         = true;
         ShowInTaskbar         = true;
@@ -32,33 +59,27 @@ public abstract class RestrictedWindow : Window
 
         Loaded += Window_OnLoaded;
     }
-
-
-    public bool ControlBox
-    {
-        get;
-        set
-        {
-            if (field.Equals(value))
-                return;
-
-            field = value;
-            ToggleControlBox(field);
-        }
-    }
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Constructor
 
 
     private void Window_OnLoaded(object sender, RoutedEventArgs e)
     {
         _hWnd = new WindowInteropHelper(this).Handle;
-        ToggleControlBox(ControlBox);
     }
 
 
-    protected internal void ToggleControlBox(bool? enable = null)
+    private static void OnControlBoxChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
+        //var control  = (RestrictedWindow)d;
+        var oldValue = (bool?)e.OldValue;
+        var newValue = (bool?)e.NewValue;
+
+        if (oldValue == newValue)
+            return;
+
         var gwlStyle = User32.GetWindowLongPtr(_hWnd, GWL_STYLE);
-        var flag = enable switch
+        var flag = newValue switch
         {
             true  => gwlStyle | WS_SYSMENU,
             false => gwlStyle & ~WS_SYSMENU,
@@ -66,10 +87,4 @@ public abstract class RestrictedWindow : Window
         };
         User32.SetWindowLongPtr(_hWnd, GWL_STYLE, flag);
     }
-
-    // ReSharper disable InconsistentNaming
-    private const int GWL_STYLE = -16;
-
-    private const int WS_SYSMENU = 0x80000;
-    // ReSharper restore InconsistentNaming
 }

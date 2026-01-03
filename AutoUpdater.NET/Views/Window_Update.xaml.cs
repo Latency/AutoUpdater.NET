@@ -6,6 +6,7 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using System.ComponentModel;
 using AutoUpdaterDotNET.Controls;
 
 namespace AutoUpdaterDotNET.Views;
@@ -18,5 +19,12 @@ public sealed partial class Window_Update : RestrictedWindow
     public Window_Update()
     {
         InitializeComponent();
+    }
+
+
+    private void Window_Update_OnClosing(object? sender, CancelEventArgs e)
+    {
+        e.Cancel = true;
+        Hide();
     }
 }

@@ -5,12 +5,20 @@
                            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                            xmlns:viewModels="clr-namespace:AutoUpdaterDotNET.ViewModels"
                            xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
+                           xmlns:converters="clr-namespace:AutoUpdaterDotNET.Converters"
+                           xmlns:sys="clr-namespace:System;assembly=System.Runtime"
                            mc:Ignorable="d"
                            d:DataContext="{d:DesignInstance viewModels:ViewModelRemindLater }"
                            Title="Remind me later for update"
                            Width="500"
                            Height="168"
-                           Icon="{StaticResource clock_go}">
+                           ControlBox="False"
+                           Icon="{StaticResource clock_go}"
+>
+    <controls:RestrictedWindow.Resources>
+        <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+    </controls:RestrictedWindow.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="80" />
@@ -30,17 +38,15 @@
             Grid.RowSpan="2">
             <RadioButton Name="RadioButtonYes"
                          Margin="0,5,0,5"
-                         IsChecked="True"
+                         IsChecked="{Binding OptionYesSelected}"
                          Content="Yes, please remind me later"
-                         GroupName="RemindLaterGroup"
-                         Command="{Binding CommandRemindLater}"
-                         CommandParameter="Yes" />
+                         GroupName="RemindLaterGroup" />
             <RadioButton Name="RadioButtonNo"
+                         Margin="0,5,0,5"
+                         IsChecked="{Binding OptionNoSelected}"
                          FontWeight="Bold"
                          Content="No, download updates now (recommended)"
-                         GroupName="RemindLaterGroup"
-                         Command="{Binding CommandRemindLater}"
-                         CommandParameter="No" />
+                         GroupName="RemindLaterGroup" />
         </StackPanel>
 
         <Image Name="PictureBoxIcon"

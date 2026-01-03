@@ -37,6 +37,7 @@ public static class AutoUpdateBuilderExtensions
             services.AddSingleton<Window_Main>();
             services.AddSingleton<Window_AutoUpdater>();
             services.AddSingleton<Window_DownloadUpdate>();
+            services.AddSingleton<Window_RemindLater>();
             services.AddSingleton<Window_Update>();
         });
         return hostBuilder;

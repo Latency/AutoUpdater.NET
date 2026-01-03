@@ -5,23 +5,37 @@
 // Date:     12/31/2025
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
 public partial class ViewModelUpdate
 {
-    public event Action<bool?>? ToggleControlBox;
+    [RelayCommand]
+    public void Skip(object? parameter)
+    {
+        var win = parameter as Window_Update;
+        win?.Close();
+    }
 
 
     [RelayCommand]
-    public void Skip() => ToggleControlBox?.Invoke(true);
+    public void RemindLater(object? parameter)
+    {
+        var win = parameter as Window_Update;
+        win?.Hide();
+
+        var remindWin = _serviceProvider.GetRequiredService<Window_RemindLater>();
+        remindWin.ShowDialog();
+    }
 
 
     [RelayCommand]
-    public void RemindLater() => ToggleControlBox?.Invoke(false);
-
-
-    [RelayCommand]
-    public void Update() => ToggleControlBox?.Invoke(null);
+    public void Update(object? parameter)
+    {
+        var win = parameter as Window_Update;
+        win?.Close();
+    }
 }
