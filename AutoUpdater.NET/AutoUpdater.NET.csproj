@@ -3,21 +3,12 @@
     <PropertyGroup>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net10.0-windows</TargetFramework>
-		<AssemblyTitle>AutoUpdater.NET</AssemblyTitle>
         <Description>AutoUpdater.NET is a class library that allows .NET developers to easily add auto update functionality to their WinForms or WPF application projects.</Description>
-        <Nullable>enable</Nullable>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/Latency/AutoUpdater.NET</PackageProjectUrl>
-        <PackageReleaseNotes>https://github.com/Latency/AutoUpdater.NET/releases</PackageReleaseNotes>
         <PackageTags>autoupdate updater c# wpf</PackageTags>
         <Product>AutoUpdater.NET</Product>
         <RootNamespace>AutoUpdaterDotNET</RootNamespace>
-        <Title>AutoUpdater.NET</Title>
         <UseWpf>true</UseWpf>
         <Version>2.0.0</Version>
-        <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
-        <LangVersion Condition="'$(LangVersion)' == ''">preview</LangVersion>
-	    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,7 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-	    <PackageReference Include="AssemblyLoader" Version="1.2.3" />
 	    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 	    <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
 	    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />

@@ -16,11 +16,11 @@ AutoUpdater.NET is a class library that allows .NET developers to easily add aut
 </tr>
 <tr>
 <td>UPDATED:</td>
-<td>8/25/2025</td>
+<td>1/4/2026</td>
 </tr>
 <tr>
 <td>FRAMEWORK:</td>
-<td></td>
+<td>net10.0-windows</td>
 </tr>
 <tr>
 <td>LANGUAGE:</td>
@@ -28,7 +28,7 @@ AutoUpdater.NET is a class library that allows .NET developers to easily add aut
 </tr>
 <tr>
 <td>OUTPUT TYPE:</td>
-<td>WinExe [API]</td>
+<td>Library [API]</td>
 </tr>
 <tr>
 <td>SUPPORTS:</td>
