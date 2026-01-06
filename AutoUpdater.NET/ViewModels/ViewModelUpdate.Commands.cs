@@ -14,28 +14,25 @@ namespace AutoUpdaterDotNET.ViewModels;
 public partial class ViewModelUpdate
 {
     [RelayCommand]
-    public void Skip(object? parameter)
-    {
-        var win = parameter as Window_Update;
-        win?.Close();
-    }
+    public static void Skip(object? parameter) => (parameter as Window_Update)?.Close();
 
 
     [RelayCommand]
     public void RemindLater(object? parameter)
     {
-        var win = parameter as Window_Update;
-        win?.Hide();
+        (parameter as Window_Update)?.Close();
 
-        var remindWin = _serviceProvider.GetRequiredService<Window_RemindLater>();
-        remindWin.ShowDialog();
+        var vm = _serviceProvider.GetRequiredService<ViewModelRemindLater>();
+        _windowService.ShowWindow<Window_RemindLater, ViewModelRemindLater>(vm);
     }
 
 
     [RelayCommand]
     public void Update(object? parameter)
     {
-        var win = parameter as Window_Update;
-        win?.Close();
+        (parameter as Window_Update)?.Close();
+
+        // TODO
+        // Start automatic updates!
     }
 }

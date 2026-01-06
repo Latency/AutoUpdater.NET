@@ -11,7 +11,7 @@ using AutoUpdaterDotNET.Controls;
 
 namespace AutoUpdaterDotNET.Views;
 
-public sealed partial class Window_Update : RestrictedWindow
+public partial class Window_Update : RestrictedWindow
 {
     /// <summary>
     ///     Constructor

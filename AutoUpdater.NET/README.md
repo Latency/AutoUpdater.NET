@@ -16,7 +16,7 @@ AutoUpdater.NET is a class library that allows .NET developers to easily add aut
 </tr>
 <tr>
 <td>UPDATED:</td>
-<td>1/4/2026</td>
+<td>1/6/2026</td>
 </tr>
 <tr>
 <td>FRAMEWORK:</td>
@@ -44,15 +44,15 @@ AutoUpdater.NET is a class library that allows .NET developers to easily add aut
 </tr>
 <tr>
 <td>STATUS:</td>
-<td><a href="https://github.com/Latency/AutoUpdater.NET/actions/workflows/dotnet.yml"><img src="https://github.com/Latency/AutoUpdater.NET/actions/workflows/dotnet.yml/badge.svg"></a></td>
+<td><a href="https://bitbucket.honeywell.com/projects/NGAPLATETS/AutoUpdater.NET/actions/workflows/dotnet.yml"><img src="https://bitbucket.honeywell.com/projects/NGAPLATETS/AutoUpdater.NET/actions/workflows/dotnet.yml/badge.svg"></a></td>
 </tr>
 <tr>
 <td>LICENSE:</td>
-<td><a href="https://github.com/Latency/AutoUpdater.NET/blob/master/MIT-LICENSE.txt"><img src="https://img.shields.io/github/license/Latency/AutoUpdater.NET?style=plastic&logo=GitHub&logoColor=black&label=License&color=yellowgreen"></a></td>
+<td><a href="https://bitbucket.honeywell.com/projects/NGAPLATETS/AutoUpdater.NET/blob/master/MIT-LICENSE.txt"><img src="https://img.shields.io/github/license/Latency/AutoUpdater.NET?style=plastic&logo=GitHub&logoColor=black&label=License&color=yellowgreen"></a></td>
 </tr>
 <tr>
 <td>VERSION:</td>
-<td><a href="https://github.com/Latency/AutoUpdater.NET/releases"><img src="https://img.shields.io/github/v/release/Latency/AutoUpdater.NET?include_prereleases&style=plastic&logo=GitHub&logoColor=black&label=Version&color=blue"></a></td>
+<td><a href="https://bitbucket.honeywell.com/projects/NGAPLATETS/AutoUpdater.NET/releases"><img src="https://img.shields.io/github/v/release/Latency/AutoUpdater.NET?include_prereleases&style=plastic&logo=GitHub&logoColor=black&label=Version&color=blue"></a></td>
 </tr>
 <!-- VERSION: 2.0.0 -->
 </table>

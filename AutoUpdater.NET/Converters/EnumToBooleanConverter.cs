@@ -29,7 +29,7 @@ public class EnumToBooleanConverter : IValueConverter
 
         // If the RadioButton is checked (value is true), return its parameter value
         if ((bool)value)
-            return Enum.Parse(targetType, parameter.ToString());
+            return Enum.Parse(targetType, parameter.ToString()!);
         return Binding.DoNothing; // Important: other unchecked buttons should do nothing
     }
 }

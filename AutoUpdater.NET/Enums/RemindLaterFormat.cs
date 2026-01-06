@@ -30,5 +30,10 @@ public enum RemindLaterFormat
     /// <summary>
     ///     Represents the time span in days.
     /// </summary>
-    Days
+    Days,
+
+    /// <summary>
+    ///     Represents the time span in weeks.
+    /// </summary>
+    Weeks
 }

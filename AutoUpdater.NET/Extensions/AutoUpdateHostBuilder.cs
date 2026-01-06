@@ -1,10 +1,12 @@
-﻿// ****************************************************************************
+// ****************************************************************************
 // Project:  AutoUpdater.NET
 // File:     AutoUpdateHostBuilder.cs
 // Author:   Latency McLaughlin
 // Date:     12/31/2025
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.ViewModels;
 using AutoUpdaterDotNET.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +28,8 @@ public static class AutoUpdateBuilderExtensions
     {
         hostBuilder.ConfigureServices(services =>
         {
+            services.AddSingleton<IWindowService, WindowService>();
+
             // Register ViewModels
             services.AddSingleton<ViewModelMain>();
             services.AddSingleton<ViewModelMainConfig>();

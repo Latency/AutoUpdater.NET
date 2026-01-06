@@ -7,16 +7,18 @@
 // ReSharper disable InconsistentNaming
 
 using AutoUpdaterDotNET.Controls;
-using AutoUpdaterDotNET.ViewModels;
 
 namespace AutoUpdaterDotNET.Views;
 
 /// <summary>
 ///     Interaction logic for RemindLater.xaml
 /// </summary>
-public sealed partial class Window_RemindLater : RestrictedWindow
+public partial class Window_RemindLater : RestrictedWindow
 {
-    public Window_RemindLater(ViewModelRemindLater vm)
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    public Window_RemindLater()
     {
         InitializeComponent();
     }

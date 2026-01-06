@@ -5,14 +5,15 @@
 // Date:     06/10/2025
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
 public partial class ViewModelUpdate : ObservableObject
 {
-    private IServiceProvider    _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IWindowService   _windowService;
 
     public  ViewModelMainConfig Config { get; }
 
@@ -20,9 +21,10 @@ public partial class ViewModelUpdate : ObservableObject
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelUpdate(IServiceProvider provider)
+    public ViewModelUpdate(IServiceProvider provider, IWindowService windowService, ViewModelMain vm)
     {
         _serviceProvider = provider;
-        Config           = provider.GetRequiredService<ViewModelMain>();
+        _windowService   = windowService;
+        Config           = vm;
     }
 }

@@ -93,7 +93,7 @@ public partial class ViewModelMainConfig : ObservableObject
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public partial bool ShowSkipButton { get; set; }
+    public partial bool ShowSkipButton { get; set; } = true;
     partial void OnShowSkipButtonChanged(bool value)
     {
         _defaultManditory[0] = value;
@@ -103,7 +103,7 @@ public partial class ViewModelMainConfig : ObservableObject
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public partial bool ShowRemindLaterButton { get; set; }
+    public partial bool ShowRemindLaterButton { get; set; } = true;
     partial void OnShowRemindLaterButtonChanged(bool value)
     {
         _defaultManditory[1] = value;
