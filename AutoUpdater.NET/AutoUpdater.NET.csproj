@@ -13,7 +13,6 @@
 
     <ItemGroup>
       <Compile Remove="Views\DownloadUpdateDialog.cs" />
-      <Compile Remove="Views\DownloadUpdateDialog.Designer.cs" />
     </ItemGroup>
 
     <ItemGroup>

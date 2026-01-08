@@ -13,7 +13,7 @@ namespace AutoUpdaterDotNET.Views;
 /// <summary>
 ///     Interaction logic for RemindLater.xaml
 /// </summary>
-public partial class Window_RemindLater : RestrictedWindow
+public partial class Window_RemindLater : Window_Restricted
 {
     /// <summary>
     /// Constructor

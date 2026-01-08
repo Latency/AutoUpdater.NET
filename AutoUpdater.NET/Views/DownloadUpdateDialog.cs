@@ -8,6 +8,8 @@ using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Windows;
 using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Models;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace AutoUpdaterDotNET;
 
@@ -30,11 +32,6 @@ internal partial class DownloadUpdateDialog : Window
         }
 
         _args = args;
-
-        if (AutoUpdater.Mandatory && AutoUpdater.UpdateMode == Mode.ForcedDownload)
-        {
-            ControlBox = false;
-        }
     }
 
     private void DownloadUpdateDialogLoad(object sender, EventArgs e)
@@ -76,8 +73,7 @@ internal partial class DownloadUpdateDialog : Window
             if (totalSeconds > 0)
             {
                 var bytesPerSecond = e.BytesReceived / totalSeconds;
-                labelInformation.Text =
-                    string.Format(Resources.DownloadSpeedMessage, BytesToString(bytesPerSecond));
+                labelInformation.Text = string.Format(Resources.DownloadSpeedMessage, BytesToString(bytesPerSecond));
             }
         }
 
@@ -105,7 +101,7 @@ internal partial class DownloadUpdateDialog : Window
             }
 
             // Try to parse the content disposition header if it exists.
-            ContentDisposition contentDisposition = null;
+            ContentDisposition? contentDisposition = null;
             if (!string.IsNullOrWhiteSpace(_webClient.ResponseHeaders?["Content-Disposition"]))
             {
                 try
@@ -143,7 +139,7 @@ internal partial class DownloadUpdateDialog : Window
 
             File.Move(_tempFile, tempPath);
 
-            string installerArgs = null;
+            string? installerArgs = null;
             if (!string.IsNullOrEmpty(_args.InstallerArgs))
             {
                 installerArgs = _args.InstallerArgs.Replace("%path%",
@@ -268,7 +264,7 @@ internal partial class DownloadUpdateDialog : Window
 
     private static string BytesToString(long byteCount)
     {
-        string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
+        string[] suf = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
         if (byteCount == 0)
         {
             return "0" + suf[0];

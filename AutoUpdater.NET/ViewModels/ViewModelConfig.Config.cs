@@ -1,6 +1,6 @@
 // ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     ViewModelMain.Config.cs
+// File:     ViewModelConfig.Config.cs
 // Author:   Latency McLaughlin
 // Date:     06/18/2025
 // ****************************************************************************
@@ -772,74 +772,6 @@ public partial class ViewModelMainConfig : ObservableObject
 
             return UpdateMode  == other.UpdateMode &&
                    IsManditory == other.IsManditory;
-        }
-    }
-
-
-    public override bool Equals(object? obj) => Equals(obj as ViewModelMainConfig);
-
-
-    public override int GetHashCode()
-    {
-        // Combine hash codes of relevant fields
-        unchecked // Allows arithmetic overflow without throwing an exception
-        {
-            var hash = 17;                                                              // A prime number
-            hash = hash * 3 + (AppTitle          != null ? AppTitle.GetHashCode() : 0); // Another prime number
-            hash = hash * 3 + (BasicAuthPassword != null ? BasicAuthPassword.GetHashCode() : 0);
-            hash = hash * 3 + (BasicAuthUserName != null ? BasicAuthUserName.GetHashCode() : 0);
-            hash = hash * 3 + (ExecutablePath    != null ? ExecutablePath.GetHashCode() : 0);
-            hash = hash * 3 + (InstallationPath  != null ? InstallationPath.GetHashCode() : 0);
-
-            // ReSharper disable NonReadonlyMemberInGetHashCode
-            if (Proxy is not null)
-            {
-                hash = hash * 3 + (Proxy.Uri      != null ? Proxy.Uri.GetHashCode() : 0);
-                hash = hash * 3 + (Proxy.Password != null ? Proxy.Password.GetHashCode() : 0);
-                hash = hash * 3 + (Proxy.UserName != null ? Proxy.UserName.GetHashCode() : 0);
-            }
-            // ReSharper restore NonReadonlyMemberInGetHashCode
-
-            if (IsManditory)
-            {
-                hash = hash * 3 + ShowRemindLaterButton.GetHashCode();
-                hash = hash * 3 + ShowSkipButton.GetHashCode();
-            }
-            else
-            {
-                hash = hash * 3 + UpdateMode.GetHashCode();
-            }
-
-            // ReSharper disable NonReadonlyMemberInGetHashCode
-            hash = hash * 3 + (BasicAuth != null ? BasicAuth.GetHashCode() : 0);
-            // ReSharper restore NonReadonlyMemberInGetHashCode
-
-            hash = hash * 3 + BasicAuthChangeLog.GetHashCode();
-            hash = hash * 3 + BasicAuthDownload.GetHashCode();
-            hash = hash * 3 + ZipExtractionPathOverride.GetHashCode();
-            hash = hash * 3 + CheckSynchronously.GetHashCode();
-            hash = hash * 3 + ClearAppDirectory.GetHashCode();
-            hash = hash * 3 + DoNotBindOwnerWindow.GetHashCode();
-            hash = hash * 3 + ExecutablePathOverride.GetHashCode();
-            hash = hash * 3 + FtpProtocol.GetHashCode();
-            hash = hash * 3 + TimerInterval.GetHashCode();
-            hash = hash * 3 + BuildVersion.GetHashCode();
-            hash = hash * 3 + MajorVersion.GetHashCode();
-            hash = hash * 3 + MinorVersion.GetHashCode();
-            hash = hash * 3 + RevisionVersion.GetHashCode();
-            hash = hash * 3 + OpenDownloadPage.GetHashCode();
-            hash = hash * 3 + PersistSettings.GetHashCode();
-            hash = hash * 3 + ProxyEnabled.GetHashCode();
-            hash = hash * 3 + RemindLaterAt.GetHashCode();
-            hash = hash * 3 + RemindLaterTimeSpan.GetHashCode();
-            hash = hash * 3 + ReportErrors.GetHashCode();
-            hash = hash * 3 + RunUpdateAsAdmin.GetHashCode();
-            hash = hash * 3 + TimerDurationTimeSpan.GetHashCode();
-            hash = hash * 3 + TopMostDisabled.GetHashCode();
-            hash = hash * 3 + (TmpIcon != null ? TmpIcon.GetHashCode() : 0);
-            hash = hash * 3 + UserSelectRemindLater.GetHashCode();
-
-            return hash;
         }
     }
 }

@@ -22,8 +22,7 @@ public partial class ViewModelUpdate
     {
         (parameter as Window_Update)?.Close();
 
-        var vm = _serviceProvider.GetRequiredService<ViewModelRemindLater>();
-        _windowService.ShowWindow<Window_RemindLater, ViewModelRemindLater>(vm);
+        _windowService.ShowWindow<Window_RemindLater, ViewModelRemindLater>(Owner, _serviceProvider.GetRequiredService<ViewModelRemindLater>());
     }
 
 
@@ -32,7 +31,6 @@ public partial class ViewModelUpdate
     {
         (parameter as Window_Update)?.Close();
 
-        // TODO
-        // Start automatic updates!
+        _windowService.ShowWindow<Window_DownloadUpdate, ViewModelDownloadUpdate>(Owner, _serviceProvider.GetRequiredService<ViewModelDownloadUpdate>());
     }
 }

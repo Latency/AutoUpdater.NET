@@ -9,8 +9,22 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public sealed partial class ViewModelDownloadUpdate : ObservableObject
+public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted
 {
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    public ViewModelDownloadUpdate(ViewModelConfig vmMain) : base(vmMain)
+    {
+    }
+
+
+    #region Properties
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
     [ObservableProperty]
     public partial double ProgressPercentage { get; set; }
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Properties
 }

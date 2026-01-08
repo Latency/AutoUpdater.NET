@@ -7,11 +7,10 @@
 // ReSharper disable InconsistentNaming
 
 using AutoUpdaterDotNET.Controls;
-using AutoUpdaterDotNET.Enums;
 
 namespace AutoUpdaterDotNET.Views;
 
-public sealed partial class Window_DownloadUpdate : RestrictedWindow
+public sealed partial class Window_DownloadUpdate : Window_Restricted
 {
     /// <summary>
     ///     Constructor
@@ -19,7 +18,5 @@ public sealed partial class Window_DownloadUpdate : RestrictedWindow
     public Window_DownloadUpdate()
     {
         InitializeComponent();
-
-        ControlBox = !Window_AutoUpdater.Instance.Mandatory || Window_AutoUpdater.Instance.UpdateMode != Mode.ForcedDownload;
     }
 }

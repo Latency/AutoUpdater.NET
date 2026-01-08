@@ -1,6 +1,7 @@
 // ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     ViewModelRemindLater.cs
+// File:     ViewModel
+// .cs
 // Author:   Latency McLaughlin
 // Date:     06/10/2025
 // ****************************************************************************
@@ -13,22 +14,19 @@ using kvp = System.Collections.Generic.KeyValuePair<ushort, AutoUpdaterDotNET.En
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelRemindLater : ObservableObject
+public partial class ViewModelRemindLater : ViewModelRestricted
 {
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelRemindLater(ViewModelMain vmMain)
+    public ViewModelRemindLater(ViewModelConfig vmMain) : base(vmMain)
     {
-        Config = vmMain;
         ComboBoxSelectedItem = ComboBoxItems[0];
     }
 
+
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-    public ViewModelMainConfig Config { get; }
-
 
     [ObservableProperty]
     public partial ObservableCollection<kvp> ComboBoxItems { get; set; } = [

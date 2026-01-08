@@ -6,25 +6,21 @@
 // ****************************************************************************
 
 using AutoUpdaterDotNET.Interfaces;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelUpdate : ObservableObject
+public partial class ViewModelUpdate : ViewModelRestricted
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IWindowService   _windowService;
-
-    public  ViewModelMainConfig Config { get; }
 
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelUpdate(IServiceProvider provider, IWindowService windowService, ViewModelMain vm)
+    public ViewModelUpdate(IServiceProvider provider, IWindowService windowService, ViewModelConfig vmMain) : base(vmMain)
     {
         _serviceProvider = provider;
         _windowService   = windowService;
-        Config           = vm;
     }
 }

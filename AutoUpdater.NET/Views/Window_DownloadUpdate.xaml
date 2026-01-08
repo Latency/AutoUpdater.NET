@@ -1,68 +1,62 @@
-﻿<controls:RestrictedWindow x:Class="AutoUpdaterDotNET.Views.Window_DownloadUpdate"
-                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                           xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
-                           xmlns:viewModels="clr-namespace:AutoUpdaterDotNET.ViewModels"
-                           mc:Ignorable="d"
-                           d:DataContext="{d:DesignInstance viewModels:ViewModelDownloadUpdate }"
-                           Title="Software Update"
-                           Width="500"
-                           Height="200"
-                           Icon="{StaticResource update}">
-    <controls:RestrictedWindow.Resources>
-        <Style TargetType="{x:Type TextBox}">
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-    </controls:RestrictedWindow.Resources>
+﻿<controls:Window_Restricted
+    x:Class="AutoUpdaterDotNET.Views.Window_DownloadUpdate"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:AutoUpdaterDotNET.ViewModels"
+    xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance viewModels:ViewModelDownloadUpdate}"
+    Title="Download Updates"
+    Width="450"
+    Height="150"
+    Icon="{StaticResource download}"
+>
+    <Grid Margin="0, 10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="15" />
+        </Grid.ColumnDefinitions>
 
-    <Grid Margin="0,20,20,10">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <Image x:Name="PictureBoxIcon"
+               Grid.Column="0"
+               Grid.RowSpan="2"
+               RenderOptions.BitmapScalingMode="HighQuality"
+               Source="{StaticResource download}"
+               Stretch="UniformToFill"
+        />
 
-            <Image x:Name="PictureBoxIcon"
-                   Grid.Column="0"
-                   Grid.RowSpan="3"
-                   RenderOptions.BitmapScalingMode="HighQuality"
-                   Source="{StaticResource download}"
-                   Stretch="UniformToFill"
-                   Height="130" />
+        <Label x:Name="LabelInformation"
+               Grid.Column="1"
+               Grid.Row="0"
+               FontWeight="Bold"
+               FontSize="14"
+               Content="Downloading Update..." />
 
-            <Label x:Name="LabelInformation"
-                   Grid.Column="1"
-                   Grid.Row="0"
-                   FontWeight="Bold"
-                   FontSize="14"
-                   Content="Downloading Update..." />
+        <ProgressBar
+            x:Name="ProgressBarDownload"
+            Grid.Column="1"
+            Grid.Row="1"
+            Height="40"
+            Maximum="100"
+            Value="{Binding ProgressPercentage}" />
 
-            <ProgressBar
-                x:Name="ProgressBarDownload"
-                Grid.Column="1"
-                Grid.Row="1"
-                Height="50"
-                Maximum="100"
-                Value="{Binding ProgressPercentage}" />
+        <StackPanel
+            Grid.Column="1"
+            Grid.Row="1"
+            Orientation="Horizontal"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center">
+            <TextBlock Text="{Binding ProgressPercentage}" d:Text="100" />
+            <TextBlock Text="%" />
+        </StackPanel>
 
-            <StackPanel
-                Grid.Column="1"
-                Grid.Row="1"
-                Orientation="Horizontal"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Center">
-                <TextBlock Text="{Binding ProgressPercentage}" d:Text="100" />
-                <TextBlock Text="%" />
-            </StackPanel>
-
-        </Grid>
     </Grid>
-</controls:RestrictedWindow>
+</controls:Window_Restricted>

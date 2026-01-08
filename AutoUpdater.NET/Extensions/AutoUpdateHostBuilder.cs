@@ -31,14 +31,14 @@ public static class AutoUpdateBuilderExtensions
             services.AddSingleton<IWindowService, WindowService>();
 
             // Register ViewModels
-            services.AddSingleton<ViewModelMain>();
+            services.AddSingleton<ViewModelConfig>();
             services.AddSingleton<ViewModelMainConfig>();
             services.AddSingleton<ViewModelDownloadUpdate>();
             services.AddSingleton<ViewModelRemindLater>();
             services.AddSingleton<ViewModelUpdate>();
 
             // Register Views
-            services.AddSingleton<Window_Main>();
+            services.AddSingleton<Window_Config>();
             services.AddSingleton<Window_AutoUpdater>();
             services.AddSingleton<Window_DownloadUpdate>();
             services.AddSingleton<Window_RemindLater>();

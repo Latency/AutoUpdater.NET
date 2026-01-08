@@ -15,7 +15,7 @@ public partial class ViewModelRemindLater
     [RelayCommand]
     public void RemindLater(object? parameter)
     {
-        (parameter as Window_Update)?.Close();
+        (parameter as Window_RemindLater)?.Close();
 
         // TODO
         // Start automatic updates!
