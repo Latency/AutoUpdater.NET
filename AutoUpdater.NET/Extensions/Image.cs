@@ -7,13 +7,16 @@
 
 using System.IO;
 using System.Net.Cache;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace AutoUpdaterDotNET.Extensions;
 
 public static class ImageExtensions
 {
-    public static BitmapImage? ConvertToBitmapImage(this Uri resourceUri) => CreateNewBitmapImage(image => image.UriSource = resourceUri);
+    public static BitmapImage ConvertToBitmapImage(this Uri resourceUri) => CreateNewBitmapImage(image => image.UriSource = resourceUri);
 
 
     public static BitmapImage? ConvertStreamToBitmapImage(this Stream imageStream, Uri? resourceUri = null)
@@ -43,5 +46,35 @@ public static class ImageExtensions
         image.Freeze(); // Optional, but good practice for immutability
 
         return image;
+    }
+
+    public static ImageSource? GetFileIcon(string filePath)
+    {
+        // Check if the file path is valid
+        if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            return null; // or return a default icon
+
+        try
+        {
+            // Use the System.Drawing.Icon method to extract
+            var sysicon = System.Drawing.Icon.ExtractAssociatedIcon(filePath);
+
+            // Convert the System.Drawing.Icon to a WPF ImageSource (BitmapSource)
+            var bmpSrc = Imaging.CreateBitmapSourceFromHIcon(
+                sysicon.Handle,
+                Int32Rect.Empty,
+                BitmapSizeOptions.FromEmptyOptions());
+
+            // Dispose of the native icon handle to prevent memory leaks
+            sysicon.Dispose();
+
+            return bmpSrc;
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions (e.g., file access denied)
+            Console.WriteLine($"Error extracting icon: {ex.Message}");
+            return null;
+        }
     }
 }

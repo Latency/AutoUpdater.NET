@@ -11,16 +11,14 @@ namespace AutoUpdaterDotNET.ViewModels;
 
 public partial class ViewModelUpdate : ViewModelRestricted
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly IWindowService   _windowService;
+    private readonly IWindowService _windowService;
 
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelUpdate(IServiceProvider provider, IWindowService windowService, ViewModelConfig vmMain) : base(vmMain)
+    public ViewModelUpdate(IServiceProvider serviceProvider, IWindowService windowService) : base(serviceProvider)
     {
-        _serviceProvider = provider;
-        _windowService   = windowService;
+        _windowService = windowService;
     }
 }

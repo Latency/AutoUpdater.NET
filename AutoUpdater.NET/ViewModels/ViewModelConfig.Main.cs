@@ -1,6 +1,6 @@
 // ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     ViewModelConfig.Config.cs
+// File:     ViewModelConfig.Main.cs
 // Author:   Latency McLaughlin
 // Date:     06/18/2025
 // ****************************************************************************
@@ -17,7 +17,10 @@ using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using AutoUpdaterDotNET.Extensions;
+using AutoUpdaterDotNET.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -25,6 +28,8 @@ public partial class ViewModelMainConfig : ObservableObject
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    protected IServiceProvider _serviceProvider;
+
     protected Version _defaultInstalledVersion;
 
     private string? _defaultAppTitle;
@@ -304,7 +309,21 @@ public partial class ViewModelMainConfig : ObservableObject
     [ObservableProperty]
     public partial bool TopMostDisabled { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnTopMostDisabledChanged(bool value) => UpdateValidation?.Invoke(!Equals());
+    partial void OnTopMostDisabledChanged(bool value)
+    {
+        if (value)
+        {
+            var win = _serviceProvider.GetRequiredService<Window_Config>();
+            if (win is null)
+                throw new NullReferenceException();
+
+            var tmp = win.Topmost;
+            win.Topmost = true;
+            Dispatcher.CurrentDispatcher.BeginInvoke(() => win.Topmost = tmp);
+        }
+
+        UpdateValidation?.Invoke(!Equals());
+    }
 
     #region Use ZipFile
     [JsonIgnore]
@@ -584,7 +603,7 @@ public partial class ViewModelMainConfig : ObservableObject
     /// <summary>
     ///     Default Constructor
     /// </summary>
-    public ViewModelMainConfig()
+    public ViewModelMainConfig(IServiceProvider serviceProvider)
     {
         TmpIcon              = Application.Current!.Resources["Project"] as BitmapImage;
         _defaultIconOverride = new IconOverride
@@ -592,16 +611,18 @@ public partial class ViewModelMainConfig : ObservableObject
             Uri = string.IsNullOrEmpty(TmpIcon?.ToString()) ? null : new Uri(TmpIcon.ToString()!)
         };
         _defaultInstalledVersion = Assembly.GetExecutingAssembly().Version()!;
+        _serviceProvider         = serviceProvider;
     }
 
 
     /// <summary>
     ///     Copy Constructor
     /// </summary>
-    /// <param name="other"></param>
-    public ViewModelMainConfig(ViewModelMainConfig? other) : this()
+    /// <param name="parent"></param>
+    /// <param name="serviceProvider"></param>
+    public ViewModelMainConfig(ViewModelConfig parent, IServiceProvider serviceProvider) : this(serviceProvider)
     {
-        Copy(other);
+        Copy(parent);
     }
     #endregion Constructors
 

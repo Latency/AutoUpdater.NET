@@ -19,7 +19,7 @@ public partial class ViewModelRemindLater : ViewModelRestricted
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelRemindLater(ViewModelConfig vmMain) : base(vmMain)
+    public ViewModelRemindLater(IServiceProvider serviceProvider) : base(serviceProvider)
     {
         ComboBoxSelectedItem = ComboBoxItems[0];
     }

@@ -12,16 +12,29 @@ namespace AutoUpdaterDotNET.ViewModels;
 
 public abstract class ViewModelRestricted : ObservableObject
 {
-    public ViewModelMainConfig Config { get; }
+    #region Fields
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    protected IServiceProvider ServiceProvider;
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Fields
 
-    public Window? Owner { get; set; }
+
+    #region Properties
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    public required ViewModelMainConfig Config { get; set; }
+
+    public IFrameworkInputElement? Owner { get; set; } // Window
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Properties
 
 
     /// <summary>
     /// Constructor
     /// </summary>
-    protected ViewModelRestricted(ViewModelConfig vm)
+    protected ViewModelRestricted(IServiceProvider serviceProvider)
     {
-        Config = vm;
+        ServiceProvider = serviceProvider;
     }
 }

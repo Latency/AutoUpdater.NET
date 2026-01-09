@@ -6,27 +6,28 @@
 // ****************************************************************************
 
 using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.ViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
-using AutoUpdaterDotNET.ViewModels;
+using AutoUpdaterDotNET.Controls;
 
 namespace AutoUpdaterDotNET.Models;
 
 public class WindowService(IServiceProvider serviceProvider) : IWindowService
 {
-    public void ShowWindow<TWindow, TViewModel>(Window? owner, TViewModel viewModel)
+    public void ShowWindow<TWindow, TViewModel>(IFrameworkInputElement? owner, TViewModel viewModel)
         where TWindow    : Window
         where TViewModel : ObservableObject
     {
-        if (viewModel is null)
-            throw new NullReferenceException();
-
         var window = serviceProvider.GetRequiredService<TWindow>();
         window.DataContext = viewModel;
 
-        if (owner is not null && viewModel is ViewModelRestricted vm)
-            window.Owner = vm.Owner = owner;
+        if (owner is not null)
+            window.Owner = (owner as Window)!;
+
+        if (window is Window_Restricted win && viewModel is ViewModelConfig vmc)
+            win.Config = vmc;
 
         window.Show();
     }

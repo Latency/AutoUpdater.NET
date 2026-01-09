@@ -11,9 +11,9 @@ using AutoUpdaterDotNET.Interops;
 using AutoUpdaterDotNET.ViewModels;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Interop;
+
 namespace AutoUpdaterDotNET.Controls;
 
 /// <summary>
@@ -26,7 +26,7 @@ public abstract class Window_Restricted : Window
                                                                                                typeof(Window_Restricted),                                 // Owner class type
                                                                                                new FrameworkPropertyMetadata(true, OnControlBoxChanged)); // Property metadata (default value, property changed callback, etc.)
 
-    public static readonly DependencyProperty OwnerProperty = DependencyProperty.Register(nameof(Owner),                                  // Name of the property
+    public static readonly DependencyProperty OwnerProperty = DependencyProperty.Register(nameof(Owner2),                                 // Name of the property
                                                                                           typeof(Window),                                 // Type of the property
                                                                                           typeof(Window_Restricted),                      // Owner class type
                                                                                           new FrameworkPropertyMetadata(OnOwnerChanged)); // Property metadata (default value, property changed callback, etc.)
@@ -57,14 +57,12 @@ public abstract class Window_Restricted : Window
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    public new Window? Owner
+    public ViewModelMainConfig? Config { get; set; }
+
+    public Window? Owner2
     {
         get => (Window?)GetValue(OwnerProperty);
-        set
-        {
-            base.Owner = value!;
-            SetValue(OwnerProperty, value!);
-        }
+        set => SetValue(OwnerProperty, value!);
     }
 
     public bool? ControlBox
@@ -97,43 +95,39 @@ public abstract class Window_Restricted : Window
     {
         _hWnd = new WindowInteropHelper(this).Handle;
 
-        if (DataContext is not ViewModelRestricted vm)
-            throw new NullReferenceException();
-
         SetBinding(ControlBoxProperty, new Binding
         {
-            Source    = vm.Config,
-            Path      = new PropertyPath(nameof(vm.Config.UpdateMode)),
+            Source    = Config!,
+            Path      = new PropertyPath(nameof(Config.UpdateMode)),
             Converter = new ControlBoxVisibilityConverter()
         });
 
         SetBinding(TopmostProperty, new Binding
         {
-            Source    = vm.Config,
-            Path      = new PropertyPath(nameof(vm.Config.TopMostDisabled)),
+            Source    = Config!,
+            Path      = new PropertyPath(nameof(Config.TopMostDisabled)),
             Converter = new InverseBooleanConverter()
         });
 
         SetBinding(OwnerProperty, new Binding
         {
-            Source    = vm.Config,
-            Path      = new PropertyPath(nameof(vm.Config.DoNotBindOwnerWindow)),
-            Converter = new BooleanToWindowConverter(),
-            ConverterParameter = this
+            Source             = Config!,
+            Path               = new PropertyPath(nameof(Config.DoNotBindOwnerWindow)),
+            Converter          = new BooleanToWindowConverter(),
+            ConverterParameter = Owner!
         });
     }
 
 
     private static void OnOwnerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        #if DEBUG
-        var ctrl         = (Window) d;
-        var ownerEnabled = e.NewValue is not null;
+        var ctrl     = (Window)d;
         var newValue = e.NewValue as Window;
-        ctrl.Tag   = (e.OldValue as Window)!;
+        ctrl.Owner   = newValue!;
+#if DEBUG
+        var ownerEnabled = e.NewValue is not null;
         ctrl.Title = ownerEnabled ? $"{ctrl.Title}{(ownerEnabled ? $" (Owner: {newValue?.GetType()})" : string.Empty)}" : ctrl.Title![..ctrl.Title.IndexOf('(')].TrimEnd();
-        ctrl.Owner = newValue!;
-        #endif
+#endif
     }
 
 

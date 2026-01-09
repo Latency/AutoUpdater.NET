@@ -14,7 +14,7 @@ public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelDownloadUpdate(ViewModelConfig vmMain) : base(vmMain)
+    public ViewModelDownloadUpdate(IServiceProvider serviceProvider) : base(serviceProvider)
     {
     }
 

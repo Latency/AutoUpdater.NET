@@ -6,17 +6,17 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using System.ComponentModel;
+using AutoUpdaterDotNET.ViewModels;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using AutoUpdaterDotNET.ViewModels;
+using AutoUpdaterDotNET.Controls;
 
 namespace AutoUpdaterDotNET.Views;
 
-public partial class Window_Config
+public partial class Window_Config : Window_Restricted
 {
     [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
     private static partial Regex MyRegex();
@@ -45,19 +45,18 @@ public partial class Window_Config
 
     private void Window_Main_OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (DataContext is not ViewModelConfig dc)
+        if (DataContext is not ViewModelConfig vm)
             return;
 
-        if (DataContext is ViewModelConfig vm)
-        {
-            vm.UpdateIcon       += OnUpdateIcon;
-            vm.UpdateVersion    += OnUpdateVersion;
-            vm.UpdateValidation += OnUpdateValidation;
+        vm.UpdateIcon       += OnUpdateIcon;
+        vm.UpdateVersion    += OnUpdateVersion;
+        vm.UpdateValidation += OnUpdateValidation;
 
-            OnUpdateIcon(vm.TmpIcon);
-        }
+        vm.TmpIcon = FindResource("project") as BitmapImage;
 
-        dc.OnLoaded();
+        OnUpdateIcon(vm.TmpIcon);
+
+        vm.OnLoaded();
     }
 
 
@@ -91,12 +90,5 @@ public partial class Window_Config
             MessageBox.Show("Invalid Input!", "Validation Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         OnUpdateValidation(null);
-    }
-
-
-    private void Window_Main_OnClosing(object? sender, CancelEventArgs e)
-    {
-        Hide();
-        e.Cancel = true;
     }
 }

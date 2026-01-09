@@ -1,27 +1,28 @@
-<Window x:Class="AutoUpdaterDotNET.Views.Window_Config"
-        Name="WindowConfig"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewModels="clr-namespace:AutoUpdaterDotNET.ViewModels"
-        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
-        xmlns:enums="clr-namespace:AutoUpdaterDotNET.Enums"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance viewModels:ViewModelMain }"
-        Height="640"
-        Width="510"
-        WindowStartupLocation="CenterScreen"
-        WindowStyle="ThreeDBorderWindow"
-        ResizeMode="CanResizeWithGrip"
-        ShowInTaskbar="True"
-        MinWidth="500"
-        MinHeight="550"
-        Loaded="Window_Main_OnLoaded"
-        Closing="Window_Main_OnClosing"
+<controls:Window_Restricted
+    x:Class="AutoUpdaterDotNET.Views.Window_Config"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:AutoUpdaterDotNET.ViewModels"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+    xmlns:enums="clr-namespace:AutoUpdaterDotNET.Enums"
+    xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
+    xmlns:views="clr-namespace:AutoUpdaterDotNET.Views"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance viewModels:ViewModelConfig }"
+    Height="640"
+    Width="510"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="ThreeDBorderWindow"
+    ResizeMode="CanResizeWithGrip"
+    ShowInTaskbar="True"
+    MinWidth="500"
+    MinHeight="550"
+    Loaded="Window_Main_OnLoaded"
 >
-    <Window.Resources>
+    <controls:Window_Restricted.Resources>
         <ObjectDataProvider x:Key="RemindLaterFormatEnumValues"
                             MethodName="GetValues"
                             ObjectType="{x:Type sys:Enum}">
@@ -43,7 +44,7 @@
                 <x:Type TypeName="enums:Mode" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-    </Window.Resources>
+    </controls:Window_Restricted.Resources>
 
     <Grid
         Margin="10"
@@ -80,7 +81,7 @@
                 Margin="6,6"
                 ToolTip="Save the configuration settings."
                 Command="{Binding LoadConfigCommand}"
-                CommandParameter="{x:Reference Name=WindowConfig}" />
+                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_Config}}}" />
 
             <Button
                 Name="ButtonSave"
@@ -89,7 +90,7 @@
                 Style="{StaticResource MyCustomButton}"
                 ToolTip="Load the configuration settings."
                 Command="{Binding SaveConfigCommand}"
-                CommandParameter="{x:Reference Name=WindowConfig}" />
+                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_Config}}}" />
         </StackPanel>
 
         <Button
@@ -102,7 +103,7 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Center"
             Command="{Binding CancelCommand}"
-            CommandParameter="{x:Reference Name=WindowConfig}" />
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_Config}}}" />
 
         <Button
             Name="ButtonUpdate"
@@ -115,7 +116,7 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Command="{Binding UpdateCommand}"
-            CommandParameter="{x:Reference Name=WindowConfig}" />
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_Config}}}" />
 
         <ScrollViewer
             Grid.Row="1"
@@ -1155,7 +1156,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <Button
                         Command="{Binding ImageChangeCommand}"
-                        CommandParameter="{x:Reference Name=WindowConfig}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_Config}}}"
                     >
                         <Button.Style>
                             <Style TargetType="Button">
@@ -1210,5 +1211,4 @@
                    Foreground="DarkSlateGray" />
     </Grid>
 
-
-</Window>
+</controls:Window_Restricted>

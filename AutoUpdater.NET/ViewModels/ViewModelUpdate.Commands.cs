@@ -22,7 +22,7 @@ public partial class ViewModelUpdate
     {
         (parameter as Window_Update)?.Close();
 
-        _windowService.ShowWindow<Window_RemindLater, ViewModelRemindLater>(Owner, _serviceProvider.GetRequiredService<ViewModelRemindLater>());
+        _windowService.ShowWindow<Window_RemindLater, ViewModelRemindLater>(Owner, ServiceProvider.GetRequiredService<ViewModelRemindLater>());
     }
 
 
@@ -31,6 +31,6 @@ public partial class ViewModelUpdate
     {
         (parameter as Window_Update)?.Close();
 
-        _windowService.ShowWindow<Window_DownloadUpdate, ViewModelDownloadUpdate>(Owner, _serviceProvider.GetRequiredService<ViewModelDownloadUpdate>());
+        _windowService.ShowWindow<Window_DownloadUpdate, ViewModelDownloadUpdate>(Owner, ServiceProvider.GetRequiredService<ViewModelDownloadUpdate>());
     }
 }
