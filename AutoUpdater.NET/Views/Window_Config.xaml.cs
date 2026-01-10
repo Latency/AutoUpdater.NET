@@ -55,8 +55,6 @@ public partial class Window_Config : Window_Restricted
         vm.TmpIcon = FindResource("project") as BitmapImage;
 
         OnUpdateIcon(vm.TmpIcon);
-
-        vm.OnLoaded();
     }
 
 

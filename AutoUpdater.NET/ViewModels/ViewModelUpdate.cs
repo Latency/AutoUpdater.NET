@@ -9,7 +9,7 @@ using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelUpdate : ViewModelRestricted
+public partial class ViewModelUpdate : ViewModelRestricted, IViewModelUpdate
 {
     private readonly IWindowService _windowService;
 

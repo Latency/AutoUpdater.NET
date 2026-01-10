@@ -6,11 +6,12 @@
 // ****************************************************************************
 
 using System.Windows;
+using AutoUpdaterDotNET.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public abstract class ViewModelRestricted : ObservableObject
+public abstract class ViewModelRestricted : ObservableObject, IViewModelRestricted
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -22,7 +23,7 @@ public abstract class ViewModelRestricted : ObservableObject
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    public required ViewModelMainConfig Config { get; set; }
+    public IViewModelMainConfig? Config { get; set; }
 
     public IFrameworkInputElement? Owner { get; set; } // Window
 

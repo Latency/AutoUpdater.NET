@@ -6,17 +6,80 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Extensions;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text.Json;
-using CommunityToolkit.Mvvm.Input;
-using AutoUpdaterDotNET.Extensions;
+using System.Windows.Controls;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelConfig : ViewModelMainConfig
+public partial class ViewModelConfig
 {
+    [RelayCommand]
+    private void Loaded()
+    {
+        UpdateTimer.Interval = GetRemindLaterInterval(TimerInterval);
+        UpdateTimer.Tick += (_, _) => { };
+
+        UpdateIcon += img => _configOrig.TmpIcon = img;
+
+        InvocationListGenerator(UpdateTimer, nameof(UpdateTimer.Tick), TimerNodeList);
+        InvocationListGenerator(this,        nameof(ApplicationExit),  ApplicationExitNodeList);
+        InvocationListGenerator(this,        nameof(CheckForUpdates),  CheckForUpdatesNodeList);
+        InvocationListGenerator(this,        nameof(ParseUpdateInfo),  ParseUpdateInfoNodeList);
+
+        LoadConfig();
+
+        SetVersion();
+        return;
+
+        // -------------------------------------------
+        TimeSpan GetRemindLaterInterval(ushort interval) => TimerDurationTimeSpan switch
+        {
+            RemindLaterFormat.Seconds => TimeSpan.FromSeconds(interval),
+            RemindLaterFormat.Minutes => TimeSpan.FromMinutes(interval),
+            RemindLaterFormat.Hours   => TimeSpan.FromHours(interval),
+            RemindLaterFormat.Days    => TimeSpan.FromDays(interval),
+            RemindLaterFormat.Weeks   => TimeSpan.FromDays(interval * 7),
+            _                         => throw new ArgumentOutOfRangeException(nameof(interval))
+        };
+
+        static void InvocationListGenerator<T>(T obj, string eventHandlerName, ObservableCollection<TreeViewItem> nodeList)
+            where T : class
+        {
+            var y = typeof(T).GetField(eventHandlerName, BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ?? throw new NullReferenceException("Field not found in type.");
+            var root = new TreeViewItem
+            {
+                Header = $"On{eventHandlerName} (Delegates)"
+            };
+            nodeList.Add(root);
+
+            // Delegate was not registered within the object.
+            if (y.GetValue(obj) is not Delegate x)
+            {
+                root.Items.Add(new TreeViewItem
+                {
+                    Header = "(None)"
+                });
+                return;
+            }
+
+            var z = 1;
+            foreach (var signature in x.GetInvocationList())
+                root.Items.Add(new TreeViewItem
+                {
+                    Header = $"{z++}.  {y.GetValue(obj)!.GetType().Name} {signature.Method.Name}"
+                });
+        }
+    }
+
+
     [RelayCommand]
     private void Cancel() => Copy(_configOrig);
 

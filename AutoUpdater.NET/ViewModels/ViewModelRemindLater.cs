@@ -7,21 +7,21 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using System.Collections.ObjectModel;
 using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
 using kvp = System.Collections.Generic.KeyValuePair<ushort, AutoUpdaterDotNET.Enums.RemindLaterFormat>;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelRemindLater : ViewModelRestricted
+public partial class ViewModelRemindLater : ViewModelRestricted, IViewModelRemindLater
 {
     /// <summary>
     /// Constructor
     /// </summary>
     public ViewModelRemindLater(IServiceProvider serviceProvider) : base(serviceProvider)
     {
-        ComboBoxSelectedItem = ComboBoxItems[0];
     }
 
 

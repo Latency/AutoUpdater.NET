@@ -16,5 +16,5 @@ public class InverseBooleanConverter : IValueConverter
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => ApplySetting(value);
 
-    private static bool ApplySetting(object? value) => value is bool boolValue ? !boolValue : (bool)value!; // Or throw an exception
+    private static bool ApplySetting(object? value) => !(bool)value!;
 }

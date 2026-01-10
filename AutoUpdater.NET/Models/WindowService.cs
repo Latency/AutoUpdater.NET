@@ -5,30 +5,41 @@
 // Date:     01/06/2026
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Controls;
 using AutoUpdaterDotNET.Interfaces;
-using AutoUpdaterDotNET.ViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
-using AutoUpdaterDotNET.Controls;
+using AutoUpdaterDotNET.ViewModels;
 
 namespace AutoUpdaterDotNET.Models;
 
-public class WindowService(IServiceProvider serviceProvider) : IWindowService
+public partial class WindowService(IServiceProvider serviceProvider) : IWindowService
 {
-    public void ShowWindow<TWindow, TViewModel>(IFrameworkInputElement? owner, TViewModel viewModel)
-        where TWindow    : Window
+    private Window _window = null!;
+
+
+    public TWindow InitializeWindow<TWindow, TViewModel>(IFrameworkInputElement? owner, TViewModel viewModel)
+        where TWindow : Window
         where TViewModel : ObservableObject
     {
-        var window = serviceProvider.GetRequiredService<TWindow>();
-        window.DataContext = viewModel;
+        _window = serviceProvider.GetRequiredService<TWindow>();
+        _window.DataContext = viewModel;
 
         if (owner is not null)
-            window.Owner = (owner as Window)!;
+            _window.Owner = (owner as Window)!;
 
-        if (window is Window_Restricted win && viewModel is ViewModelConfig vmc)
-            win.Config = vmc;
+        // ReSharper disable once InvertIf
+        if (_window is Window_Restricted win)
+        {
+            win.Config ??= serviceProvider.GetRequiredService<IViewModelConfig>();
+            if (viewModel is ViewModelRestricted vmc)
+                vmc.Config ??= win.Config;
 
-        window.Show();
+            win.Owner2 = win.Config.DoNotBindOwnerWindow ? null! : win.Owner!;
+            win.Owner  = (win.Owner2 as Window)!;
+        }
+
+        return (_window as TWindow)!;
     }
 }

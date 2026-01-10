@@ -5,11 +5,12 @@
 // Date:     06/10/2025
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted
+public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDownloadUpdate
 {
     /// <summary>
     /// Constructor

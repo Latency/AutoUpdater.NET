@@ -19,12 +19,13 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AutoUpdaterDotNET.Extensions;
+using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Views;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelMainConfig : ObservableObject
+public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfig
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

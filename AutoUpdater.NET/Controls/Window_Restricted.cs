@@ -8,11 +8,13 @@
 
 using AutoUpdaterDotNET.Converters;
 using AutoUpdaterDotNET.Interops;
-using AutoUpdaterDotNET.ViewModels;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Interop;
+using AutoUpdaterDotNET.Extensions;
+using AutoUpdaterDotNET.Interfaces;
+using Xceed.Wpf.Toolkit.Core.Converters;
 
 namespace AutoUpdaterDotNET.Controls;
 
@@ -27,12 +29,13 @@ public abstract class Window_Restricted : Window
                                                                                                new FrameworkPropertyMetadata(true, OnControlBoxChanged)); // Property metadata (default value, property changed callback, etc.)
 
     public static readonly DependencyProperty OwnerProperty = DependencyProperty.Register(nameof(Owner2),                                 // Name of the property
-                                                                                          typeof(Window),                                 // Type of the property
+                                                                                          typeof(IFrameworkInputElement),                 // Type of the property
                                                                                           typeof(Window_Restricted),                      // Owner class type
                                                                                           new FrameworkPropertyMetadata(OnOwnerChanged)); // Property metadata (default value, property changed callback, etc.)
 
     #region Constructor
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
     /// <summary>
     ///     Default Constructor
     /// </summary>
@@ -57,11 +60,11 @@ public abstract class Window_Restricted : Window
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    public ViewModelMainConfig? Config { get; set; }
+    public IViewModelMainConfig? Config { get; set; }
 
-    public Window? Owner2
+    public IFrameworkInputElement? Owner2
     {
-        get => (Window?)GetValue(OwnerProperty);
+        get => (IFrameworkInputElement?)GetValue(OwnerProperty);
         set => SetValue(OwnerProperty, value!);
     }
 
@@ -77,11 +80,8 @@ public abstract class Window_Restricted : Window
 
     #region Fields
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    // ReSharper disable InconsistentNaming
     private const int GWL_STYLE = -16;
-
     private const int WS_SYSMENU = 0x80000;
-    // ReSharper restore InconsistentNaming
 
     // Handle to current window.
     private static nint _hWnd;
@@ -106,7 +106,7 @@ public abstract class Window_Restricted : Window
         {
             Source    = Config!,
             Path      = new PropertyPath(nameof(Config.TopMostDisabled)),
-            Converter = new InverseBooleanConverter()
+            Converter = new InverseBoolConverter()
         });
 
         SetBinding(OwnerProperty, new Binding
@@ -116,6 +116,25 @@ public abstract class Window_Restricted : Window
             Converter          = new BooleanToWindowConverter(),
             ConverterParameter = Owner!
         });
+
+
+        var b = GetBindings();
+    }
+
+
+    public IEnumerable<BindingBase> GetBindings()
+    {
+        List<DependencyProperty> a    = [ControlBoxProperty, OwnerProperty, TopmostProperty];
+        List<BindingBase?>  test = [];
+
+        foreach (var b in a)
+        {
+            var c = b.GetBindings2(this);
+            test.Add(c);
+        }
+
+        //var                      c    = a.SelectMany(x => x.GetBindings2(this));
+        return test;
     }
 
 

@@ -13,7 +13,7 @@ namespace AutoUpdaterDotNET.ViewModels;
 public partial class ViewModelRemindLater
 {
     [RelayCommand]
-    public void RemindLater(object? parameter)
+    private void RemindLater(object? parameter)
     {
         (parameter as Window_RemindLater)?.Close();
 

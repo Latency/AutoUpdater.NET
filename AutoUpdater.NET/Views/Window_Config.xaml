@@ -8,38 +8,44 @@
     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:enums="clr-namespace:AutoUpdaterDotNET.Enums"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-    xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
     xmlns:views="clr-namespace:AutoUpdaterDotNET.Views"
+    xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
+    xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+    Width="400"
+    Height="550"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance viewModels:ViewModelConfig }"
-    Height="640"
-    Width="510"
-    WindowStartupLocation="CenterScreen"
-    WindowStyle="ThreeDBorderWindow"
-    ResizeMode="CanResizeWithGrip"
-    ShowInTaskbar="True"
-    MinWidth="500"
-    MinHeight="550"
     Loaded="Window_Main_OnLoaded"
 >
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="Loaded">
+            <behaviors:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
     <controls:Window_Restricted.Resources>
-        <ObjectDataProvider x:Key="RemindLaterFormatEnumValues"
-                            MethodName="GetValues"
-                            ObjectType="{x:Type sys:Enum}">
+        <ObjectDataProvider
+            x:Key="RemindLaterFormatEnumValues"
+            MethodName="GetValues"
+            ObjectType="{x:Type sys:Enum}"
+        >
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="enums:RemindLaterFormat" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-        <ObjectDataProvider x:Key="TimerDurationFormatEnumValues"
-                            MethodName="GetValues"
-                            ObjectType="{x:Type sys:Enum}">
+        <ObjectDataProvider
+            x:Key="TimerDurationFormatEnumValues"
+            MethodName="GetValues"
+            ObjectType="{x:Type sys:Enum}"
+        >
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="enums:RemindLaterFormat" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-        <ObjectDataProvider x:Key="UpdateModeEnumValues"
-                            MethodName="GetValues"
-                            ObjectType="{x:Type sys:Enum}">
+        <ObjectDataProvider
+            x:Key="UpdateModeEnumValues"
+            MethodName="GetValues"
+            ObjectType="{x:Type sys:Enum}"
+        >
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="enums:Mode" />
             </ObjectDataProvider.MethodParameters>
@@ -48,7 +54,8 @@
 
     <Grid
         Margin="10"
-        IsSharedSizeScope="True">
+        IsSharedSizeScope="True"
+    >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" SharedSizeGroup="B" />
@@ -123,8 +130,8 @@
             Grid.Column="0"
             Grid.ColumnSpan="2"
             HorizontalScrollBarVisibility="Auto"
-            VerticalScrollBarVisibility="Auto">
-
+            VerticalScrollBarVisibility="Auto"
+        >
             <StackPanel>
 
                 <!-- ReSharper disable once InconsistentNaming -->
