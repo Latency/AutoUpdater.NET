@@ -84,6 +84,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         {
             ShowSkipButton = _defaultManditory[0];
             ShowRemindLaterButton = _defaultManditory[1];
+
+            if (!(ShowSkipButton | ShowRemindLaterButton))
+                ShowSkipButton = true;
         }
         else
         {
@@ -101,6 +104,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     {
         _defaultManditory[0] = value;
 
+        if (!(value | ShowRemindLaterButton))
+            IsManditory = true;
+
         UpdateValidation?.Invoke(!Equals());
     }
 
@@ -110,6 +116,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     partial void OnShowRemindLaterButtonChanged(bool value)
     {
         _defaultManditory[1] = value;
+
+        if (!(value | ShowSkipButton))
+            IsManditory = true;
 
         UpdateValidation?.Invoke(!Equals());
     }
