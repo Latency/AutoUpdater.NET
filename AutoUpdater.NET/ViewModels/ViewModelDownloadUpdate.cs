@@ -6,6 +6,7 @@
 // ****************************************************************************
 
 using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.ViewModels;
@@ -15,7 +16,7 @@ public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted, IView
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelDownloadUpdate(IServiceProvider serviceProvider) : base(serviceProvider)
+    public ViewModelDownloadUpdate(IServiceProvider serviceProvider, Window_DownloadUpdate window, IViewModelConfig vmConfig) : base(serviceProvider, window, vmConfig)
     {
     }
 

@@ -12,9 +12,9 @@ namespace AutoUpdaterDotNET.Converters;
 
 public class InverseBooleanConverter : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => ApplySetting(value);
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => ApplySetting(value);
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => ApplySetting(value);
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => ApplySetting(value);
 
     private static bool ApplySetting(object? value) => !(bool)value!;
 }

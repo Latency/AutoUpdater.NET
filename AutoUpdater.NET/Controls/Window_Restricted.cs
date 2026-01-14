@@ -6,15 +6,10 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Converters;
-using AutoUpdaterDotNET.Interops;
+using AutoUpdaterDotNET.Dependency_Properties;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Data;
-using System.Windows.Interop;
-using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Interfaces;
-using Xceed.Wpf.Toolkit.Core.Converters;
 
 namespace AutoUpdaterDotNET.Controls;
 
@@ -23,36 +18,34 @@ namespace AutoUpdaterDotNET.Controls;
 /// </summary>
 public abstract class Window_Restricted : Window
 {
-    public static readonly DependencyProperty ControlBoxProperty = DependencyProperty.Register(nameof(ControlBox),                                        // Name of the property
-                                                                                               typeof(bool?),                                             // Type of the property
-                                                                                               typeof(Window_Restricted),                                 // Owner class type
-                                                                                               new FrameworkPropertyMetadata(true, OnControlBoxChanged)); // Property metadata (default value, property changed callback, etc.)
+    #region Fields
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    private readonly OwnerConverter      _ownerConverter;
+    private readonly TopmostConverter    _topmostConverter;
+    private readonly ControlBoxConverter _controlBoxConverter;
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Fields
 
-    public static readonly DependencyProperty OwnerProperty = DependencyProperty.Register(nameof(Owner2),                                 // Name of the property
-                                                                                          typeof(IFrameworkInputElement),                 // Type of the property
-                                                                                          typeof(Window_Restricted),                      // Owner class type
-                                                                                          new FrameworkPropertyMetadata(OnOwnerChanged)); // Property metadata (default value, property changed callback, etc.)
 
     #region Constructor
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
     /// <summary>
     ///     Default Constructor
     /// </summary>
     protected Window_Restricted()
     {
-        ControlBox            = true;
+        _ownerConverter       = new OwnerConverter(this);
+        _topmostConverter     = new TopmostConverter(this);
+        _controlBoxConverter  = new ControlBoxConverter(this);
+
         ResizeMode            = ResizeMode.NoResize;
         ShowActivated         = true;
         ShowInTaskbar         = true;
-        Topmost               = true;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         WindowStyle           = WindowStyle.SingleBorderWindow;
 
-        Loaded  += OnLoaded;
         Closing += OnClosing;
     }
-
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Constructor
 
@@ -60,115 +53,40 @@ public abstract class Window_Restricted : Window
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    public IViewModelMainConfig? Config { get; set; }
-
-    public IFrameworkInputElement? Owner2
+    public new bool Topmost
     {
-        get => (IFrameworkInputElement?)GetValue(OwnerProperty);
-        set => SetValue(OwnerProperty, value!);
+        get => _topmostConverter.Topmost;
+        set => _topmostConverter.Topmost = value;
     }
 
     public bool? ControlBox
     {
-        get => (bool?)GetValue(ControlBoxProperty);
-        set => SetValue(ControlBoxProperty, value!);
+        get => _controlBoxConverter.ControlBox;
+        set => _controlBoxConverter.ControlBox = value;
     }
 
+    [DefaultValue(null)]
+    public new Window? Owner
+    {
+        get => _ownerConverter.Owner;
+        set => _ownerConverter.Owner = value;
+    }
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
 
 
-    #region Fields
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private const int GWL_STYLE = -16;
-    private const int WS_SYSMENU = 0x80000;
-
-    // Handle to current window.
-    private static nint _hWnd;
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Fields
-
-
     #region Methods
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private void OnLoaded(object sender, RoutedEventArgs e)
+
+    /// <summary>
+    /// SetBindings
+    /// </summary>
+    public void SetBindings(IViewModelConfig vmc)
     {
-        _hWnd = new WindowInteropHelper(this).Handle;
-
-        SetBinding(ControlBoxProperty, new Binding
-        {
-            Source    = Config!,
-            Path      = new PropertyPath(nameof(Config.UpdateMode)),
-            Converter = new ControlBoxVisibilityConverter()
-        });
-
-        SetBinding(TopmostProperty, new Binding
-        {
-            Source    = Config!,
-            Path      = new PropertyPath(nameof(Config.TopMostDisabled)),
-            Converter = new InverseBoolConverter()
-        });
-
-        SetBinding(OwnerProperty, new Binding
-        {
-            Source             = Config!,
-            Path               = new PropertyPath(nameof(Config.DoNotBindOwnerWindow)),
-            Converter          = new BooleanToWindowConverter(),
-            ConverterParameter = Owner!
-        });
-
-
-        var b = GetBindings();
+        _ownerConverter.SetBindings(vmc);
+        _topmostConverter.SetBindings(vmc);
+        _controlBoxConverter.SetBindings(vmc);
     }
-
-
-    public IEnumerable<BindingBase> GetBindings()
-    {
-        List<DependencyProperty> a    = [ControlBoxProperty, OwnerProperty, TopmostProperty];
-        List<BindingBase?>  test = [];
-
-        foreach (var b in a)
-        {
-            var c = b.GetBindings2(this);
-            test.Add(c);
-        }
-
-        //var                      c    = a.SelectMany(x => x.GetBindings2(this));
-        return test;
-    }
-
-
-    private static void OnOwnerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        var ctrl     = (Window)d;
-        var newValue = e.NewValue as Window;
-        ctrl.Owner   = newValue!;
-#if DEBUG
-        var ownerEnabled = e.NewValue is not null;
-        ctrl.Title = ownerEnabled ? $"{ctrl.Title}{(ownerEnabled ? $" (Owner: {newValue?.GetType()})" : string.Empty)}" : ctrl.Title![..ctrl.Title.IndexOf('(')].TrimEnd();
-#endif
-    }
-
-
-    private static void OnControlBoxChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        //var control  = (RestrictedWindow)d;
-        var oldValue = (bool?)e.OldValue;
-        var newValue = (bool?)e.NewValue;
-
-        if (oldValue == newValue)
-            return;
-
-        var gwlStyle = User32.GetWindowLongPtr(_hWnd, GWL_STYLE);
-        var flag = newValue switch
-        {
-            true  => gwlStyle | WS_SYSMENU,
-            false => gwlStyle & ~WS_SYSMENU,
-            _     => gwlStyle ^ WS_SYSMENU
-        };
-        User32.SetWindowLongPtr(_hWnd, GWL_STYLE, flag);
-    }
-
 
     private void OnClosing(object? sender, CancelEventArgs e)
     {

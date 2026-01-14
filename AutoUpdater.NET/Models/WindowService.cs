@@ -1,4 +1,4 @@
-﻿// ****************************************************************************
+// ****************************************************************************
 // Project:  AutoUpdater.NET
 // File:     WindowService.cs
 // Author:   Latency McLaughlin
@@ -7,37 +7,46 @@
 
 using AutoUpdaterDotNET.Controls;
 using AutoUpdaterDotNET.Interfaces;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
-using AutoUpdaterDotNET.ViewModels;
 
 namespace AutoUpdaterDotNET.Models;
 
-public partial class WindowService(IServiceProvider serviceProvider) : IWindowService
+public partial class WindowService : IWindowService
 {
-    private Window _window = null!;
+    private          Window           _window = null!;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IViewModelConfig _vmConfig;
 
 
-    public TWindow InitializeWindow<TWindow, TViewModel>(IFrameworkInputElement? owner, TViewModel viewModel)
-        where TWindow : Window
-        where TViewModel : ObservableObject
+    /// <summary>
+    /// Default Constructor
+    /// </summary>
+    public WindowService(IServiceProvider serviceProvider, IViewModelConfig vmConfig)
     {
-        _window = serviceProvider.GetRequiredService<TWindow>();
-        _window.DataContext = viewModel;
+        _serviceProvider = serviceProvider;
+        _vmConfig        = vmConfig;
+    }
 
-        if (owner is not null)
-            _window.Owner = (owner as Window)!;
+
+    public TWindow InitializeWindow<TWindow, TViewModel>(Window? owner, TViewModel viewModel)
+        where TWindow : Window
+    {
+        _window = _serviceProvider.GetRequiredService<TWindow>();
+        _window.DataContext = viewModel!;
 
         // ReSharper disable once InvertIf
         if (_window is Window_Restricted win)
         {
-            win.Config ??= serviceProvider.GetRequiredService<IViewModelConfig>();
-            if (viewModel is ViewModelRestricted vmc)
-                vmc.Config ??= win.Config;
-
-            win.Owner2 = win.Config.DoNotBindOwnerWindow ? null! : win.Owner!;
-            win.Owner  = (win.Owner2 as Window)!;
+            win.Tag = owner!;
+            if (viewModel is IViewModelConfig vm)
+                win.SetBindings(vm);
+            else
+                win.SetBindings(_vmConfig);
+        }
+        else
+        {
+            _window.Owner = owner!;
         }
 
         return (_window as TWindow)!;

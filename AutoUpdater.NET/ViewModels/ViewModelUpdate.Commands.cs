@@ -5,9 +5,9 @@
 // Date:     12/31/2025
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -22,7 +22,7 @@ public partial class ViewModelUpdate
     {
         (parameter as Window_Update)?.Close();
 
-        _windowService.InitializeWindow<Window_RemindLater, ViewModelRemindLater>(Owner, ServiceProvider.GetRequiredService<ViewModelRemindLater>()).Show();
+        _windowService.InitializeWindow<Window_RemindLater, IViewModelRemindLater>(Window, _vmRemindLater).Show();
     }
 
 
@@ -31,6 +31,6 @@ public partial class ViewModelUpdate
     {
         (parameter as Window_Update)?.Close();
 
-        _windowService.InitializeWindow<Window_DownloadUpdate, ViewModelDownloadUpdate>(Owner, ServiceProvider.GetRequiredService<ViewModelDownloadUpdate>()).Show();
+        _windowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(Window, _vmModelDownloadUpdate).Show();
     }
 }

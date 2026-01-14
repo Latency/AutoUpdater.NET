@@ -9,6 +9,7 @@
 
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using kvp = System.Collections.Generic.KeyValuePair<ushort, AutoUpdaterDotNET.Enums.RemindLaterFormat>;
@@ -20,7 +21,7 @@ public partial class ViewModelRemindLater : ViewModelRestricted, IViewModelRemin
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelRemindLater(IServiceProvider serviceProvider) : base(serviceProvider)
+    public ViewModelRemindLater(IServiceProvider serviceProvider, Window_RemindLater window, IViewModelConfig vmConfig) : base(serviceProvider, window, vmConfig)
     {
     }
 
@@ -49,8 +50,8 @@ public partial class ViewModelRemindLater : ViewModelRestricted, IViewModelRemin
     public partial kvp ComboBoxSelectedItem { get; set; }
     partial void OnComboBoxSelectedItemChanged(kvp value)
     {
-        Config.RemindLaterAt       = value.Key;
-        Config.RemindLaterTimeSpan = value.Value;
+        Config?.RemindLaterAt       = value.Key;
+        Config?.RemindLaterTimeSpan = value.Value;
     }
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

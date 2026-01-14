@@ -5,7 +5,6 @@
 // Date:     01/07/2026
 // ****************************************************************************
 
-using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Markup;
@@ -38,9 +37,8 @@ public interface IWindowService : IAddChild, IFrameworkInputElement, ISupportIni
     bool UserResized { get; }
 
 
-    TWindow InitializeWindow<TWindow, TViewModel>(IFrameworkInputElement? owner, TViewModel viewModel)
-        where TWindow    : Window
-        where TViewModel : ObservableObject;
+    TWindow InitializeWindow<TWindow, TViewModel>(Window? owner, TViewModel viewModel)
+        where TWindow : Window;
 
     void Show();
 

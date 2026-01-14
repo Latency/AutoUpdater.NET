@@ -17,11 +17,8 @@ using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Interfaces;
-using AutoUpdaterDotNET.Views;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -308,23 +305,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public partial bool TopMostDisabled { get; set; }
+    public partial bool TopMostDisabled { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnTopMostDisabledChanged(bool value)
-    {
-        if (value)
-        {
-            var win = _serviceProvider.GetRequiredService<Window_Config>();
-            if (win is null)
-                throw new NullReferenceException();
-
-            var tmp = win.Topmost;
-            win.Topmost = true;
-            Dispatcher.CurrentDispatcher.BeginInvoke(() => win.Topmost = tmp);
-        }
-
-        UpdateValidation?.Invoke(!Equals());
-    }
+    partial void OnTopMostDisabledChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
     #region Use ZipFile
     [JsonIgnore]
