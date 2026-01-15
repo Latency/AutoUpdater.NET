@@ -16,6 +16,7 @@ namespace AutoUpdaterDotNET.Controls;
 /// <summary>
 ///     Interaction logic for Window_Restricted.xaml
 /// </summary>
+[Localizability(LocalizationCategory.Ignore)]
 public abstract class Window_Restricted : Window
 {
     #region Fields
@@ -53,6 +54,12 @@ public abstract class Window_Restricted : Window
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+    public string? BaseName
+    {
+        get => Name;
+        set => Name = value!;
+    }
+
     public new bool Topmost
     {
         get => _topmostConverter.Topmost;
@@ -81,7 +88,7 @@ public abstract class Window_Restricted : Window
     /// <summary>
     /// SetBindings
     /// </summary>
-    public void SetBindings(IViewModelConfig vmc)
+    public virtual void SetBindings(IViewModelConfig vmc)
     {
         _ownerConverter.SetBindings(vmc);
         _topmostConverter.SetBindings(vmc);

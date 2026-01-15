@@ -50,8 +50,8 @@ public partial class ViewModelRemindLater : ViewModelRestricted, IViewModelRemin
     public partial kvp ComboBoxSelectedItem { get; set; }
     partial void OnComboBoxSelectedItemChanged(kvp value)
     {
-        Config?.RemindLaterAt       = value.Key;
-        Config?.RemindLaterTimeSpan = value.Value;
+        Config.RemindLaterAt       = value.Key;
+        Config.RemindLaterTimeSpan = value.Value;
     }
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
