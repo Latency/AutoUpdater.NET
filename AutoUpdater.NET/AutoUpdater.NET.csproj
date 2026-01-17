@@ -12,7 +12,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Models\ParseUpdateInfoEventArgs.cs" />
+      <Compile Remove="Models\UpdateInfoEventArgs.cs" />
       <Compile Remove="Views\DownloadUpdateDialog.cs" />
+      <Compile Remove="Views\Window_AutoUpdater.xaml.cs" />
     </ItemGroup>
 
     <ItemGroup>

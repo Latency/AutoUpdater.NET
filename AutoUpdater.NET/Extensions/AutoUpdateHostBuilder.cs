@@ -38,7 +38,6 @@ public static class AutoUpdateBuilderExtensions
 
             // Register Views
             services.AddSingleton<Window_Config>();
-            services.AddSingleton<Window_AutoUpdater>();
             services.AddSingleton<Window_DownloadUpdate>();
             services.AddSingleton<Window_RemindLater>();
             services.AddSingleton<Window_Update>();

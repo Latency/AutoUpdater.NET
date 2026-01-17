@@ -58,6 +58,8 @@ public static class ImageExtensions
         {
             // Use the System.Drawing.Icon method to extract
             var sysicon = System.Drawing.Icon.ExtractAssociatedIcon(filePath);
+            if (sysicon is null)
+                return null;
 
             // Convert the System.Drawing.Icon to a WPF ImageSource (BitmapSource)
             var bmpSrc = Imaging.CreateBitmapSourceFromHIcon(

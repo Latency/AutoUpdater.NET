@@ -56,8 +56,8 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
     #region Events
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=+
     public event Action?                           ApplicationExit;
-    public event Action<UpdateInfoEventArgs>?      CheckForUpdates;
-    public event Action<ParseUpdateInfoEventArgs>? ParseUpdateInfo;
+    //public event Action<UpdateInfoEventArgs>?      CheckForUpdates;
+    //public event Action<ParseUpdateInfoEventArgs>? ParseUpdateInfo;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
 
