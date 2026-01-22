@@ -8,7 +8,6 @@
 
 using AssemblyLoader;
 using AutoUpdaterDotNET.Interfaces;
-using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.Modifiers;
 using AutoUpdaterDotNET.TypeResolvers;
 using System.Text.Json;

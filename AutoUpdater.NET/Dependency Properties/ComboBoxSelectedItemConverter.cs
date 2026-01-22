@@ -5,7 +5,6 @@
 // Date:     01/15/2026
 // ****************************************************************************
 
-using System.Collections;
 using AutoUpdaterDotNET.Interfaces;
 using System.Globalization;
 using System.Reflection;
