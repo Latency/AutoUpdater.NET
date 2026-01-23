@@ -12,6 +12,8 @@ using AutoUpdaterDotNET.Modifiers;
 using AutoUpdaterDotNET.TypeResolvers;
 using System.Text.Json;
 using System.Windows.Threading;
+using AutoUpdaterDotNET.Enums;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -48,6 +50,9 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     public DispatcherTimer UpdateTimer { get; } = new();
+
+    [ObservableProperty]
+    public partial IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues { get; set; } = Enum.GetValues<RemindLaterFormat>().Skip(1);
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
 

@@ -464,7 +464,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial RemindLaterFormat RemindLaterTimeSpan { get; set; } = RemindLaterFormat.Seconds;
+    public partial RemindLaterFormat RemindLaterTimeSpan { get; set; } = RemindLaterFormat.Minutes;
     partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat value)
     {
         RemmindLaterTimer?.TimeSpan = value;

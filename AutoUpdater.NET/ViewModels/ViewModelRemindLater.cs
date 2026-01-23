@@ -48,12 +48,12 @@ public partial class ViewModelRemindLater : ViewModelRestricted, IViewModelRemin
 
     [ObservableProperty]
     public partial kvp ComboBoxSelectedItem { get; set; }
-    partial void OnComboBoxSelectedItemChanged(kvp value)
-    {
-        Config.RemindLaterAt       = value.Key;
-        Config.RemindLaterTimeSpan = value.Value;
-    }
+
+
+    [ObservableProperty]
+    public partial IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues { get; set; } = Enum.GetValues<RemindLaterFormat>().Skip(1);
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
     #endregion Properties
 }

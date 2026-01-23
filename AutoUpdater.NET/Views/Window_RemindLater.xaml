@@ -10,12 +10,13 @@
     xmlns:converters="clr-namespace:AutoUpdaterDotNET.Converters"
     xmlns:views="clr-namespace:AutoUpdaterDotNET.Views"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance viewModels:ViewModelRemindLater }"
     Title="Remind me later for an update..."
     Width="500"
     Height="168"
-    ResizeMode="CanResizeWithGrip"
+    ResizeMode="NoResize"
     Icon="{StaticResource clock_go}"
 >
     <controls:Window_Restricted.Resources>
@@ -82,80 +83,107 @@
                    Grid.Row="1"
                    Text="You should download updates now. This only takes few minutes depending on your internet connection and ensures you have latest version of the application." />
 
-        <ComboBox
-            Name="ComboBoxRemindLater"
-            Grid.Column="2"
-            Grid.Row="1"
-            SelectedIndex="0"
-            Height="20"
-            FontSize="9"
-            VerticalAlignment="Top"
-            Margin="0,5,10,0"
-            HorizontalContentAlignment="Stretch"
-            ItemsSource="{Binding ComboBoxItems}"
-            SelectedItem="{Binding ComboBoxSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-        >
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock HorizontalAlignment="Center">
-                        <Run Text="{Binding Key, Mode=OneWay}" />
-                        <Run Text="{Binding Value, Mode=OneWay}" />
-                    </TextBlock>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-            <ComboBox.Style>
-                <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsChecked, ElementName=RadioButtonNo}" Value="True">
-                            <Setter Property="Visibility" Value="Hidden" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding IsChecked, ElementName=RadioButtonYes}" Value="True">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ComboBox.Style>
-        </ComboBox>
-
         <StackPanel
             Grid.Column="2"
-            Grid.Row="2"
-            Margin="0,3,10,8">
-            <Button
-                x:Name="ButtonOk"
-                Style="{StaticResource MyCustomButton}"
-                Command="{Binding RemindLaterCommand}"
-                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_RemindLater}}}"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+        >
+            <ComboBox
+                Name="ComboBoxRemindLater"
+                SelectedIndex="0"
+                Height="20"
+                FontSize="9"
+                VerticalAlignment="Top"
+                Margin="10,5"
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding ComboBoxItems}"
+                SelectedItem="{Binding ComboBoxSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             >
-                <WrapPanel>
-                    <Image Source="{StaticResource clock_go}"
-                           Width="15"
-                           Height="15"
-                           Margin="-10,3,5,0" />
-                    <TextBlock
-                        Text="OK"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Center"
-                        Margin="0,3,0,0"
-                        FontFamily="Courier New"
-                        FontWeight="Bold" />
-                </WrapPanel>
-            </Button>
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock HorizontalAlignment="Center">
+                            <Run Text="{Binding Key, Mode=OneWay}" />
+                            <Run Text="{Binding Value, Mode=OneWay}" />
+                        </TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+                <ComboBox.Style>
+                    <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsChecked, ElementName=RadioButtonNo}" Value="True">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsChecked, ElementName=RadioButtonYes}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.Style>
+            </ComboBox>
 
             <xctk:IntegerUpDown
-                Width="50"
                 Height="20"
+                Margin="10,5"
+                Value="{Binding Config.RemindLaterAt}"
+                Minimum="1"
+                Visibility="Collapsed"
                 x:Name="RemindLaterAt"
-                Value="{Binding Config.RemindLaterAt}" />
+            >
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="ValueChanged">
+                        <b:InvokeCommandAction
+                            Command="{Binding RemindLaterAtChangedCommand}"
+                            CommandParameter="{Binding ElementName=RemindLaterAt}"
+                        />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+            </xctk:IntegerUpDown>
 
             <ComboBox
                 x:Name="RemindLaterTimeSpan"
-                ItemsSource="{Binding Path=Config.RemindLaterTimeSpan, Converter={converters:EnumToCollectionConverter}, Mode=OneTime}"
-                SelectedValuePath="Value"
-                DisplayMemberPath="Description"
-                SelectedValue="{Binding Path=Config.RemindLaterTimeSpan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                FontSize="9"
+                Height="20"
+                Margin="10,5"
+                Visibility="Collapsed"
+                SelectedIndex="0"
+                ItemsSource="{Binding RemindLaterFormatEnumValues}"
+                SelectedValue="{Binding Path=Config.RemindLaterTimeSpan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            >
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="SelectionChanged">
+                        <b:InvokeCommandAction
+                            Command="{Binding RemindLaterTimeSpanChangedCommand}"
+                        />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+            </ComboBox>
 
         </StackPanel>
+
+        <Button
+            Grid.Column="2"
+            Grid.Row="2"
+            Width="70"
+            Height="30"
+            x:Name="ButtonOk"
+            Style="{StaticResource MyCustomButton}"
+            Command="{Binding RemindLaterCommand}"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_RemindLater}}}"
+        >
+            <WrapPanel>
+                <Image Source="{StaticResource clock_go}"
+                       Width="15"
+                       Height="15"
+                       Margin="-10,3,5,0" />
+                <TextBlock
+                    Text="OK"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Margin="0,3,0,0"
+                    FontFamily="Courier New"
+                    FontWeight="Bold" />
+            </WrapPanel>
+        </Button>
 
     </Grid>
 </controls:Window_Restricted>

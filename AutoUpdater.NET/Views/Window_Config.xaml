@@ -24,15 +24,6 @@
     </behaviors:Interaction.Triggers>
     <controls:Window_Restricted.Resources>
         <ObjectDataProvider
-            x:Key="RemindLaterFormatEnumValues"
-            MethodName="GetValues"
-            ObjectType="{x:Type sys:Enum}"
-        >
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="enums:RemindLaterFormat" />
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <ObjectDataProvider
             x:Key="TimerDurationFormatEnumValues"
             MethodName="GetValues"
             ObjectType="{x:Type sys:Enum}"
@@ -189,7 +180,7 @@
                     <ComboBox
                         Name="cbRemindLaterTimeSpan"
                         ToolTip="Select the duration type."
-                        ItemsSource="{Binding Source={StaticResource RemindLaterFormatEnumValues}}"
+                        ItemsSource="{Binding RemindLaterFormatEnumValues}"
                         SelectedValue="{Binding RemindLaterTimeSpan}"
                         IsSynchronizedWithCurrentItem="True"
                         HorizontalAlignment="Left"
