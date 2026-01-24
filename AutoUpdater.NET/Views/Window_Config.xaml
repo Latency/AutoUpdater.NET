@@ -13,6 +13,7 @@
     xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
     Width="400"
     Height="550"
+    Title="Options"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance viewModels:ViewModelConfig }"
     Loaded="Window_Main_OnLoaded"
@@ -95,6 +96,7 @@
             Name="ButtonCancel"
             Grid.Row="0"
             Grid.Column="2"
+            Width="50"
             Style="{StaticResource MyCustomButton}"
             Content="Cancel"
             ToolTip="Cancel the changes."
@@ -107,6 +109,7 @@
             Name="ButtonUpdate"
             Grid.Row="1"
             Grid.Column="2"
+            Width="50"
             Style="{StaticResource MyCustomButton}"
             Content="Update"
             ToolTip="Start the update."
@@ -1182,7 +1185,7 @@
                 <TreeView
                     Name="tvApplicationExit"
                     BorderThickness="0"
-                    ItemsSource="{Binding ApplicationExitNodeList}" />
+                    ItemsSource="{Binding UpdateCompleteNodeList}" />
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <TreeView

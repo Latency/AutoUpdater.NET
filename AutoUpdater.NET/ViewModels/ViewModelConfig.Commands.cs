@@ -30,9 +30,9 @@ public partial class ViewModelConfig
         UpdateIcon += img => _configOrig.TmpIcon = img;
 
         InvocationListGenerator(UpdateTimer, nameof(UpdateTimer.Tick), TimerNodeList);
-        InvocationListGenerator(this,        nameof(ApplicationExit),  ApplicationExitNodeList);
-        //InvocationListGenerator(this,        nameof(CheckForUpdates),  CheckForUpdatesNodeList);
-        //InvocationListGenerator(this,        nameof(ParseUpdateInfo),  ParseUpdateInfoNodeList);
+        InvocationListGenerator(this,        nameof(UpdateComplete),   UpdateCompleteNodeList);
+        InvocationListGenerator(this,        nameof(CheckForUpdates),  CheckForUpdatesNodeList);
+        InvocationListGenerator(this,        nameof(ParseUpdateInfo),  ParseUpdateInfoNodeList);
 
         LoadConfig();
 

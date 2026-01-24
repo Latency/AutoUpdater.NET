@@ -119,7 +119,7 @@ public interface IViewModelMainConfig
 
     ObservableCollection<TreeViewItem> TimerNodeList { get; set; }
 
-    ObservableCollection<TreeViewItem> ApplicationExitNodeList { get; set; }
+    ObservableCollection<TreeViewItem> UpdateCompleteNodeList  { get; set; }
 
     ObservableCollection<TreeViewItem> CheckForUpdatesNodeList { get; set; }
 

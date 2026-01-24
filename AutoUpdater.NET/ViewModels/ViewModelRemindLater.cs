@@ -18,11 +18,18 @@ namespace AutoUpdaterDotNET.ViewModels;
 
 public partial class ViewModelRemindLater : ViewModelRestricted, IViewModelRemindLater
 {
+    private readonly IViewModelDownloadUpdate _vmModelDownloadUpdate;
+    private readonly IWindowService           _windowService;
+
+
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelRemindLater(IServiceProvider serviceProvider, Window_RemindLater window, IViewModelConfig vmConfig) : base(serviceProvider, window, vmConfig)
+    public ViewModelRemindLater(IServiceProvider serviceProvider, IWindowService windowService, IViewModelDownloadUpdate vmModelDownloadUpdate, Window_RemindLater window, IViewModelConfig vmConfig) : base(serviceProvider, window, vmConfig)
     {
+
+        _windowService         = windowService;
+        _vmModelDownloadUpdate = vmModelDownloadUpdate;
     }
 
 

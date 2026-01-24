@@ -12,7 +12,6 @@ namespace AutoUpdaterDotNET.Models;
 /// <summary>
 ///     Mandatory class to fetch the XML values related to Mandatory field.
 /// </summary>
-[Obsolete]
 public record Mandatory
 {
     /// <summary>

@@ -13,6 +13,7 @@ using AutoUpdaterDotNET.TypeResolvers;
 using System.Text.Json;
 using System.Windows.Threading;
 using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.ViewModels;
@@ -59,9 +60,9 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
 
     #region Events
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=+
-    public event Action?                           ApplicationExit;
-    //public event Action<UpdateInfoEventArgs>?      CheckForUpdates;
-    //public event Action<ParseUpdateInfoEventArgs>? ParseUpdateInfo;
+    public event Action?                           UpdateComplete;
+    public event Action<UpdateInfoEventArgs>?      CheckForUpdates;
+    public event Action<ParseUpdateInfoEventArgs>? ParseUpdateInfo;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
 

@@ -5,7 +5,6 @@
 // Date:     06/10/2025
 // ****************************************************************************
 
-using AutoUpdaterDotNET.Views;
 using System.Text.Json.Serialization;
 using System.Windows;
 
@@ -32,13 +31,15 @@ public class UpdateInfoEventArgs : EventArgs
     [JsonIgnore]
     public Exception? Error { get; set; }
 
+    public Uri? BaseUri { get; set; }
+
     /// <summary>
     ///     Download URL of the update file.
     /// </summary>
     // ReSharper disable once InconsistentNaming
     public string? DownloadURL
     {
-        get => GetURL(Owner?.BaseUri, field);
+        get => GetURL(BaseUri, field);
         init;
     } = string.Empty;
 
@@ -48,7 +49,7 @@ public class UpdateInfoEventArgs : EventArgs
     // ReSharper disable once InconsistentNaming
     public string? ChangelogURL
     {
-        get => GetURL(Owner?.BaseUri, field);
+        get => GetURL(BaseUri, field);
         set;
     } = string.Empty;
 
@@ -87,12 +88,6 @@ public class UpdateInfoEventArgs : EventArgs
     /// </summary>
     [JsonIgnore]
     public DateTime TimeStamp { get; set; }
-
-    /// <summary>
-    ///     The 'parent' instance
-    /// </summary>
-    [JsonIgnore]
-    public Window_AutoUpdater? Owner { get; set; }
 
     // ReSharper disable once InconsistentNaming
     internal static string? GetURL(Uri? baseUri, string? url)

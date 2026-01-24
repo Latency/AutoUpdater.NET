@@ -1,36 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
+	<PropertyGroup>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net10.0-windows</TargetFramework>
-        <Description>AutoUpdater.NET is a class library that allows .NET developers to easily add auto update functionality to their WinForms or WPF application projects.</Description>
-        <PackageTags>autoupdate updater c# wpf</PackageTags>
-        <Product>AutoUpdater.NET</Product>
-        <RootNamespace>AutoUpdaterDotNET</RootNamespace>
-        <UseWpf>true</UseWpf>
-        <Version>2.0.0</Version>
-    </PropertyGroup>
+		<Description>AutoUpdater.NET is a class library that allows .NET developers to easily add auto update functionality to their WinForms or WPF application projects.</Description>
+		<PackageTags>autoupdate updater c# wpf</PackageTags>
+		<Product>AutoUpdater.NET</Product>
+		<RootNamespace>AutoUpdaterDotNET</RootNamespace>
+		<UseWpf>true</UseWpf>
+		<Version>2.0.0</Version>
+	</PropertyGroup>
 
-    <ItemGroup>
-      <Compile Remove="Models\ParseUpdateInfoEventArgs.cs" />
-      <Compile Remove="Models\UpdateInfoEventArgs.cs" />
-      <Compile Remove="Views\DownloadUpdateDialog.cs" />
-      <Compile Remove="Views\Window_AutoUpdater.xaml.cs" />
-    </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Views\DownloadUpdateDialog.cs" />
+	</ItemGroup>
 
-    <ItemGroup>
-	    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-	    <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
-	    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
-	    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <Resource Include="Resources\clock_go.png" />
-      <Resource Include="Resources\clock_play.png" />
-      <Resource Include="Resources\download.png" />
-      <Resource Include="Resources\hand_point.png" />
-      <Resource Include="Resources\update.png" />
-    </ItemGroup>
-	
+	<ItemGroup>
+		<Resource Include="Resources\clock_go.png" />
+		<Resource Include="Resources\clock_play.png" />
+		<Resource Include="Resources\download.png" />
+		<Resource Include="Resources\hand_point.png" />
+		<Resource Include="Resources\update.png" />
+	</ItemGroup>
+
 </Project>

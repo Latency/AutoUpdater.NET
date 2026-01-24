@@ -53,6 +53,10 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     #region AppTitle
+    /// <summary>
+    ///     Set the Application Title shown in Update dialog. Although AutoUpdater.NET will get it automatically, you can set
+    ///     this property if you like to give custom Title.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
     public partial bool IsAppTitle { get; set; }
@@ -97,6 +101,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     If this is true users can see the skip button.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool ShowSkipButton { get; set; } = true;
@@ -110,6 +117,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     If this is true users can see the Remind Later button.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool ShowRemindLaterButton { get; set; } = true;
@@ -123,9 +133,12 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     Set this to any of the available modes to change behaviour of the Mandatory flag.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
-    public partial Mode UpdateMode { get; set; }
+    public partial Mode UpdateMode { get; set; } = Mode.Normal;
     partial void OnUpdateModeChanged(Mode value)
     {
         Manditory?.UpdateMode = value;
@@ -141,15 +154,21 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public partial IsManditory? Manditory { get; set; }
     #endregion IsManditory
 
+    /// <summary>
+    ///     Set this to false if your application doesn't need administrator privileges to replace the old version.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool RunUpdateAsAdmin { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnRunUpdateAsAdminChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
+    /// <summary>
+    ///     Opens the download URL in default browser if true. Very useful if you have portable application.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public partial bool OpenDownloadPage { get; set; }
+    public partial bool OpenDownloadPage { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnOpenDownloadPageChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
@@ -170,9 +189,12 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     Set Basic Authentication credentials to navigate to the change log URL.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
-    public partial bool BasicAuthChangeLog { get; set; }
+    public partial bool BasicAuthChangeLog { get; set; }  // System.Net.ICredentials?
     partial void OnBasicAuthChangeLogChanged(bool value)
     {
         BasicAuth            = value || BasicAuthDownload || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(BasicAuthPassword) ? _defaultBasicAuth ??= new BasicAuth() : null;
@@ -181,9 +203,12 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     Set Basic Authentication credentials required to download the file.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
-    public partial bool BasicAuthDownload { get; set; }
+    public partial bool BasicAuthDownload { get; set; }  // System.Net.ICredentials?
     partial void OnBasicAuthDownloadChanged(bool value)
     {
         BasicAuth           = BasicAuthChangeLog || value || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(BasicAuthPassword) ? _defaultBasicAuth ??= new BasicAuth() : null;
@@ -221,6 +246,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnDoNotBindOwnerWindowChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
+    /// <summary>
+    ///     Set this to true if you want to run update check synchronously.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool CheckSynchronously { get; set; }
@@ -306,12 +334,18 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public partial ProxyEnabled? Proxy { get; set; }
     #endregion ProxyEnabled
 
+    /// <summary>
+    ///     AutoUpdater.NET will report errors if this is true.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool ReportErrors { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnReportErrorsChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
+    /// <summary>
+    ///     Set TopMostDisabled to true for all updater dialogs.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool TopMostDisabled { get; set; } = true;
@@ -329,6 +363,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     Set this to true if you want to clear application directory before extracting update.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
     public partial bool ClearAppDirectory { get; set; }
@@ -352,6 +389,10 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     If you are using a zip file as an update file, then you can set this value to a new executable path relative to the
+    ///     installation directory.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
     public partial string? ExecutablePath { get; set; }
@@ -376,6 +417,10 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     If you are using a zip file as an update file then you can set this value to path where your app is installed. This
+    ///     is only necessary when your installation directory differs from your executable path.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
     public partial string? InstallationPath { get; set; }
@@ -449,6 +494,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     Remind Later interval after user should be reminded of update.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
     public partial ushort RemindLaterAt { get; set; } = 1;
@@ -462,6 +510,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         UpdateValidation?.Invoke(!Equals());
     }
 
+    /// <summary>
+    ///     Set if RemindLaterAt interval should be in Minutes, Hours or Days.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
     public partial RemindLaterFormat RemindLaterTimeSpan { get; set; } = RemindLaterFormat.Minutes;
@@ -484,6 +535,9 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     #region Version
 
+    /// <summary>
+    ///     You can set this field to your current version if you don't want to determine the version from the assembly.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
     public partial InstalledVersion? InstalledVersion { get; set; }
@@ -547,7 +601,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [ObservableProperty]
     [JsonIgnore]
-    public partial ObservableCollection<TreeViewItem> ApplicationExitNodeList { get; set; } = [];
+    public partial ObservableCollection<TreeViewItem> UpdateCompleteNodeList { get; set; } = [];
 
     [ObservableProperty]
     [JsonIgnore]

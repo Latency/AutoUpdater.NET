@@ -6,6 +6,7 @@
 // ****************************************************************************
 
 using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.Input;
 using System.Reflection;
@@ -157,6 +158,9 @@ public partial class ViewModelRemindLater
     private void RemindLater(object? parameter)
     {
         (parameter as Window_RemindLater)?.Close();
+
+        if (Config.OpenDownloadPage)
+            _windowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(Window, _vmModelDownloadUpdate).Show();
 
         // TODO
         // Start automatic updates!

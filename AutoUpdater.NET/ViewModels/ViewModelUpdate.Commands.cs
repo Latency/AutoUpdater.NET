@@ -31,6 +31,10 @@ public partial class ViewModelUpdate
     {
         (parameter as Window_Update)?.Close();
 
-        _windowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(Window, _vmModelDownloadUpdate).Show();
+        if (Config.OpenDownloadPage)
+            _windowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(Window, _vmModelDownloadUpdate).Show();
+
+        // TODO
+        // Start automatic updates!
     }
 }

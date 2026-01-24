@@ -5,25 +5,15 @@
 // Date:     06/10/2025
 // ****************************************************************************
 
-using AutoUpdaterDotNET.Views;
-
 namespace AutoUpdaterDotNET.Models;
 
 /// <summary>
 ///     An object of this class contains the AppCast file received from server.
 /// </summary>
-public class ParseUpdateInfoEventArgs(Window_AutoUpdater owner, string remoteData) : EventArgs
+public class ParseUpdateInfoEventArgs(string? remoteData) : UpdateInfoEventArgs
 {
     /// <summary>
     ///     Remote data received from the AppCast file.
     /// </summary>
-    public string RemoteData { get; init; } = remoteData;
-
-    /// <summary>
-    ///     Set this object with values received from the AppCast file.
-    /// </summary>
-    public UpdateInfoEventArgs UpdateInfo { get; set; } = new()
-    {
-        Owner = owner
-    };
+    public string? RemoteData { get; } = remoteData;
 }
