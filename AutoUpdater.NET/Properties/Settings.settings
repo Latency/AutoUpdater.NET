@@ -1,0 +1,39 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AutoUpdaterDotNET.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ConfigFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">AutoUpdate.json</Value>
+    </Setting>
+    <Setting Name="UpdateUnavailableMessage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">There is no update available. Please try again later.</Value>
+    </Setting>
+    <Setting Name="UpdateUnavailableCaption" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Update Unavailable</Value>
+    </Setting>
+    <Setting Name="UpdateCheckFailedMessage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">There is a problem reaching update server. Please check your internet connection and try again later.</Value>
+    </Setting>
+    <Setting Name="UpdateCheckFailedCaption" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Update Check Failed</Value>
+    </Setting>
+    <Setting Name="DownloadSpeedMessage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Downloading at {0}/s</Value>
+    </Setting>
+    <Setting Name="FileIntegrityCheckFailedMessage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">File integrity check failed and reported some errors.</Value>
+    </Setting>
+    <Setting Name="FileIntegrityCheckFailedCaption" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Checksum differs</Value>
+    </Setting>
+    <Setting Name="HashAlgorithmNotSupportedCaption" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Unsupported Hash Algorithm</Value>
+    </Setting>
+    <Setting Name="HashAlgorithmNotSupportedMessage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Hash algorithm provided in the XML file is not supported.</Value>
+    </Setting>
+    <Setting Name="UnableToDetermineFilenameMessage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Unable to determine the filename of the update file!</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

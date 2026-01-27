@@ -5,11 +5,13 @@
 // Date:     01/09/2026
 // ****************************************************************************
 
-using System.Windows.Threading;
+using AutoUpdaterDotNET.Models;
+using System.Reflection;
 
 namespace AutoUpdaterDotNET.Interfaces;
 
 public interface IViewModelConfig : IViewModelMainConfig
 {
-    DispatcherTimer UpdateTimer { get; }
+    void ShowUpdateForm(UpdateInfoEventArgs args);
+    Task Start(string domain, Assembly? myAssembly = null);
 }

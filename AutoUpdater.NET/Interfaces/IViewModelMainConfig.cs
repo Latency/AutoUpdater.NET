@@ -21,7 +21,7 @@ public interface IViewModelMainConfig
 
     string? AppTitle { get; set; }
 
-    bool IsManditory { get; set; }
+    bool IsMandatory { get; set; }
 
     bool ShowSkipButton { get; set; }
 
@@ -29,7 +29,7 @@ public interface IViewModelMainConfig
 
     Mode UpdateMode { get; set; }
 
-    IsManditory? Manditory { get; set; }
+    IsMandatory? Mandatory { get; set; }
 
     bool RunUpdateAsAdmin { get; set; }
 
@@ -103,7 +103,7 @@ public interface IViewModelMainConfig
 
     TimerEnabled? RemmindLaterTimer { get; set; }
 
-    InstalledVersion? InstalledVersion { get; set; }
+    Version2? InstalledVersion { get; set; }
 
     bool InstalledVersionOverride { get; set; }
 

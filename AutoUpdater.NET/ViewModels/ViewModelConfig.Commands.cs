@@ -16,6 +16,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows.Controls;
+using AutoUpdaterDotNET.Properties;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -24,12 +25,12 @@ public partial class ViewModelConfig
     [RelayCommand]
     private void Loaded()
     {
-        UpdateTimer.Interval = GetRemindLaterInterval(TimerInterval);
-        UpdateTimer.Tick += (_, _) => { };
+        _updateTimer.Interval = GetRemindLaterInterval(TimerInterval);
+        _updateTimer.Tick += (_, _) => { };
 
         UpdateIcon += img => _configOrig.TmpIcon = img;
 
-        InvocationListGenerator(UpdateTimer, nameof(UpdateTimer.Tick), TimerNodeList);
+        InvocationListGenerator(_updateTimer, nameof(_updateTimer.Tick), TimerNodeList);
         InvocationListGenerator(this,        nameof(UpdateComplete),   UpdateCompleteNodeList);
         InvocationListGenerator(this,        nameof(CheckForUpdates),  CheckForUpdatesNodeList);
         InvocationListGenerator(this,        nameof(ParseUpdateInfo),  ParseUpdateInfoNodeList);
@@ -108,7 +109,7 @@ public partial class ViewModelConfig
     private void SaveConfig()
     {
         var directory = $@"{Directory.GetCurrentDirectory()}\Properties";
-        var file      = $@"{directory}\{Environment.GetEnvironmentVariable("ConfigFile")}";
+        var file      = $@"{directory}\{Settings.Default!.ConfigFile}";
 
         //var s = new SaveFileDialog
         //{
@@ -145,7 +146,7 @@ public partial class ViewModelConfig
     [RelayCommand]
     private void LoadConfig()
     {
-        var file = $@"{Directory.GetCurrentDirectory()}\Properties\AutoUpdate.json";
+        var file = $@"{Directory.GetCurrentDirectory()}\Properties\{Settings.Default!.ConfigFile}";
         if (!File.Exists(file))
             return;
 

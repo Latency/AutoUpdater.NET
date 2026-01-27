@@ -56,12 +56,12 @@ public class UpdateInfoEventArgs : EventArgs
     /// <summary>
     ///     Returns newest version of the application available to download.
     /// </summary>
-    public string? CurrentVersion { get; set; }
+    public Version2? CurrentVersion { get; set; }
 
     /// <summary>
     ///     Returns version of the application currently installed on the user's PC.
     /// </summary>
-    public InstalledVersion? InstalledVersion { get; set; }
+    public Version2? InstalledVersion { get; set; }
 
     /// <summary>
     ///     Shows if the update is required or optional.

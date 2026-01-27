@@ -32,13 +32,13 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     private string? _defaultAppTitle;
 
-    private readonly bool[] _defaultManditory = new bool[2];
+    private readonly bool[] _defaultMandatory = new bool[2];
 
     private   ProxyEnabled? _defaultProxy;
 
     private TimerEnabled? _defaultTimer, _defaultRemindLaterTimer;
 
-    private IsManditory? _defaultIsManditory;
+    private IsMandatory? _defaultIsMandatory;
 
     private IconOverride? _defaultIconOverride;
 
@@ -76,18 +76,18 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     }
     #endregion AppTitle
 
-    #region IsManditory
+    #region IsMandatory
     [JsonIgnore]
     [ObservableProperty]
-    public partial bool IsManditory { get; set; }
-    partial void OnIsManditoryChanged(bool value)
+    public partial bool IsMandatory { get; set; }
+    partial void OnIsMandatoryChanged(bool value)
     {
-        Manditory = value ? _defaultIsManditory ??= new IsManditory() : null;
+        Mandatory = value ? _defaultIsMandatory ??= new IsMandatory() : null;
 
-        if (Manditory is null)
+        if (Mandatory is null)
         {
-            ShowSkipButton = _defaultManditory[0];
-            ShowRemindLaterButton = _defaultManditory[1];
+            ShowSkipButton = _defaultMandatory[0];
+            ShowRemindLaterButton = _defaultMandatory[1];
 
             if (!(ShowSkipButton | ShowRemindLaterButton))
                 ShowSkipButton = true;
@@ -109,10 +109,10 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public partial bool ShowSkipButton { get; set; } = true;
     partial void OnShowSkipButtonChanged(bool value)
     {
-        _defaultManditory[0] = value;
+        _defaultMandatory[0] = value;
 
         if (!(value | ShowRemindLaterButton))
-            IsManditory = true;
+            IsMandatory = true;
 
         UpdateValidation?.Invoke(!Equals());
     }
@@ -125,10 +125,10 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public partial bool ShowRemindLaterButton { get; set; } = true;
     partial void OnShowRemindLaterButtonChanged(bool value)
     {
-        _defaultManditory[1] = value;
+        _defaultMandatory[1] = value;
 
         if (!(value | ShowSkipButton))
-            IsManditory = true;
+            IsMandatory = true;
 
         UpdateValidation?.Invoke(!Equals());
     }
@@ -141,18 +141,18 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public partial Mode UpdateMode { get; set; } = Mode.Normal;
     partial void OnUpdateModeChanged(Mode value)
     {
-        Manditory?.UpdateMode = value;
+        Mandatory?.UpdateMode = value;
 
-        if (_defaultIsManditory == Manditory)
-            _defaultIsManditory = null;
+        if (_defaultIsMandatory == Mandatory)
+            _defaultIsMandatory = null;
 
         UpdateValidation?.Invoke(!Equals());
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
-    public partial IsManditory? Manditory { get; set; }
-    #endregion IsManditory
+    public partial IsMandatory? Mandatory { get; set; }
+    #endregion IsMandatory
 
     /// <summary>
     ///     Set this to false if your application doesn't need administrator privileges to replace the old version.
@@ -251,7 +251,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public partial bool CheckSynchronously { get; set; }
+    public partial bool CheckSynchronously { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnCheckSynchronouslyChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
@@ -484,9 +484,13 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     #region UserSelectRemindLater
 
+    /// <summary>
+    ///     If this is true users see dialog where they can set remind later interval otherwise it will take the interval from
+    ///     RemindLaterAt and RemindLaterTimeSpan fields.
+    /// </summary>
     [JsonIgnore]
     [ObservableProperty]
-    public partial bool UserSelectRemindLater { get; set; }
+    public partial bool UserSelectRemindLater { get; set; } = true;
     partial void OnUserSelectRemindLaterChanged(bool value)
     {
         RemmindLaterTimer = value ? _defaultRemindLaterTimer ??= new TimerEnabled() : null;
@@ -540,14 +544,14 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
-    public partial InstalledVersion? InstalledVersion { get; set; }
+    public partial Version2? InstalledVersion { get; set; }
 
     [JsonIgnore]
     [ObservableProperty]
     public partial bool InstalledVersionOverride { get; set; }
     partial void OnInstalledVersionOverrideChanged(bool value)
     {
-        InstalledVersion = value ? new InstalledVersion { Version = new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion) } : null;
+        InstalledVersion = value ? new Version2 { Version = new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion) } : null;
         UpdateValidation?.Invoke(!Equals());
     }
 
@@ -686,7 +690,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
             InstalledVersion = null;
         else
         {
-            InstalledVersion         ??= new InstalledVersion();
+            InstalledVersion         ??= new Version2();
             InstalledVersion.Version   = tmpVer;
         }
 
@@ -707,11 +711,11 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         RemindLaterAt         = other.RemmindLaterTimer?.Interval ?? 1;                         // User Select Remind Later
         RemindLaterTimeSpan   = other.RemmindLaterTimer?.TimeSpan ?? RemindLaterFormat.Seconds; // User Select Remind Later
 
-        Manditory             = other.Manditory;                            // IsManditory
-        IsManditory           = other.Manditory != null;                    // IsManditory
-        UpdateMode            = other.Manditory?.UpdateMode ?? Mode.Normal; // IsManditory (True) -> Update Mode
-        ShowSkipButton        = other.ShowSkipButton;                       // IsManditory (False) -> Show Skip Button
-        ShowRemindLaterButton = other.ShowRemindLaterButton;                // IsManditory (False) -> Show Remind Later Button
+        Mandatory             = other.Mandatory;                            // IsMandatory
+        IsMandatory           = other.Mandatory != null;                    // IsMandatory
+        UpdateMode            = other.Mandatory?.UpdateMode ?? Mode.Normal; // IsMandatory (True) -> Update Mode
+        ShowSkipButton        = other.ShowSkipButton;                       // IsMandatory (False) -> Show Skip Button
+        ShowRemindLaterButton = other.ShowRemindLaterButton;                // IsMandatory (False) -> Show Remind Later Button
 
         AppTitle   = other.AppTitle;         // App Title -> Title
         IsAppTitle = other.AppTitle != null; // App Title
@@ -833,13 +837,13 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
         bool IsMandatory()
         {
-            if (!other.IsManditory)
+            if (!other.IsMandatory)
                 return ShowRemindLaterButton == other.ShowRemindLaterButton &&
                        ShowSkipButton        == other.ShowSkipButton        &&
-                       IsManditory           == other.IsManditory;
+                       this.IsMandatory      == other.IsMandatory;
 
-            return UpdateMode  == other.UpdateMode &&
-                   IsManditory == other.IsManditory;
+            return UpdateMode       == other.UpdateMode &&
+                   this.IsMandatory == other.IsMandatory;
         }
     }
 }

@@ -210,9 +210,9 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbIsManditory"
-                    IsChecked="{Binding IsManditory}"
+                    IsChecked="{Binding IsMandatory}"
                     ToolTip="Check this if you want to show the 'ShowSkipButton' or 'ShowRemindLaterButton'."
-                    Content="Is Manditory"
+                    Content="Is Mandatory"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->

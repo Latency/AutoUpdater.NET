@@ -6,7 +6,10 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AssemblyLoader;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Modifiers;
 using AutoUpdaterDotNET.TypeResolvers;
@@ -20,8 +23,35 @@ namespace AutoUpdaterDotNET.ViewModels;
 
 public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
 {
+    #region Static Properties
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    private static HttpClientHandler HttpClientHandlerInstance => SingletonHttpClientHandler.Value;
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Static Properties
+
+
+    #region Fields
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Shadow copy
     private readonly ViewModelMainConfig _configOrig;
+    private readonly DispatcherTimer     _updateTimer = new();
+    private static readonly Lazy<HttpClientHandler> SingletonHttpClientHandler = new(() => new()
+    {
+        Credentials             = CredentialCache.DefaultCredentials,
+        PreAuthenticate         = true,
+        AllowAutoRedirect       = true,
+        MaxConnectionsPerServer = 1,
+        UseCookies              = false,
+        AutomaticDecompression  = DecompressionMethods.GZip,
+        UseDefaultCredentials   = true,
+        UseProxy                = false,
+        DefaultProxyCredentials = new CredentialCache()
+    });
+
+    private System.Timers.Timer? _remindLaterTimer;
+    private Assembly?            _assembly;
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Fields
 
 
     /// <summary>
@@ -50,10 +80,40 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
 
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    public DispatcherTimer UpdateTimer { get; } = new();
 
     [ObservableProperty]
     public partial IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues { get; set; } = Enum.GetValues<RemindLaterFormat>().Skip(1);
+
+
+    private HttpClient HttpWebClient { get; } = new(HttpClientHandlerInstance);
+
+    internal Uri _baseUri
+    {
+        get;
+        set
+        {
+            field                                 = value;
+            HttpClientHandlerInstance.Credentials = field.Scheme.Equals(Uri.UriSchemeFtp) ? FtpCredentials : CredentialCache.DefaultCredentials;
+        }
+    } = null!;
+
+    internal bool Running { get; set; }
+
+    /// <summary>
+    ///     Set Basic Authentication credentials required to download the XML file.
+    /// </summary>
+    public AuthenticationHeaderValue? BasicAuthHeaderValue { get; set; }
+
+    /// <summary>
+    ///     Login/password/domain for FTP-request
+    /// </summary>
+    public NetworkCredential? FtpCredentials { get; set; }
+
+    /// <summary>
+    ///     Set this to an instance implementing the IPersistenceProvider interface for using a data storage method different
+    ///     from the default Windows Registry based one.
+    /// </summary>
+    public IPersistenceProvider? PersistenceProvider { get; set; }
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
 
@@ -65,20 +125,4 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
     public event Action<ParseUpdateInfoEventArgs>? ParseUpdateInfo;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
-
-
-    private void SetVersion()
-    {
-        if (!InstalledVersionOverride)
-        {
-            var defaultVersion = GetType().Assembly.Version()!;
-
-            MajorVersion    = (ushort)defaultVersion.Major;
-            MinorVersion    = (ushort)defaultVersion.Minor;
-            BuildVersion    = (ushort)defaultVersion.Build;
-            RevisionVersion = (ushort)defaultVersion.Revision;
-        }
-
-        base.Update();
-    }
 }
