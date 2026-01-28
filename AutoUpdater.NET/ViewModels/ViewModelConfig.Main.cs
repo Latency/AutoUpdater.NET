@@ -279,12 +279,6 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     #endregion Icon Override
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [ObservableProperty]
-    public partial bool PersistSettings { get; set; }
-    // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnPersistSettingsChanged(bool value) => UpdateValidation?.Invoke(!Equals());
-
     #region ProxyEnabled
     [JsonIgnore]
     [ObservableProperty]
@@ -339,7 +333,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public partial bool ReportErrors { get; set; }
+    public partial bool ReportErrors { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnReportErrorsChanged(bool value) => UpdateValidation?.Invoke(!Equals());
 
@@ -611,10 +605,6 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [JsonIgnore]
     public partial ObservableCollection<TreeViewItem> CheckForUpdatesNodeList { get; set; } = [];
 
-    [ObservableProperty]
-    [JsonIgnore]
-    public partial ObservableCollection<TreeViewItem> ParseUpdateInfoNodeList { get; set; } = [];
-
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
 
@@ -741,7 +731,6 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         BasicAuthUserName  = other.BasicAuth?.UserName;           // Basic Authentication -> UserName
 
         FtpProtocol          = other.FtpProtocol;
-        PersistSettings      = other.PersistSettings;
 
         ZipFile                   = other.ZipFile;                                    // Use Zip File
         UseZipFile                = other.ZipFile != null;                            // Use Zip File
@@ -798,7 +787,6 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                DoNotBindOwnerWindow      == other.DoNotBindOwnerWindow  &&
                FtpProtocol               == other.FtpProtocol           &&
                OpenDownloadPage          == other.OpenDownloadPage      &&
-               PersistSettings           == other.PersistSettings       &&
                ProxyEnabled              == other.ProxyEnabled          &&
                RemindLaterAt             == other.RemindLaterAt         &&
                RemindLaterTimeSpan       == other.RemindLaterTimeSpan   &&

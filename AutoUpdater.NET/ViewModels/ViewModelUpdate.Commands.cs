@@ -27,14 +27,14 @@ public partial class ViewModelUpdate
 
 
     [RelayCommand]
-    private void Update(object? parameter)
+    private async Task Update(object? parameter)
     {
         (parameter as Window_Update)?.Close();
 
         if (Config.OpenDownloadPage)
             _windowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(Window, _vmModelDownloadUpdate).Show();
 
-        // TODO
         // Start automatic updates!
+        await _vmModelDownloadUpdate.DownloadUpdate();
     }
 }

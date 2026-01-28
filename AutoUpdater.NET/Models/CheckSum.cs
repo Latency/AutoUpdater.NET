@@ -6,6 +6,7 @@
 // ****************************************************************************
 
 using System.IO;
+using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -38,13 +39,32 @@ public record CheckSum
     /// </summary>
     public CheckSum(string plainText)
     {
-        HashData  = SHA256.HashData(Encoding.UTF8.GetBytes(plainText));
+        var b = Encoding.UTF8.GetBytes(plainText);
+        #pragma warning disable CS0618 // Type or member is obsolete
+        HashData = HashingAlgorithm switch
+        #pragma warning restore CS0618 // Type or member is obsolete
+        {
+            #pragma warning disable SYSLIB0058
+            HashAlgorithmType.None   => MD5.HashData(b),
+            HashAlgorithmType.Md5    => MD5.HashData(b),
+            HashAlgorithmType.Sha1   => SHA1.HashData(b),
+            HashAlgorithmType.Sha256 => SHA256.HashData(b),
+            HashAlgorithmType.Sha384 => SHA384.HashData(b),
+            HashAlgorithmType.Sha512 => SHA3_512.HashData(b),
+            _                        => throw new ArgumentOutOfRangeException()
+            #pragma warning restore SYSLIB0058
+        };
         HashValue = Convert.ToHexString(HashData).ToLowerInvariant();
 
         var hash = new HashCode();
         hash.AddBytes(HashData);
         _hashCode = hash.ToHashCode();
     }
+
+
+    #pragma warning disable SYSLIB0058
+    public HashAlgorithmType HashingAlgorithm { get; set; }
+    #pragma warning restore SYSLIB0058
 
 
     /// <summary>

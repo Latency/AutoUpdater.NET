@@ -708,14 +708,6 @@
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
-                    Name="cbPersistSettings"
-                    IsChecked="{Binding PersistSettings}"
-                    ToolTip="Check this to persist 'Remind Later' and 'Skip' values in a JSON file instead of the registry."
-                    Content="Persist Settings"
-                />
-
-                <!-- ReSharper disable once InconsistentNaming -->
-                <CheckBox
                     Name="cbUseZipFile"
                     IsChecked="{Binding UseZipFile}"
                     ToolTip="Check this to persist 'Remind Later' and 'Skip' values in a JSON file instead of the registry."

@@ -57,8 +57,6 @@ public interface IViewModelMainConfig
 
     IconOverride? IconOverride { get; set; }
 
-    bool PersistSettings { get; set; }
-
     bool ProxyEnabled { get; set; }
 
     string? ProxyUri { get; set; }
@@ -122,8 +120,6 @@ public interface IViewModelMainConfig
     ObservableCollection<TreeViewItem> UpdateCompleteNodeList  { get; set; }
 
     ObservableCollection<TreeViewItem> CheckForUpdatesNodeList { get; set; }
-
-    ObservableCollection<TreeViewItem> ParseUpdateInfoNodeList { get; set; }
 
     event Action<bool?>?                        UpdateValidation;
     event Action<string?>?                      UpdateVersion;

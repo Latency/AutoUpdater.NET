@@ -25,7 +25,7 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
 {
     #region Static Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static HttpClientHandler HttpClientHandlerInstance => SingletonHttpClientHandler.Value;
+    public static HttpClient HttpWebClient => SingletonHttpClient.Value;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Static Properties
 
@@ -33,23 +33,12 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Shadow copy
-    private readonly ViewModelMainConfig _configOrig;
-    private readonly DispatcherTimer     _updateTimer = new();
-    private static readonly Lazy<HttpClientHandler> SingletonHttpClientHandler = new(() => new()
-    {
-        Credentials             = CredentialCache.DefaultCredentials,
-        PreAuthenticate         = true,
-        AllowAutoRedirect       = true,
-        MaxConnectionsPerServer = 1,
-        UseCookies              = false,
-        AutomaticDecompression  = DecompressionMethods.GZip,
-        UseDefaultCredentials   = true,
-        UseProxy                = false,
-        DefaultProxyCredentials = new CredentialCache()
-    });
+    private readonly ViewModelMainConfig     _configOrig;
+    private readonly DispatcherTimer         _updateTimer               = new();
+    private static   Lazy<HttpClient>        SingletonHttpClient        = null!;
 
-    private System.Timers.Timer? _remindLaterTimer;
-    private Assembly?            _assembly;
+    private          System.Timers.Timer?    _remindLaterTimer;
+    private          Assembly                _assembly = null!;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
@@ -85,15 +74,39 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
     public partial IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues { get; set; } = Enum.GetValues<RemindLaterFormat>().Skip(1);
 
 
-    private HttpClient HttpWebClient { get; } = new(HttpClientHandlerInstance);
-
-    internal Uri _baseUri
+    private Uri _baseUri
     {
         get;
         set
         {
-            field                                 = value;
-            HttpClientHandlerInstance.Credentials = field.Scheme.Equals(Uri.UriSchemeFtp) ? FtpCredentials : CredentialCache.DefaultCredentials;
+            field = value;
+
+            NetworkCredential? credentials;
+            if (field.Scheme.Equals(Uri.UriSchemeFtp))
+                credentials = FtpCredentials ?? throw new NullReferenceException($"{nameof(FtpCredentials)} must not be null for file transfer protocol.");
+            else
+                credentials = CredentialCache.DefaultCredentials as NetworkCredential;
+
+            var httpClientHandler = new HttpClientHandler
+            {
+                Credentials             = credentials,
+                PreAuthenticate         = true,
+                AllowAutoRedirect       = true,
+                MaxConnectionsPerServer = 1,
+                UseCookies              = false,
+                AutomaticDecompression  = DecompressionMethods.GZip,
+                UseDefaultCredentials   = true,
+                UseProxy                = ProxyEnabled,
+                Proxy                   = ProxyEnabled ? new WebProxy { Address = new Uri(ProxyUri ?? throw new NullReferenceException(nameof(ProxyUri))) } : null,
+                DefaultProxyCredentials = ProxyEnabled ? new NetworkCredential(ProxyUserName, ProxyPassword) : new CredentialCache()
+            };
+            SingletonHttpClient = new(() => new(httpClientHandler)
+            {
+                BaseAddress = value,
+                DefaultRequestHeaders = {
+                    Authorization = BasicAuthHeaderValue
+                }
+            });
         }
     } = null!;
 
@@ -109,20 +122,14 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
     /// </summary>
     public NetworkCredential? FtpCredentials { get; set; }
 
-    /// <summary>
-    ///     Set this to an instance implementing the IPersistenceProvider interface for using a data storage method different
-    ///     from the default Windows Registry based one.
-    /// </summary>
-    public IPersistenceProvider? PersistenceProvider { get; set; }
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
 
 
     #region Events
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=+
-    public event Action?                           UpdateComplete;
-    public event Action<UpdateInfoEventArgs>?      CheckForUpdates;
-    public event Action<ParseUpdateInfoEventArgs>? ParseUpdateInfo;
+    public event Action?                      UpdateComplete;
+    public event Action<UpdateInfoEventArgs>? CheckForUpdates;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
 }

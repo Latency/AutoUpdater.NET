@@ -10,13 +10,10 @@ using AssemblyLoader;
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Models;
-using AutoUpdaterDotNET.Persistance_Providers;
 using AutoUpdaterDotNET.Views;
-using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows;
@@ -54,6 +51,12 @@ public partial class ViewModelConfig
         window.LabelTitle!.Content    = string.Format(window.LabelTitle.Tag!.ToString()!,       args.InstalledVersion);
         window.LabelDescription!.Text = string.Format(window.LabelDescription.Tag!.ToString()!, args.CurrentVersion, args.InstalledVersion);
 
+        if (args.WindowSize.HasValue)
+        {
+            window.Width  = args.WindowSize.Value.Width;
+            window.Height = args.WindowSize.Value.Height;
+        }
+
         window.Show();
     }
 
@@ -68,27 +71,28 @@ public partial class ViewModelConfig
         if (IsMandatory && _remindLaterTimer != null)
         {
             _remindLaterTimer.Stop();
-            _remindLaterTimer.Close();
+            _remindLaterTimer.Dispose();
             _remindLaterTimer = null;
         }
 
         if (Running || _remindLaterTimer != null)
             return;
 
-
         try
         {
-            var config = Settings.Default!.ConfigFile!;
-            var str    = Path.Combine(domain, config);
-            _baseUri  = new Uri(str);
+            _baseUri  = new Uri(Path.Combine(domain, Settings.Default!.ConfigFile!));
             _assembly = myAssembly ?? Assembly.GetEntryAssembly()!;
+
+            await Start();
         }
         catch (Exception ex)
         {
-            ;
+            ShowError(ex);
         }
-
-        await Start();
+        finally
+        {
+            HttpWebClient.Dispose();
+        }
     }
 
 
@@ -114,19 +118,19 @@ public partial class ViewModelConfig
                 try
                 {
                     await CheckUpdate().ContinueWith(t =>
+                    {
+                       var args = t.Result;
+                       if (args?.Error != null)
+                           ShowError(args.Error);
+                       else
                        {
-                           var args = t.Result;
-                           if (args?.Error != null)
-                               ShowError(args.Error);
-                           else
-                           {
-                               if (!t.IsCanceled && StartUpdate(args))
-                                   return;
+                           if (!t.IsCanceled && StartUpdate(args))
+                               return;
 
-                               Running = false;
-                           }
-                       })
-                       .ConfigureAwait(false);
+                           Running = false;
+                       }
+                    })
+                    .ConfigureAwait(false);
                 }
                 catch (TaskCanceledException)
                 {
@@ -147,30 +151,24 @@ public partial class ViewModelConfig
 
     private async Task<UpdateInfoEventArgs?> CheckUpdate()
     {
-        var appCompany = _assembly.Company();
-
         if (string.IsNullOrEmpty(AppTitle))
             AppTitle = _assembly.Title() ?? _assembly.GetName().Name!;
 
-        var registryLocation = !string.IsNullOrEmpty(appCompany) ? $@"Software\{appCompany}\{AppTitle}\AutoUpdater" : $@"Software\{AppTitle}\AutoUpdater";
-        PersistenceProvider = new Registry(registryLocation);
+        using var response = await HttpWebClient.GetAsync(_baseUri);
+        if (!response.IsSuccessStatusCode)
+        {
+            //var a = JsonSerializer.Serialize(new UpdateInfoEventArgs(), new JsonSerializerOptions { WriteIndented = true });
+            //await File.WriteAllTextAsync($@"K:\{Settings.Default!.ConfigFile}", a);
 
-        using var response = await GetWebClient(_baseUri, BasicAuthHeaderValue);
+            ShowError(new HttpRequestException(response.ReasonPhrase));
+            return null;
+        }
+
         var json = await response.Content.ReadAsStringAsync();
         if (string.IsNullOrEmpty(json))
-            throw new Exception("It is required to handle the ParseUpdateInfoEvent when url is not specified.");
+            throw new Exception("The JSON is required to handle the ParseUpdateInfoEvent when url is not specified.");
 
-        UpdateInfoEventArgs? args;
-        if (ParseUpdateInfo == null)
-            args = JsonSerializer.Deserialize<UpdateInfoEventArgs>(json);
-        else
-        {
-            var parseArgs = new ParseUpdateInfoEventArgs(json);
-
-            // Event invocator
-            ParseUpdateInfo?.Invoke(parseArgs);
-            args = parseArgs;
-        }
+        var args = JsonSerializer.Deserialize<UpdateInfoEventArgs>(json);
 
         if (string.IsNullOrEmpty(args?.CurrentVersion?.ToString()))
         {
@@ -181,47 +179,10 @@ public partial class ViewModelConfig
         if (string.IsNullOrEmpty(args.CurrentVersion?.ToString()) || string.IsNullOrEmpty(args.DownloadURL))
             throw new MissingFieldException();
 
-        var ver = new Version2
+        args.InstalledVersion = new Version2
         {
             Version = _assembly.GetName().Version
         };
-        args.InstalledVersion  = ver;
-        args.IsUpdateAvailable = args.CurrentVersion.Version > args.InstalledVersion.Version;
-
-        if (!IsMandatory)
-        {
-            if (string.IsNullOrEmpty(args.Mandatory.MinimumVersion) || args.InstalledVersion.Version < new Version(args.Mandatory.MinimumVersion))
-            {
-                IsMandatory  = args.Mandatory.Value;
-                UpdateMode = args.Mandatory.UpdateMode;
-            }
-
-            // Read the persisted state from the persistence provider.
-            // This method makes the persistence handling independent from the storage method.
-            var skippedVersion = PersistenceProvider.GetSkippedVersion();
-            if (skippedVersion != null)
-            {
-                var currentVersion = args.CurrentVersion.Version;
-                if (currentVersion <= skippedVersion)
-                    return null;
-
-                if (currentVersion > skippedVersion)
-                    // Update the persisted state. Its no longer makes sense to have this flag set as we are working on a newer application version.
-                    PersistenceProvider.SetSkippedVersion(null);
-            }
-
-            var remindLaterAt = PersistenceProvider.GetRemindLater();
-            if (remindLaterAt == null)
-                return args;
-
-            if (DateTime.Compare(DateTime.Now, remindLaterAt.Value) < 0)
-                args.TimeStamp = remindLaterAt.Value;
-        }
-        else
-        {
-            ShowRemindLaterButton = false;
-            ShowSkipButton        = false;
-        }
 
         return args;
     }
@@ -235,7 +196,23 @@ public partial class ViewModelConfig
     private bool StartUpdate(object? result)
     {
         if (result is DateTime time)
-            SetTimer(time);
+        {
+            var timeSpan = time - DateTime.Now;
+
+            _remindLaterTimer = new Timer
+            {
+                Interval  = Math.Max(1, timeSpan.TotalMilliseconds),
+                AutoReset = false
+            };
+
+            _remindLaterTimer.Elapsed += delegate
+            {
+                _remindLaterTimer = null;
+                Start().RunSynchronously(TaskScheduler.Current);
+            };
+
+            _remindLaterTimer.Start();
+        }
         else
         {
             if (result is not UpdateInfoEventArgs args)
@@ -304,47 +281,5 @@ public partial class ViewModelConfig
         }
 
         base.Update();
-    }
-
-
-    private void SetTimer(DateTime remindLater)
-    {
-        var timeSpan = remindLater - DateTime.Now;
-
-        _remindLaterTimer = new Timer
-        {
-            Interval  = Math.Max(1, timeSpan.TotalMilliseconds),
-            AutoReset = false
-        };
-
-        _remindLaterTimer.Elapsed += delegate
-        {
-            _remindLaterTimer = null;
-            Start().RunSynchronously(TaskScheduler.Current);
-        };
-
-        _remindLaterTimer.Start();
-    }
-
-
-    private Task<HttpResponseMessage> GetWebClient(Uri uri, AuthenticationHeaderValue basicAuthentication)
-    {
-        _baseUri                                           = uri;
-        HttpWebClient.DefaultRequestHeaders.Authorization = basicAuthentication;
-        return HttpWebClient.GetAsync(_baseUri);
-    }
-
-
-    /// <summary>
-    ///     Set Proxy server to use for all the web requests in AutoUpdater.NET.
-    /// </summary>
-    private static void WebProxy(string username, string password, string address)
-    {
-        HttpClientHandlerInstance.Proxy = new WebProxy
-        {
-            Address = new Uri(address)
-        };
-        HttpClientHandlerInstance.DefaultProxyCredentials = new NetworkCredential(username, password);
-        HttpClientHandlerInstance.UseProxy                = true;
     }
 }

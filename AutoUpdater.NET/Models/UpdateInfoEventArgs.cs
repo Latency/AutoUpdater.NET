@@ -18,19 +18,17 @@ public class UpdateInfoEventArgs : EventArgs
     /// <summary>
     ///     Resizes the update window.
     /// </summary>
-    public Size? UpdateFormSize { get; set; }
+    public Size? WindowSize { get; set; }
 
     /// <summary>
     ///     If new update is available then returns true otherwise false.
     /// </summary>
-    public bool IsUpdateAvailable { get; set; }
+    [JsonIgnore]
+    public bool IsUpdateAvailable => CurrentVersion?.Version > InstalledVersion?.Version;
 
     /// <summary>
-    ///     If there is an error while checking for update then this property won't be null.
+    ///     BaseUri
     /// </summary>
-    [JsonIgnore]
-    public Exception? Error { get; set; }
-
     public Uri? BaseUri { get; set; }
 
     /// <summary>
@@ -84,13 +82,24 @@ public class UpdateInfoEventArgs : EventArgs
     public CheckSum? CheckSum { get; set; }
 
     /// <summary>
+    ///     If there is an error while checking for update then this property won't be null.
+    /// </summary>
+    [JsonIgnore]
+    public Exception? Error { get; set; }
+
+    /// <summary>
+    ///     Login/password/domain for FTP-request
+    /// </summary>
+    public string? DownloadPath { get; set; }
+
+    /// <summary>
     ///     Date/Time value for <see cref="UpdateInfoEventArgs" />
     /// </summary>
     [JsonIgnore]
     public DateTime TimeStamp { get; set; }
 
     // ReSharper disable once InconsistentNaming
-    internal static string? GetURL(Uri? baseUri, string? url)
+    private static string? GetURL(Uri? baseUri, string? url)
     {
         if (baseUri is not null && !string.IsNullOrEmpty(url) && Uri.IsWellFormedUriString(url, UriKind.Relative))
         {

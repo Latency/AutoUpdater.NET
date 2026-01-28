@@ -5,9 +5,15 @@
 // Date:     01/09/2026
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Models;
+
 namespace AutoUpdaterDotNET.Interfaces;
 
 public interface IViewModelDownloadUpdate
 {
-    double ProgressPercentage { get; set; }
+    DownloadStatistics      ProgressPercentage { get; set; }
+    // ReSharper disable once InconsistentNaming
+    CancellationTokenSource? CTS               { get; }
+
+    Task DownloadUpdate();
 }

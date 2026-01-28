@@ -33,7 +33,6 @@ public partial class ViewModelConfig
         InvocationListGenerator(_updateTimer, nameof(_updateTimer.Tick), TimerNodeList);
         InvocationListGenerator(this,        nameof(UpdateComplete),   UpdateCompleteNodeList);
         InvocationListGenerator(this,        nameof(CheckForUpdates),  CheckForUpdatesNodeList);
-        InvocationListGenerator(this,        nameof(ParseUpdateInfo),  ParseUpdateInfoNodeList);
 
         LoadConfig();
 
