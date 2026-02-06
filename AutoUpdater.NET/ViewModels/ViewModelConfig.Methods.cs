@@ -44,9 +44,8 @@ public partial class ViewModelConfig
     /// </summary>
     public void ShowUpdateForm(UpdateInfoEventArgs args)
     {
-        var _vmUpdate      = _serviceProvider.GetRequiredService<IViewModelUpdate>();
         var _windowService = _serviceProvider.GetRequiredService<IWindowService>();
-        var window         = _windowService.InitializeWindow<Window_Update, IViewModelUpdate>(null, _vmUpdate);
+        var window         = _windowService.InitializeWindow<Window_Update, IViewModelUpdate>(((IViewModelRestricted)this).Owner);
 
         window.LabelTitle!.Content    = string.Format(window.LabelTitle.Tag!.ToString()!,       args.InstalledVersion);
         window.LabelDescription!.Text = string.Format(window.LabelDescription.Tag!.ToString()!, args.CurrentVersion, args.InstalledVersion);

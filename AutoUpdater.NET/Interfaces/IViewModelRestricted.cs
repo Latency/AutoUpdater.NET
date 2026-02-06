@@ -5,9 +5,13 @@
 // Date:     01/09/2026
 // ****************************************************************************
 
+using System.Windows;
+
 namespace AutoUpdaterDotNET.Interfaces;
 
 public interface IViewModelRestricted
 {
-    public IViewModelMainConfig? Config { get; }
+    public IViewModelMainConfig Config { get; }
+    Window?                     Owner  { get; set; }
+    Window                      Window { get; set; }
 }

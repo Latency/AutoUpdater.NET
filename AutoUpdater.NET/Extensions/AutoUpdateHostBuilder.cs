@@ -29,12 +29,13 @@ public static class AutoUpdateBuilderExtensions
         hostBuilder.ConfigureServices(services =>
         {
             services.AddSingleton<IWindowService, WindowService>();
+            services.AddSingleton<BaseServiceDependencies>();
 
             // Register ViewModels
             services.AddSingleton<IViewModelConfig, ViewModelConfig>();
-            services.AddSingleton<IViewModelDownloadUpdate, ViewModelDownloadUpdate>();
             services.AddSingleton<IViewModelRemindLater, ViewModelRemindLater>();
             services.AddSingleton<IViewModelUpdate, ViewModelUpdate>();
+            services.AddSingleton<IViewModelDownloadUpdate, ViewModelDownloadUpdate>();
 
             // Register Views
             services.AddSingleton<Window_Config>();

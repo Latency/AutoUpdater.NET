@@ -6,6 +6,7 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using System.ComponentModel;
 using AutoUpdaterDotNET.Controls;
 
 namespace AutoUpdaterDotNET.Views;
@@ -19,4 +20,15 @@ public partial class Window_RemindLater : Window_Restricted
     {
         InitializeComponent();
     }
+
+
+    #region Methods
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    protected override void OnClosing(object? sender, CancelEventArgs e)
+    {
+        base.OnClosing(sender, e);
+        Owner?.Show();
+    }
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Methods
 }

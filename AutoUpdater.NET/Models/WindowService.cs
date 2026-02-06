@@ -29,13 +29,22 @@ public partial class WindowService : IWindowService
     }
 
 
-    public TWindow InitializeWindow<TWindow, TViewModel>(Window? owner, TViewModel viewModel)
-        where TWindow : Window
+    public TWindow InitializeWindow<TWindow, TViewModel>(Window? owner)
+        where TWindow    : Window
+        where TViewModel : notnull
     {
-        _window = _serviceProvider.GetRequiredService<TWindow>();
-        _window.DataContext = viewModel!;
 
-        // ReSharper disable once InvertIf
+        _window             = _serviceProvider.GetRequiredService<TWindow>();
+        var viewModel       = _serviceProvider.GetRequiredService<TViewModel>();
+
+        if (viewModel is IViewModelRestricted vmRestricted)
+        {
+            vmRestricted.Owner  = owner;
+            vmRestricted.Window = _window;
+        }
+
+        _window.DataContext = viewModel;
+
         if (_window is Window_Restricted win)
         {
             win.Tag = owner!;
@@ -45,9 +54,7 @@ public partial class WindowService : IWindowService
                 win.SetBindings(_vmConfig);
         }
         else
-        {
             _window.Owner = owner!;
-        }
 
         return (_window as TWindow)!;
     }

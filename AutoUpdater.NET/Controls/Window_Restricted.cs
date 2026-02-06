@@ -95,7 +95,7 @@ public abstract class Window_Restricted : Window
         _controlBoxConverter.SetBindings(vmc);
     }
 
-    private void OnClosing(object? sender, CancelEventArgs e)
+    protected virtual void OnClosing(object? sender, CancelEventArgs e)
     {
         e.Cancel = true;
         Hide();

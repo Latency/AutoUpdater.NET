@@ -10,6 +10,7 @@ using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.Input;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Xceed.Wpf.Toolkit;
 using kvp = System.Collections.Generic.KeyValuePair<ushort, AutoUpdaterDotNET.Enums.RemindLaterFormat>;
 
@@ -159,8 +160,10 @@ public partial class ViewModelRemindLater
     {
         (parameter as Window_RemindLater)?.Close();
 
+        var vmModelDownloadUpdate = Dependencies.ServiceProvider.GetRequiredService<IViewModelDownloadUpdate>();
+
         if (Config.OpenDownloadPage)
-            _windowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(Window, _vmModelDownloadUpdate).Show();
+            Dependencies.WindowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(((IViewModelRestricted)this).Owner).Show();
 
         // TODO
         // Start automatic updates!

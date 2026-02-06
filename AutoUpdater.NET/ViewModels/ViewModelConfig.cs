@@ -14,6 +14,7 @@ using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Modifiers;
 using AutoUpdaterDotNET.TypeResolvers;
 using System.Text.Json;
+using System.Windows;
 using System.Windows.Threading;
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Models;
@@ -69,6 +70,11 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
 
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    IViewModelMainConfig IViewModelRestricted.Config => this;
+    Window? IViewModelRestricted.             Owner  { get; set; }
+    Window IViewModelRestricted.              Window { get; set; }
+
 
     [ObservableProperty]
     public partial IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues { get; set; } = Enum.GetValues<RemindLaterFormat>().Skip(1);

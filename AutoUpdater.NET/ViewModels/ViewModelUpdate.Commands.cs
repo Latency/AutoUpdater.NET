@@ -22,7 +22,7 @@ public partial class ViewModelUpdate
     {
         (parameter as Window_Update)?.Close();
 
-        _windowService.InitializeWindow<Window_RemindLater, IViewModelRemindLater>(Window, _vmRemindLater).Show();
+        Dependencies.WindowService.InitializeWindow<Window_RemindLater, IViewModelRemindLater>(Window).Show();
     }
 
 
@@ -31,10 +31,13 @@ public partial class ViewModelUpdate
     {
         (parameter as Window_Update)?.Close();
 
+        var dlWin = Dependencies.WindowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(Window);
         if (Config.OpenDownloadPage)
-            _windowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(Window, _vmModelDownloadUpdate).Show();
-
-        // Start automatic updates!
-        await _vmModelDownloadUpdate.DownloadUpdate();
+            dlWin.Show();
+        else
+        {
+            if (dlWin.DataContext is IViewModelDownloadUpdate vmModelDownloadUpdate)
+                await vmModelDownloadUpdate.DownloadUpdate(); // Start automatic updates!
+        }
     }
 }

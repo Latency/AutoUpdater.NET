@@ -9,32 +9,49 @@ using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.Properties;
-using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Windows;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDownloadUpdate
+public partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDownloadUpdate
 {
+    /*
+ *    {
+       var args = new UpdateInfoEventArgs
+       {
+           InstalledVersion = new Version2
+           {
+               Version = new Version(1, 0, 0, 0)
+           },
+           CurrentVersion = new Version2
+           {
+               Version = new Version(2, 0, 0, 0)
+           }
+       };
+       _configVm.ShowUpdateForm(args);
+   }
+
+ */
+
     #region Fields
+
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private          DateTime              _startedAt;
-    private readonly Window_DownloadUpdate _window;
-    private readonly UpdateInfoEventArgs   _args;
+    private DateTime _startedAt;
+
+    private readonly UpdateInfoEventArgs _args;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
     #endregion Fields
 
 
     #region Events
+
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
     private readonly Progress<double> _progressHandler;
-
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
 
@@ -42,18 +59,9 @@ public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted, IView
     /// <summary>
     /// Constructor
     /// </summary>
-    public ViewModelDownloadUpdate(IServiceProvider serviceProvider, Window_DownloadUpdate window, IViewModelConfig vmConfig) : base(serviceProvider, window, vmConfig)
+    public ViewModelDownloadUpdate(BaseServiceDependencies dependencies) : base(dependencies)
     {
-        _window = window;
-
-        _progressHandler = new Progress<double>(value =>
-        {
-            // This code runs on the UI thread, allowing safe updates to the ProgressBar
-            _window.ProgressBarDownload?.Value = value;
-
-            // Optional: Update the UI immediately to avoid display delays
-            _window.ProgressBarDownload?.UpdateLayout();
-        });
+        _progressHandler = new Progress<double>(((IViewModelDownloadUpdate)this).ProgressBarCallback);
     }
 
 
@@ -64,7 +72,10 @@ public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted, IView
     public CancellationTokenSource? CTS { get; private set; }
 
     [ObservableProperty]
-    public partial DownloadStatistics ProgressPercentage { get; set; }
+    public partial DownloadStatistics DownloadStatistics { get; set; } = new();
+
+    Action<double> IViewModelDownloadUpdate.ProgressBarCallback { get; set; } = delegate { };
+    Action<long, long> IViewModelDownloadUpdate.ContentCallback { get; set; } = delegate { };
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
@@ -72,6 +83,13 @@ public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted, IView
 
     #region Methods
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    internal static void Wnd_Loaded(Window wnd)
+    {
+        if (wnd.DataContext is ViewModelDownloadUpdate dc)
+            ((IViewModelRestricted)dc).Owner = wnd;
+    }
+
 
     /// <summary>
     ///     DownloadUpdate
@@ -97,45 +115,12 @@ public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted, IView
         try
         {
             CTS = new CancellationTokenSource();
-            await ViewModelConfig.HttpWebClient.DownloadAsync(_args.DownloadURL, file, _progressHandler, ContentCallback, CTS.Token);
+            await ViewModelConfig.HttpWebClient.DownloadAsync(_args.DownloadURL, file, _progressHandler, ((IViewModelDownloadUpdate)this).ContentCallback, CTS.Token);
             WebClientOnDownloadFileCompleted(tempFile);
         }
         catch (TaskCanceledException e)
         {
             // Handled
-        }
-
-        return;
-
-        void ContentCallback(long bytesReceived, long totalBytesToReceive)
-        {
-            if (_startedAt == default)
-                _startedAt = DateTime.Now;
-            else
-            {
-                var timeSpan     = DateTime.Now - _startedAt;
-                var totalSeconds = (long)timeSpan.TotalSeconds;
-                if (totalSeconds > 0)
-                {
-                    var bytesPerSecond = bytesReceived / totalSeconds;
-                    _window.LabelInformation?.Content = string.Format(Settings.Default!.DownloadSpeedMessage!, BytesToString(bytesPerSecond));
-                }
-            }
-
-            _window.LabelSize?.Content = $"{BytesToString(bytesReceived)} / {BytesToString(totalBytesToReceive)}";
-        }
-
-
-        static string BytesToString(long byteCount)
-        {
-            string[] suf = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
-            if (byteCount == 0)
-                return "0" + suf[0];
-
-            var bytes = Math.Abs(byteCount);
-            var place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
-            var num   = Math.Round(bytes / Math.Pow(1024, place), 1);
-            return $"{(Math.Sign(byteCount) * num).ToString(CultureInfo.InvariantCulture)} {suf[place]}";
         }
     }
 
@@ -214,11 +199,11 @@ public sealed partial class ViewModelDownloadUpdate : ViewModelRestricted, IView
         }
         catch (Exception e)
         {
-            MessageBox.Show(_window, e.Message, e.GetType().ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(((IViewModelRestricted)this).Owner!, e.Message, e.GetType().ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally
         {
-            _window.Close();
+            ((IViewModelRestricted)this).Owner?.Close();
         }
     }
 

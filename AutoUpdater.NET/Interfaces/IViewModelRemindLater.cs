@@ -11,7 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace AutoUpdaterDotNET.Interfaces;
 
-public interface IViewModelRemindLater
+public interface IViewModelRemindLater : IViewModelRestricted
 {
     ObservableCollection<KeyValuePair<ushort, RemindLaterFormat>> ComboBoxItems { get; set; }
 

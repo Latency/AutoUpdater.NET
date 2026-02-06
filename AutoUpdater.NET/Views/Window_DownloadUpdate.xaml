@@ -12,7 +12,7 @@
     Width="450"
     Height="150"
     Icon="{StaticResource download}"
-    Closing="OnClosing"
+    Closing="OnClosing" DataContextChanged="Window_Restricted_DataContextChanged"
 >
     <Grid Margin="0, 10">
         <Grid.ColumnDefinitions>
@@ -47,7 +47,7 @@
             Grid.Row="1"
             Height="40"
             Maximum="100"
-            Value="{Binding ProgressPercentage}"
+            Value="{Binding DownloadStatistics.ProgressPercentage}"
         />
 
         <StackPanel
@@ -56,7 +56,7 @@
             Orientation="Horizontal"
             VerticalAlignment="Center"
             HorizontalAlignment="Center">
-            <TextBlock Text="{Binding ProgressPercentage}" d:Text="100" />
+            <TextBlock Text="{Binding DownloadStatistics.ProgressPercentage}" d:Text="100" />
             <TextBlock Text="%" />
         </StackPanel>
 
@@ -66,8 +66,27 @@
             Grid.Row="1"
             FontSize="8"
             VerticalAlignment="Bottom"
+            Margin="0,0,0,-5"
+            Content="Bytes Received:"
+        />
+
+        <StackPanel
+            Grid.Column="1"
+            Grid.Row="1"
+            Orientation="Horizontal"
+            VerticalAlignment="Bottom"
             HorizontalAlignment="Center"
-            d:Content="test"/>
+        >
+            <TextBlock
+                FontSize="8"
+                Text="{Binding DownloadStatistics.BytesReceived}" d:Text="10" />
+            <TextBlock
+                FontSize="8"
+                Text="/" />
+            <TextBlock
+                FontSize="8"
+                Text="{Binding DownloadStatistics.TotalBytesToReceive}" d:Text="13210" />
+        </StackPanel>
 
     </Grid>
 </controls:Window_Restricted>

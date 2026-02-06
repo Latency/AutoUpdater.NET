@@ -9,11 +9,16 @@ using AutoUpdaterDotNET.Models;
 
 namespace AutoUpdaterDotNET.Interfaces;
 
-public interface IViewModelDownloadUpdate
+public interface IViewModelDownloadUpdate : IViewModelRestricted
 {
-    DownloadStatistics      ProgressPercentage { get; set; }
-    // ReSharper disable once InconsistentNaming
-    CancellationTokenSource? CTS               { get; }
-
     Task DownloadUpdate();
+
+    DownloadStatistics DownloadStatistics { get; set; }
+
+    // ReSharper disable once InconsistentNaming
+    CancellationTokenSource? CTS          { get; }
+
+    Action<double> ProgressBarCallback  { get; set; }
+
+    Action<long, long> ContentCallback { get; set; }
 }

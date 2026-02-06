@@ -5,37 +5,31 @@
 // Date:     06/10/2025
 // ****************************************************************************
 
-using AutoUpdaterDotNET.Controls;
+using System.Windows;
 using AutoUpdaterDotNET.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public abstract class ViewModelRestricted : ObservableObject, IViewModelRestricted
+/// <summary>
+/// Constructor
+/// </summary>
+public abstract class ViewModelRestricted(BaseServiceDependencies dependencies) : ObservableObject, IViewModelRestricted
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    protected                  IServiceProvider  ServiceProvider;
-    private protected readonly Window_Restricted Window;
+    protected BaseServiceDependencies Dependencies = dependencies;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
 
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    public IViewModelMainConfig Config { get; }
+    public IViewModelMainConfig Config => Dependencies.Config;
 
+    Window? IViewModelRestricted.Owner { get; set; }
+
+    public Window Window { get; set; } = null!;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
-
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    protected ViewModelRestricted(IServiceProvider serviceProvider, Window_Restricted window, IViewModelConfig vmConfig)
-    {
-        Window          = window;
-        ServiceProvider = serviceProvider;
-        Config          = vmConfig;
-    }
 }

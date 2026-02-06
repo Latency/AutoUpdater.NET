@@ -7,6 +7,6 @@
 
 namespace AutoUpdaterDotNET.Interfaces;
 
-public interface IViewModelUpdate
+public interface IViewModelUpdate : IViewModelRestricted
 {
 }

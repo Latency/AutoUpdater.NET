@@ -9,30 +9,14 @@
 
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
-using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using kvp = System.Collections.Generic.KeyValuePair<ushort, AutoUpdaterDotNET.Enums.RemindLaterFormat>;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelRemindLater : ViewModelRestricted, IViewModelRemindLater
+public partial class ViewModelRemindLater(BaseServiceDependencies dependencies) : ViewModelRestricted(dependencies), IViewModelRemindLater
 {
-    private readonly IViewModelDownloadUpdate _vmModelDownloadUpdate;
-    private readonly IWindowService           _windowService;
-
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    public ViewModelRemindLater(IServiceProvider serviceProvider, IWindowService windowService, IViewModelDownloadUpdate vmModelDownloadUpdate, Window_RemindLater window, IViewModelConfig vmConfig) : base(serviceProvider, window, vmConfig)
-    {
-
-        _windowService         = windowService;
-        _vmModelDownloadUpdate = vmModelDownloadUpdate;
-    }
-
-
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -61,6 +45,5 @@ public partial class ViewModelRemindLater : ViewModelRestricted, IViewModelRemin
     public partial IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues { get; set; } = Enum.GetValues<RemindLaterFormat>().Skip(1);
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
     #endregion Properties
 }

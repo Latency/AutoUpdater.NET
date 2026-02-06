@@ -5,11 +5,18 @@
 // Date:     01/27/2026
 // ****************************************************************************
 
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace AutoUpdaterDotNET.Models;
 
-public record DownloadStatistics
+public partial class DownloadStatistics : ObservableObject
 {
-    public long BytesReceived       { get; set; }
-    public long TotalBytesToReceive { get; set; }
-    public byte   ProgressPercentage  { get; set; }
+    [ObservableProperty]
+    public partial long BytesReceived        { get; set; }
+
+    [ObservableProperty]
+    public partial long TotalBytesToReceive  { get; set; }
+
+    [ObservableProperty]
+    public partial double ProgressPercentage { get; set; }
 }

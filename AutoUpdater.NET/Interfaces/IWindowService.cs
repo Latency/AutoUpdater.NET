@@ -37,8 +37,9 @@ public interface IWindowService : IAddChild, IFrameworkInputElement, ISupportIni
     bool UserResized { get; }
 
 
-    TWindow InitializeWindow<TWindow, TViewModel>(Window? owner, TViewModel viewModel)
-        where TWindow : Window;
+    TWindow InitializeWindow<TWindow, TViewModel>(Window? owner)
+        where TWindow : Window
+        where TViewModel : notnull;
 
     void Show();
 
