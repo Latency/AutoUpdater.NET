@@ -6,13 +6,14 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using AutoUpdaterDotNET.Controls;
 using AutoUpdaterDotNET.ViewModels;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using AutoUpdaterDotNET.Controls;
 
 namespace AutoUpdaterDotNET.Views;
 
@@ -51,6 +52,7 @@ public partial class Window_Config : Window_Restricted
         vm.UpdateIcon       += OnUpdateIcon;
         vm.UpdateVersion    += OnUpdateVersion;
         vm.UpdateValidation += OnUpdateValidation;
+        vm.UpdateTitle      += OnUpdateTitle;
 
         vm.TmpIcon = FindResource("project") as BitmapImage;
 
@@ -78,6 +80,18 @@ public partial class Window_Config : Window_Restricted
     }
 
 
+    private void OnUpdateTitle(string? title)
+    {
+        if (string.IsNullOrEmpty(title))
+            title = string.Concat(Assembly.GetEntryAssembly()!.FullName!.TakeWhile(c => c != ','));
+
+        if (Owner?.Title == title)
+            return;
+
+        Owner?.Title = title;
+    }
+
+
     private void TbProxyUri_OnPreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         if (e.Text != "\r")
@@ -88,5 +102,18 @@ public partial class Window_Config : Window_Restricted
             MessageBox.Show("Invalid Input!", "Validation Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         OnUpdateValidation(null);
+    }
+
+
+    private void TbAppTitle_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (DataContext is not ViewModelConfig vm)
+            return;
+
+        var text = (e.Source as TextBox)?.Text;
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        vm.AppTitle = text;
     }
 }

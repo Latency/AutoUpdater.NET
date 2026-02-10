@@ -26,7 +26,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    protected IServiceProvider _serviceProvider;
+    protected IServiceProvider? _serviceProvider;
 
     protected Version _defaultInstalledVersion;
 
@@ -34,7 +34,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     private readonly bool[] _defaultMandatory = new bool[2];
 
-    private   ProxyEnabled? _defaultProxy;
+    private ProxyEnabled? _defaultProxy;
 
     private TimerEnabled? _defaultTimer, _defaultRemindLaterTimer;
 
@@ -62,6 +62,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public partial bool IsAppTitle { get; set; }
     partial void OnIsAppTitleChanged(bool value)
     {
+        if (value && AppTitle == _defaultAppTitle)
+            return;
         AppTitle = value ? _defaultAppTitle : null;
         UpdateValidation?.Invoke(!Equals());
     }
@@ -71,7 +73,13 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public partial string? AppTitle { get; set; }
     partial void OnAppTitleChanged(string? value)
     {
-        _defaultAppTitle = value;
+        if (value is not null)
+        {
+            _defaultAppTitle = value;
+            if (!IsAppTitle)
+                IsAppTitle = true;
+        }
+
         UpdateValidation?.Invoke(!Equals());
     }
     #endregion AppTitle
@@ -614,13 +622,18 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     public event Action<bool?>?        UpdateValidation;
     public event Action<string?>?      UpdateVersion;
     public event Action<BitmapImage?>? UpdateIcon;
+    public event Action<string?>?      UpdateTitle;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
 
 
     #region Event Invocators
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    protected void _UpdateValidation(bool?  value = null) => UpdateValidation?.Invoke(value);
+    protected void _UpdateValidation(bool? value = null) => UpdateValidation?.Invoke(value);
+
+    protected void _UpdateTitle() => UpdateTitle?.Invoke(AppTitle);
+
+
     protected void _UpdateIcon(BitmapImage? value)
     {
         if (!IsIconOverride)
@@ -641,23 +654,32 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
 
     #region Constructors
+
     /// <summary>
     ///     Default Constructor
     /// </summary>
-    public ViewModelMainConfig(IServiceProvider serviceProvider)
+    public ViewModelMainConfig()
     {
-        TmpIcon              = Application.Current!.Resources["Project"] as BitmapImage;
+        TmpIcon = Application.Current!.Resources["Project"] as BitmapImage;
         _defaultIconOverride = new IconOverride
         {
             Uri = string.IsNullOrEmpty(TmpIcon?.ToString()) ? null : new Uri(TmpIcon.ToString()!)
         };
         _defaultInstalledVersion = Assembly.GetExecutingAssembly().Version()!;
-        _serviceProvider         = serviceProvider;
     }
 
 
     /// <summary>
-    ///     Copy Constructor
+    ///     Copy Constructor (Overload +1)
+    /// </summary>
+    public ViewModelMainConfig(IServiceProvider serviceProvider) : this()
+    {
+        _serviceProvider = serviceProvider;
+    }
+
+
+    /// <summary>
+    ///     Copy Constructor (Overload +2)
     /// </summary>
     /// <param name="parent"></param>
     /// <param name="serviceProvider"></param>
@@ -707,9 +729,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         ShowSkipButton        = other.ShowSkipButton;                       // IsMandatory (False) -> Show Skip Button
         ShowRemindLaterButton = other.ShowRemindLaterButton;                // IsMandatory (False) -> Show Remind Later Button
 
-        AppTitle   = other.AppTitle;         // App Title -> Title
-        IsAppTitle = other.AppTitle != null; // App Title
-
+        AppTitle     = other.AppTitle;         // App Title -> Title
+        IsAppTitle   = other.IsAppTitle;
         ReportErrors = other.ReportErrors;
 
         Proxy         = other.Proxy;           // Enable Proxy
@@ -772,6 +793,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                IsMandatory()                                            &&
                IsIconOverride()                                         &&
                AppTitle                  == other.AppTitle              &&
+               IsAppTitle                == other.IsAppTitle            &&
                BasicAuthPassword         == other.BasicAuthPassword     &&
                BasicAuthUserName         == other.BasicAuthUserName     &&
                ExecutablePath            == other.ExecutablePath        &&

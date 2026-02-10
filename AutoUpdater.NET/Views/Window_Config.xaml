@@ -319,6 +319,7 @@
                         VerticalAlignment="Center"
                         Width="150"
                         ToolTip="Modify this to show a custom application title in AutoUpdater notification window."
+                        TextChanged="TbAppTitle_OnTextChanged"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">

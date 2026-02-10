@@ -31,8 +31,8 @@ public partial class ViewModelConfig
         UpdateIcon += img => _configOrig.TmpIcon = img;
 
         InvocationListGenerator(_updateTimer, nameof(_updateTimer.Tick), TimerNodeList);
-        InvocationListGenerator(this,        nameof(UpdateComplete),   UpdateCompleteNodeList);
-        InvocationListGenerator(this,        nameof(CheckForUpdates),  CheckForUpdatesNodeList);
+        InvocationListGenerator(this,         nameof(UpdateComplete),   UpdateCompleteNodeList);
+        InvocationListGenerator(this,         nameof(CheckForUpdates),  CheckForUpdatesNodeList);
 
         LoadConfig();
 
@@ -99,6 +99,7 @@ public partial class ViewModelConfig
 
         _configOrig.Copy(this);
 
+        _UpdateTitle();
         _UpdateIcon(TmpIcon);
         _UpdateValidation(false);
     }

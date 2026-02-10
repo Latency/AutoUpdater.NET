@@ -33,7 +33,6 @@ public partial class ViewModelConfig
     /// </summary>
     public void DownloadUpdate(UpdateInfoEventArgs args)
     {
-
         // Event Invocator
         UpdateComplete?.Invoke();
     }

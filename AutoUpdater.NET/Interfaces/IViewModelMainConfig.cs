@@ -121,9 +121,10 @@ public interface IViewModelMainConfig
 
     ObservableCollection<TreeViewItem> CheckForUpdatesNodeList { get; set; }
 
-    event Action<bool?>?                        UpdateValidation;
-    event Action<string?>?                      UpdateVersion;
-    event Action<BitmapImage?>?                 UpdateIcon;
+    event Action<bool?>?        UpdateValidation;
+    event Action<string?>?      UpdateVersion;
+    event Action<BitmapImage?>? UpdateIcon;
+    event Action<string?>?      UpdateTitle;
 
     void                                        Update();
     bool                                        Equals();
