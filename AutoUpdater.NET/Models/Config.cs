@@ -1,6 +1,6 @@
 // ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     ViewModelConfig.Main.cs
+// File:     Config.cs
 // Author:   Latency McLaughlin
 // Date:     06/18/2025
 // ****************************************************************************
@@ -9,7 +9,6 @@
 
 using AssemblyLoader;
 using AutoUpdaterDotNET.Enums;
-using AutoUpdaterDotNET.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Reflection;
@@ -20,15 +19,13 @@ using System.Windows.Media.Imaging;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Interfaces;
 
-namespace AutoUpdaterDotNET.ViewModels;
+namespace AutoUpdaterDotNET.Models;
 
-public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfig
+internal sealed partial class Config : ObservableObject, IConfig
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    protected IServiceProvider? _serviceProvider;
-
-    protected Version _defaultInstalledVersion;
+    private readonly Version _defaultInstalledVersion;
 
     private string? _defaultAppTitle;
 
@@ -45,6 +42,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     private BasicAuth? _defaultBasicAuth;
 
     private ZipFile? _defaultZipFile;
+
+    internal Lazy<Func<bool>> EqualsPredicate = new(() => true);
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
@@ -65,7 +64,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (value && AppTitle == _defaultAppTitle)
             return;
         AppTitle = value ? _defaultAppTitle : null;
-        UpdateValidation?.Invoke(!Equals());
+
+        _UpdateValidation();
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -80,7 +80,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                 IsAppTitle = true;
         }
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
     #endregion AppTitle
 
@@ -106,7 +106,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
             ShowRemindLaterButton = false;
         }
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (!(value | ShowRemindLaterButton))
             IsMandatory = true;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (!(value | ShowSkipButton))
             IsMandatory = true;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -147,6 +147,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [JsonIgnore]
     [ObservableProperty]
     public partial Mode UpdateMode { get; set; } = Mode.Normal;
+    // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnUpdateModeChanged(Mode value)
     {
         Mandatory?.UpdateMode = value;
@@ -154,12 +155,14 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (_defaultIsMandatory == Mandatory)
             _defaultIsMandatory = null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
     public partial IsMandatory? Mandatory { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    //partial void OnMandatoryChanged(IsMandatory value) => _UpdateValidation();
     #endregion IsMandatory
 
     /// <summary>
@@ -169,7 +172,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     public partial bool RunUpdateAsAdmin { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnRunUpdateAsAdminChanged(bool value) => UpdateValidation?.Invoke(!Equals());
+    partial void OnRunUpdateAsAdminChanged(bool value) => _UpdateValidation();
 
     /// <summary>
     ///     Opens the download URL in default browser if true. Very useful if you have portable application.
@@ -178,7 +181,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     public partial bool OpenDownloadPage { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnOpenDownloadPageChanged(bool value) => UpdateValidation?.Invoke(!Equals());
+    partial void OnOpenDownloadPageChanged(bool value) => _UpdateValidation();
 
     #region Basic Auth
 
@@ -186,6 +189,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [JsonPropertyName("BasicAuthentication")]
     [ObservableProperty]
     public partial BasicAuth? BasicAuth { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    //partial void OnBasicAuthChanged(BasicAuth value) => _UpdateValidation();
 
     [JsonIgnore]
     [ObservableProperty]
@@ -194,7 +199,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     {
         BasicAuth = value && (BasicAuthChangeLog || BasicAuthDownload || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(BasicAuthPassword)) ? _defaultBasicAuth ??= new BasicAuth() : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -208,7 +213,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         BasicAuth            = value || BasicAuthDownload || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(BasicAuthPassword) ? _defaultBasicAuth ??= new BasicAuth() : null;
         BasicAuth?.ChangeLog = value;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -222,7 +227,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         BasicAuth           = BasicAuthChangeLog || value || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(BasicAuthPassword) ? _defaultBasicAuth ??= new BasicAuth() : null;
         BasicAuth?.Download = value;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
@@ -233,7 +238,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         BasicAuth           = BasicAuthChangeLog || BasicAuthDownload || !string.IsNullOrEmpty(value) || !string.IsNullOrEmpty(BasicAuthPassword) ? _defaultBasicAuth ??= new BasicAuth() : null;
         BasicAuth?.UserName = !string.IsNullOrEmpty(value) ? value : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
@@ -244,7 +249,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         BasicAuth           = BasicAuthChangeLog || BasicAuthDownload || !string.IsNullOrEmpty(BasicAuthUserName) || !string.IsNullOrEmpty(value) ? _defaultBasicAuth ??= new BasicAuth() : null;
         BasicAuth?.Password = !string.IsNullOrEmpty(value) ? value : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
     #endregion Basic Auth
 
@@ -252,7 +257,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     public partial bool DoNotBindOwnerWindow { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnDoNotBindOwnerWindowChanged(bool value) => UpdateValidation?.Invoke(!Equals());
+    partial void OnDoNotBindOwnerWindowChanged(bool value) => _UpdateValidation();
 
     /// <summary>
     ///     Set this to true if you want to run update check synchronously.
@@ -261,13 +266,13 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     public partial bool CheckSynchronously { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnCheckSynchronouslyChanged(bool value) => UpdateValidation?.Invoke(!Equals());
+    partial void OnCheckSynchronouslyChanged(bool value) => _UpdateValidation();
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
     public partial bool FtpProtocol { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnFtpProtocolChanged(bool value) => UpdateValidation?.Invoke(!Equals());
+    partial void OnFtpProtocolChanged(bool value) => _UpdateValidation();
 
     #region Icon Override
     [JsonIgnore]
@@ -278,7 +283,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         var uri = TmpIcon?.ToString();
         IconOverride = value ? _defaultIconOverride ??= new IconOverride { Uri = uri is null ? null : new Uri(uri) } : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -295,7 +300,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     {
         Proxy = value && (!string.IsNullOrEmpty(ProxyUri) || !string.IsNullOrEmpty(ProxyUserName) || !string.IsNullOrEmpty(ProxyPassword)) ? _defaultProxy ??= new ProxyEnabled() : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
@@ -306,7 +311,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         Proxy      = !string.IsNullOrEmpty(value) || !string.IsNullOrEmpty(ProxyUserName) || !string.IsNullOrEmpty(ProxyPassword) ? _defaultProxy ??= new ProxyEnabled() : null;
         Proxy?.Uri = !string.IsNullOrEmpty(value) ? value : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
@@ -317,7 +322,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         Proxy           = !string.IsNullOrEmpty(ProxyUri) || !string.IsNullOrEmpty(value) || !string.IsNullOrEmpty(ProxyPassword) ? _defaultProxy ??= new ProxyEnabled() : null;
         Proxy?.UserName = !string.IsNullOrEmpty(value) ? value : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
@@ -328,12 +333,14 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         Proxy           = !string.IsNullOrEmpty(ProxyUri) || !string.IsNullOrEmpty(ProxyUserName) || !string.IsNullOrEmpty(value) ? _defaultProxy ??= new ProxyEnabled() : null;
         Proxy?.Password = !string.IsNullOrEmpty(value) ? value : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
     public partial ProxyEnabled? Proxy { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    //partial void OnProxyChanged(bool value) => _UpdateValidation();
     #endregion ProxyEnabled
 
     /// <summary>
@@ -343,7 +350,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     public partial bool ReportErrors { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnReportErrorsChanged(bool value) => UpdateValidation?.Invoke(!Equals());
+    partial void OnReportErrorsChanged(bool value) => _UpdateValidation();
 
     /// <summary>
     ///     Set TopMostDisabled to true for all updater dialogs.
@@ -352,7 +359,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     public partial bool TopMostDisabled { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnTopMostDisabledChanged(bool value) => UpdateValidation?.Invoke(!Equals());
+    partial void OnTopMostDisabledChanged(bool value) => _UpdateValidation();
 
     #region Use ZipFile
     [JsonIgnore]
@@ -362,7 +369,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     {
         ZipFile = !value ? null : new ZipFile(); // _clearAppDirectory || (_executablePathOverride && !string.IsNullOrEmpty(_executablePath)) || (_zipExtractionPathOverride && !string.IsNullOrEmpty(_installationPath)) ? _defaultZipFile ??= new ZipFile() : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -376,7 +383,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         ZipFile                    = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(ExecutablePath)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(InstallationPath)) ? _defaultZipFile ??= new ZipFile() : null;
         ZipFile?.ClearAppDirectory = value;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
@@ -388,7 +395,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         ZipFile?.ExecutablePathOverride       = value && !string.IsNullOrEmpty(ExecutablePath) ? new FilePath() : null;
         ZipFile?.ExecutablePathOverride?.Path = ExecutablePath;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -404,7 +411,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         ZipFile?.ExecutablePathOverride       = !string.IsNullOrEmpty(value) ? new FilePath() : null;
         ZipFile?.ExecutablePathOverride?.Path = value;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
@@ -416,7 +423,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         ZipFile?.ZipExtractionPathOverride       = value && !string.IsNullOrEmpty(InstallationPath) ? new FilePath() : null;
         ZipFile?.ZipExtractionPathOverride?.Path = InstallationPath;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -432,7 +439,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         ZipFile?.ZipExtractionPathOverride       = !string.IsNullOrEmpty(value) ? new FilePath() : null;
         ZipFile?.ZipExtractionPathOverride?.Path = value;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     #endregion Use ZipFile
@@ -440,6 +447,8 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
     public partial ZipFile? ZipFile { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    //partial void OnZipFileChanged(ZipFile value) => _UpdateValidation();
 
     #region TimerEnabled
 
@@ -450,7 +459,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     {
         Timer = value ? _defaultTimer ??= new TimerEnabled() : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
@@ -463,7 +472,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (_defaultTimer == Timer)
             _defaultTimer = null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
@@ -476,12 +485,14 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (_defaultTimer == Timer)
             _defaultTimer = null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
     public partial TimerEnabled? Timer { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    //partial void OnTimerChanged(TimerEnabled value) => _UpdateValidation();
     #endregion TimerEnabled
 
     #region UserSelectRemindLater
@@ -497,7 +508,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     {
         RemmindLaterTimer = value ? _defaultRemindLaterTimer ??= new TimerEnabled() : null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -513,7 +524,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (_defaultRemindLaterTimer == Timer)
             _defaultRemindLaterTimer = null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     /// <summary>
@@ -529,13 +540,15 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         if (_defaultRemindLaterTimer == Timer)
             _defaultRemindLaterTimer = null;
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("UserSelectRemmindLater")]
     [ObservableProperty]
     public partial TimerEnabled? RemmindLaterTimer { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    //partial void OnRemmindLaterTimerChanged(TimerEnabled value) => _UpdateValidation();
 
     #endregion UserSelectRemindLater
 
@@ -547,19 +560,24 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
     public partial Version2? InstalledVersion { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    //partial void OnInstalledVersionChanged(Version2 value) => _UpdateValidation();
 
     [JsonIgnore]
     [ObservableProperty]
     public partial bool InstalledVersionOverride { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    //partial void OnInstalledVersionOverrideChanged(bool value) => _UpdateValidation();
+
     partial void OnInstalledVersionOverrideChanged(bool value)
     {
         InstalledVersion = value ? new Version2 { Version = new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion) } : null;
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial ushort MajorVersion { get; set; } = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Major;
+    public partial ushort MajorVersion { get; set; } = (ushort) Assembly.GetEntryAssembly()!.Version()!.Major;
     partial void OnMajorVersionChanged(ushort value)
     {
         var tmpVer = new Version(value, MinorVersion, BuildVersion, RevisionVersion);
@@ -568,7 +586,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial ushort MinorVersion { get; set; } = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Minor;
+    public partial ushort MinorVersion { get; set; } = (ushort) Assembly.GetEntryAssembly()!.Version()!.Minor;
     partial void OnMinorVersionChanged(ushort value)
     {
         var tmpVer = new Version(MajorVersion, value, BuildVersion, RevisionVersion);
@@ -577,7 +595,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial ushort BuildVersion { get; set; } = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Build;
+    public partial ushort BuildVersion { get; set; } = (ushort) Assembly.GetEntryAssembly()!.Version()!.Build;
     partial void OnBuildVersionChanged(ushort value)
     {
         var tmpVer = new Version(MajorVersion, MinorVersion, value, RevisionVersion);
@@ -586,7 +604,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial ushort RevisionVersion { get; set; } = (ushort)typeof(ViewModelMainConfig).Assembly.Version()!.Revision;
+    public partial ushort RevisionVersion { get; set; } = (ushort) Assembly.GetEntryAssembly()!.Version()!.Revision;
     partial void OnRevisionVersionChanged(ushort value)
     {
         var tmpVer = new Version(MajorVersion, MinorVersion, BuildVersion, value);
@@ -599,7 +617,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     [ObservableProperty]
     public partial BitmapImage? TmpIcon { get; set; } = null;
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnTmpIconChanged(BitmapImage? value) => UpdateValidation?.Invoke(!Equals());
+    partial void OnTmpIconChanged(BitmapImage? value) => _UpdateValidation();
 
     [ObservableProperty]
     [JsonIgnore]
@@ -619,22 +637,24 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
     #region Events
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    public event Action<bool?>?        UpdateValidation;
-    public event Action<string?>?      UpdateVersion;
-    public event Action<BitmapImage?>? UpdateIcon;
-    public event Action<string?>?      UpdateTitle;
+    internal event Action<bool?>?        UpdateValidation;
+    internal event Action<string?>?      UpdateVersion;
+    internal event Action<BitmapImage?>? UpdateIcon;
+    internal event Action<string?>?      UpdateTitle;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
 
 
     #region Event Invocators
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    protected void _UpdateValidation(bool? value = null) => UpdateValidation?.Invoke(value);
+    private  void _UpdateValidation()            => _UpdateValidation(!EqualsPredicate.Value.Invoke());
+    internal void _UpdateValidation(bool? value) => UpdateValidation?.Invoke(value);
 
-    protected void _UpdateTitle() => UpdateTitle?.Invoke(AppTitle);
+    internal void _UpdateTitle() => UpdateTitle?.Invoke(AppTitle);
 
+    internal void _UpdateVersion() => UpdateVersion?.Invoke($"Loader Version: {InstalledVersion?.Version ?? _defaultInstalledVersion}");
 
-    protected void _UpdateIcon(BitmapImage? value)
+    internal void _UpdateIcon(BitmapImage? value)
     {
         if (!IsIconOverride)
         {
@@ -654,11 +674,11 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
 
     #region Constructors
-
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     /// <summary>
     ///     Default Constructor
     /// </summary>
-    public ViewModelMainConfig()
+    public Config()
     {
         TmpIcon = Application.Current!.Resources["Project"] as BitmapImage;
         _defaultIconOverride = new IconOverride
@@ -670,31 +690,17 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
 
 
     /// <summary>
-    ///     Copy Constructor (Overload +1)
-    /// </summary>
-    public ViewModelMainConfig(IServiceProvider serviceProvider) : this()
-    {
-        _serviceProvider = serviceProvider;
-    }
-
-
-    /// <summary>
     ///     Copy Constructor (Overload +2)
     /// </summary>
     /// <param name="parent"></param>
-    /// <param name="serviceProvider"></param>
-    public ViewModelMainConfig(ViewModelConfig parent, IServiceProvider serviceProvider) : this(serviceProvider)
-    {
-        Copy(parent);
-    }
+    internal Config(Config parent) : this() => Copy(parent);
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Constructors
 
 
-    public virtual void Update()
-    {
-        UpdateVersion?.Invoke($"Loader Version: {InstalledVersion?.Version ?? _defaultInstalledVersion}");
-    }
-
+    #region Methods
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     private void SetInstalledVersion(Version tmpVer)
     {
@@ -706,11 +712,27 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
             InstalledVersion.Version   = tmpVer;
         }
 
-        UpdateValidation?.Invoke(!Equals());
+        _UpdateValidation();
     }
 
 
-    protected internal ViewModelMainConfig? Copy(ViewModelMainConfig? other)
+    internal void SetVersion()
+    {
+        if (!InstalledVersionOverride)
+        {
+            var defaultVersion = GetType().Assembly.Version()!;
+
+            MajorVersion    = (ushort)defaultVersion.Major;
+            MinorVersion    = (ushort)defaultVersion.Minor;
+            BuildVersion    = (ushort)defaultVersion.Build;
+            RevisionVersion = (ushort)defaultVersion.Revision;
+        }
+
+        _UpdateVersion();
+    }
+
+
+    internal Config? Copy(Config? other)
     {
         if (other is null)
             return null;
@@ -781,42 +803,39 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
     }
 
 
-    public virtual bool Equals() => throw new NotImplementedException(nameof(Equals));
-
-
-    public bool Equals(ViewModelMainConfig? other)
+    public bool Equals(IConfig? other)
     {
         if (other == null)
             return false;
 
-        return IsVersionOverride()                                      &&
-               IsMandatory()                                            &&
-               IsIconOverride()                                         &&
-               AppTitle                  == other.AppTitle              &&
-               IsAppTitle                == other.IsAppTitle            &&
-               BasicAuthPassword         == other.BasicAuthPassword     &&
-               BasicAuthUserName         == other.BasicAuthUserName     &&
-               ExecutablePath            == other.ExecutablePath        &&
-               InstallationPath          == other.InstallationPath      &&
-               Proxy?.Uri                == other.Proxy?.Uri            &&
-               Proxy?.Password           == other.Proxy?.Password       &&
-               Proxy?.UserName           == other.Proxy?.UserName       &&
-               BasicAuth                 == other.BasicAuth             &&
-               BasicAuthChangeLog        == other.BasicAuthChangeLog    &&
-               BasicAuthDownload         == other.BasicAuthDownload     &&
-               CheckSynchronously        == other.CheckSynchronously    &&
-               ClearAppDirectory         == other.ClearAppDirectory     &&
-               DoNotBindOwnerWindow      == other.DoNotBindOwnerWindow  &&
-               FtpProtocol               == other.FtpProtocol           &&
-               OpenDownloadPage          == other.OpenDownloadPage      &&
-               ProxyEnabled              == other.ProxyEnabled          &&
-               RemindLaterAt             == other.RemindLaterAt         &&
-               RemindLaterTimeSpan       == other.RemindLaterTimeSpan   &&
-               ReportErrors              == other.ReportErrors          &&
-               RunUpdateAsAdmin          == other.RunUpdateAsAdmin      &&
+        return IsVersionOverride() &&
+               IsMandatory()       &&
+               IsIconOverride()    &&
+               AppTitle                  == other.AppTitle &&
+               IsAppTitle                == other.IsAppTitle &&
+               BasicAuthPassword         == other.BasicAuthPassword &&
+               BasicAuthUserName         == other.BasicAuthUserName &&
+               ExecutablePath            == other.ExecutablePath &&
+               InstallationPath          == other.InstallationPath &&
+               Proxy?.Uri                == other.Proxy?.Uri &&
+               Proxy?.Password           == other.Proxy?.Password &&
+               Proxy?.UserName           == other.Proxy?.UserName &&
+               BasicAuth                 == other.BasicAuth &&
+               BasicAuthChangeLog        == other.BasicAuthChangeLog &&
+               BasicAuthDownload         == other.BasicAuthDownload &&
+               CheckSynchronously        == other.CheckSynchronously &&
+               ClearAppDirectory         == other.ClearAppDirectory &&
+               DoNotBindOwnerWindow      == other.DoNotBindOwnerWindow &&
+               FtpProtocol               == other.FtpProtocol &&
+               OpenDownloadPage          == other.OpenDownloadPage &&
+               ProxyEnabled              == other.ProxyEnabled &&
+               RemindLaterAt             == other.RemindLaterAt &&
+               RemindLaterTimeSpan       == other.RemindLaterTimeSpan &&
+               ReportErrors              == other.ReportErrors &&
+               RunUpdateAsAdmin          == other.RunUpdateAsAdmin &&
                TimerDurationTimeSpan     == other.TimerDurationTimeSpan &&
-               TimerInterval             == other.TimerInterval         &&
-               TopMostDisabled           == other.TopMostDisabled       &&
+               TimerInterval             == other.TimerInterval &&
+               TopMostDisabled           == other.TopMostDisabled &&
                UserSelectRemindLater     == other.UserSelectRemindLater &&
                ZipExtractionPathOverride == other.ZipExtractionPathOverride;
 
@@ -824,9 +843,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
         bool IsIconOverride()
         {
             if (other.IsIconOverride)
-            {
                 return TmpIcon == other.TmpIcon;
-            }
 
             return this.IsIconOverride == other.IsIconOverride;
         }
@@ -856,4 +873,7 @@ public partial class ViewModelMainConfig : ObservableObject, IViewModelMainConfi
                    this.IsMandatory == other.IsMandatory;
         }
     }
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Methods
 }

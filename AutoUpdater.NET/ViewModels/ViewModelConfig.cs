@@ -6,23 +6,23 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.Models;
+using AutoUpdaterDotNET.Modifiers;
+using AutoUpdaterDotNET.TypeResolvers;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
-using AutoUpdaterDotNET.Interfaces;
-using AutoUpdaterDotNET.Modifiers;
-using AutoUpdaterDotNET.TypeResolvers;
 using System.Text.Json;
-using System.Windows;
 using System.Windows.Threading;
-using AutoUpdaterDotNET.Enums;
-using AutoUpdaterDotNET.Models;
-using CommunityToolkit.Mvvm.ComponentModel;
+using WindowService.ViewModels;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
+public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
 {
     #region Static Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -34,46 +34,19 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Shadow copy
-    private readonly ViewModelMainConfig     _configOrig;
-    private readonly DispatcherTimer         _updateTimer               = new();
-    private static   Lazy<HttpClient>        SingletonHttpClient        = null!;
-
-    private          System.Timers.Timer?    _remindLaterTimer;
-    private          Assembly                _assembly = null!;
+    private readonly Config               _config, _configOrig;
+    private readonly DispatcherTimer      _updateTimer        = new();
+    private static   Lazy<HttpClient>     SingletonHttpClient = null!;
+    private          System.Timers.Timer? _remindLaterTimer;
+    private          Assembly             _assembly = null!;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
-
-
-    /// <summary>
-    ///     Default Constructor
-    /// </summary>
-    /// <param name="serviceProvider"></param>
-    public ViewModelConfig(IServiceProvider serviceProvider) : base(serviceProvider)
-    {
-        _configOrig = new ViewModelMainConfig(this, serviceProvider);
-    }
-
-
-    private static readonly JsonSerializerOptions _jso = new()
-    {
-        WriteIndented       = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        TypeInfoResolver    = new DependancyPropertyTypeResolver<ViewModelMainConfig>
-        {
-            Modifiers = { Modifier.AlphabetizeProperties }
-        }
-    };
-
-
-    public override bool Equals() => _configOrig.Equals(this);
 
 
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    IViewModelMainConfig IViewModelRestricted.Config => this;
-    Window? IViewModelRestricted.             Owner  { get; set; }
-    Window IViewModelRestricted.              Window { get; set; }
+    public IConfig Config => _config;
 
 
     [ObservableProperty]
@@ -102,9 +75,9 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
                 UseCookies              = false,
                 AutomaticDecompression  = DecompressionMethods.GZip,
                 UseDefaultCredentials   = true,
-                UseProxy                = ProxyEnabled,
-                Proxy                   = ProxyEnabled ? new WebProxy { Address = new Uri(ProxyUri ?? throw new NullReferenceException(nameof(ProxyUri))) } : null,
-                DefaultProxyCredentials = ProxyEnabled ? new NetworkCredential(ProxyUserName, ProxyPassword) : new CredentialCache()
+                UseProxy                = _config.ProxyEnabled,
+                Proxy                   = _config.ProxyEnabled ? new WebProxy { Address = new Uri(_config.ProxyUri ?? throw new NullReferenceException(nameof(_config.ProxyUri))) } : null,
+                DefaultProxyCredentials = _config.ProxyEnabled ? new NetworkCredential(_config.ProxyUserName, _config.ProxyPassword) : new CredentialCache()
             };
             SingletonHttpClient = new(() => new(httpClientHandler)
             {
@@ -133,9 +106,34 @@ public partial class ViewModelConfig : ViewModelMainConfig, IViewModelConfig
 
 
     #region Events
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     public event Action?                      UpdateComplete;
     public event Action<UpdateInfoEventArgs>? CheckForUpdates;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Events
+
+
+
+    /// <summary>
+    ///     Default Constructor
+    /// </summary>
+    public ViewModelConfig(BaseServiceDependencies dependencies) : base(dependencies)
+    {
+        _config = new()
+        {
+            EqualsPredicate = new Lazy<Func<bool>>(() => _configOrig?.Equals(_config) ?? true)
+        };
+        _configOrig = new(_config);
+    }
+
+
+    private static readonly JsonSerializerOptions _jso = new()
+    {
+        WriteIndented       = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        TypeInfoResolver    = new DependancyPropertyTypeResolver<Config>
+        {
+            Modifiers = { Modifier.AlphabetizeProperties }
+        }
+    };
 }

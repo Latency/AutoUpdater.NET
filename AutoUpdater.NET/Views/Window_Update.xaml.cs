@@ -6,11 +6,9 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Controls;
-
 namespace AutoUpdaterDotNET.Views;
 
-public partial class Window_Update : Window_Restricted
+public partial class Window_Update
 {
     /// <summary>
     ///     Constructor

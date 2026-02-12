@@ -6,15 +6,28 @@
 // ****************************************************************************
 
 using AutoUpdaterDotNET.Interfaces;
+using WindowService.ViewModels;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
 public partial class ViewModelUpdate : ViewModelRestricted, IViewModelUpdate
 {
+    #region Properties
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    public IConfig Config { get; init; }
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Properties
+
+
     /// <summary>
-    /// Constructor
+    ///     Default Constructor
     /// </summary>
-    public ViewModelUpdate(BaseServiceDependencies dependencies) : base(dependencies)
+    /// <param name="dependencies"></param>
+    /// <param name="vm"></param>
+    public ViewModelUpdate(BaseServiceDependencies dependencies, IViewModelConfig vm) : base(dependencies)
     {
+        Config = vm.Config;
     }
 }

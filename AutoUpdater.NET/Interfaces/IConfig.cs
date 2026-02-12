@@ -1,6 +1,6 @@
 // ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     IViewModelMainConfig.cs
+// File:     IConfig.cs
 // Author:   Latency McLaughlin
 // Date:     01/09/2026
 // ****************************************************************************
@@ -11,11 +11,10 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Models;
-using AutoUpdaterDotNET.ViewModels;
 
 namespace AutoUpdaterDotNET.Interfaces;
 
-public interface IViewModelMainConfig
+public interface IConfig : IEquatable<IConfig?>
 {
     bool IsAppTitle { get; set; }
 
@@ -120,15 +119,6 @@ public interface IViewModelMainConfig
     ObservableCollection<TreeViewItem> UpdateCompleteNodeList  { get; set; }
 
     ObservableCollection<TreeViewItem> CheckForUpdatesNodeList { get; set; }
-
-    event Action<bool?>?        UpdateValidation;
-    event Action<string?>?      UpdateVersion;
-    event Action<BitmapImage?>? UpdateIcon;
-    event Action<string?>?      UpdateTitle;
-
-    void                                        Update();
-    bool                                        Equals();
-    bool                                        Equals(ViewModelMainConfig? other);
 
     event PropertyChangedEventHandler?  PropertyChanged;
     event PropertyChangingEventHandler? PropertyChanging;

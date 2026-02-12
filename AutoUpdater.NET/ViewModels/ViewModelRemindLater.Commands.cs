@@ -11,6 +11,7 @@ using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.Input;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using WindowService.Interfaces;
 using Xceed.Wpf.Toolkit;
 using kvp = System.Collections.Generic.KeyValuePair<ushort, AutoUpdaterDotNET.Enums.RemindLaterFormat>;
 
@@ -48,7 +49,7 @@ public partial class ViewModelRemindLater
     {
         ushort remindAt;
 
-        switch (Config.RemindLaterTimeSpan)
+        switch (remindTimeSpan)
         {
             case RemindLaterFormat.Seconds:
                 switch (timeVal)
@@ -158,14 +159,13 @@ public partial class ViewModelRemindLater
     [RelayCommand]
     private void RemindLater(object? parameter)
     {
-        (parameter as Window_RemindLater)?.Close();
-
-        var vmModelDownloadUpdate = Dependencies.ServiceProvider.GetRequiredService<IViewModelDownloadUpdate>();
+        Window.Close();
 
         if (Config.OpenDownloadPage)
             Dependencies.WindowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(((IViewModelRestricted)this).Owner).Show();
 
-        // TODO
         // Start automatic updates!
+        var vmModelDownloadUpdate = Dependencies.ServiceProvider.GetRequiredService<IViewModelDownloadUpdate>();
+        vmModelDownloadUpdate.DownloadUpdate(Config);
     }
 }

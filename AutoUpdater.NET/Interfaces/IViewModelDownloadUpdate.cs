@@ -6,12 +6,13 @@
 // ****************************************************************************
 
 using AutoUpdaterDotNET.Models;
+using WindowService.Interfaces;
 
 namespace AutoUpdaterDotNET.Interfaces;
 
 public interface IViewModelDownloadUpdate : IViewModelRestricted
 {
-    Task DownloadUpdate();
+    Task DownloadUpdate(IConfig config);
 
     DownloadStatistics DownloadStatistics { get; set; }
 

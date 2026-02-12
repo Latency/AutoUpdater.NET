@@ -14,6 +14,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using WindowService.Interfaces;
+using WindowService.ViewModels;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -95,7 +98,7 @@ public partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDo
     ///     DownloadUpdate
     /// </summary>
     /// <returns></returns>
-    public async Task DownloadUpdate()
+    public async Task DownloadUpdate(IConfig? config)
     {
         string tempFile;
 
@@ -155,19 +158,22 @@ public partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDo
                 Arguments = installerArgs ?? string.Empty
             };
 
+            var vm = Dependencies.ServiceProvider.GetRequiredService<IViewModelConfig>();
+            var config = vm.Config;
+
             var extension = Path.GetExtension(tempPath);
             if (extension.Equals(".zip", StringComparison.OrdinalIgnoreCase))
             {
-                if (!string.IsNullOrWhiteSpace(Config.InstallationPath) && Directory.Exists(Config.InstallationPath))
+                if (!string.IsNullOrWhiteSpace(config.InstallationPath) && Directory.Exists(config.InstallationPath))
                 {
-                    if (Config.ClearAppDirectory)
+                    if (config.ClearAppDirectory)
                     {
                         // Ensure the destination directory does not exist or handle overwrites carefully
                         // The method can create the directory if it doesn't exist.
-                        Directory.Delete(Config.InstallationPath, true); // Deletes the directory and its contents
+                        Directory.Delete(config.InstallationPath, true); // Deletes the directory and its contents
                     }
 
-                    System.IO.Compression.ZipFile.ExtractToDirectory(tempPath, Config.InstallationPath);
+                    System.IO.Compression.ZipFile.ExtractToDirectory(tempPath, config.InstallationPath);
                 }
             }
             else if (extension.Equals(".msi", StringComparison.OrdinalIgnoreCase))
@@ -182,7 +188,7 @@ public partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDo
                     processStartInfo.Arguments += $" {installerArgs}";
             }
 
-            if (Config.RunUpdateAsAdmin)
+            if (config.RunUpdateAsAdmin)
                 processStartInfo.Verb = "runas";
 
             try

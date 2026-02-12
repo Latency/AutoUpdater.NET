@@ -18,7 +18,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Windows;
 using AutoUpdaterDotNET.Properties;
-using Microsoft.Extensions.DependencyInjection;
+using WindowService.Interfaces;
 using Timer = System.Timers.Timer;
 
 namespace AutoUpdaterDotNET.ViewModels;
@@ -31,20 +31,15 @@ public partial class ViewModelConfig
     /// <summary>
     ///     Opens the Download window that download the update and execute the installer when download completes.
     /// </summary>
-    public void DownloadUpdate(UpdateInfoEventArgs args)
-    {
-        // Event Invocator
-        UpdateComplete?.Invoke();
-    }
+    private void DownloadUpdate(UpdateInfoEventArgs args) => UpdateComplete?.Invoke();
 
 
     /// <summary>
     ///     Shows standard update dialog.
     /// </summary>
-    public void ShowUpdateForm(UpdateInfoEventArgs args)
+    private void ShowUpdateForm(UpdateInfoEventArgs args)
     {
-        var _windowService = _serviceProvider.GetRequiredService<IWindowService>();
-        var window         = _windowService.InitializeWindow<Window_Update, IViewModelUpdate>(((IViewModelRestricted)this).Owner);
+        var window = Dependencies.WindowService.InitializeWindow<Window_Update, IViewModelUpdate>(((IViewModelRestricted)this).Owner);
 
         window.LabelTitle!.Content    = string.Format(window.LabelTitle.Tag!.ToString()!,       args.InstalledVersion);
         window.LabelDescription!.Text = string.Format(window.LabelDescription.Tag!.ToString()!, args.CurrentVersion, args.InstalledVersion);
@@ -66,7 +61,7 @@ public partial class ViewModelConfig
     /// <param name="myAssembly">Assembly to use for version checking.</param>
     public async Task Start(string domain, Assembly? myAssembly = null)
     {
-        if (IsMandatory && _remindLaterTimer != null)
+        if (Config.IsMandatory && _remindLaterTimer != null)
         {
             _remindLaterTimer.Stop();
             _remindLaterTimer.Dispose();
@@ -99,7 +94,7 @@ public partial class ViewModelConfig
         try
         {
             Running = true;
-            if (CheckSynchronously)
+            if (Config.CheckSynchronously)
             {
                 try
                 {
@@ -149,8 +144,8 @@ public partial class ViewModelConfig
 
     private async Task<UpdateInfoEventArgs?> CheckUpdate()
     {
-        if (string.IsNullOrEmpty(AppTitle))
-            AppTitle = _assembly.Title() ?? _assembly.GetName().Name!;
+        if (string.IsNullOrEmpty(Config.AppTitle))
+            Config.AppTitle = _assembly.Title() ?? _assembly.GetName().Name!;
 
         using var response = await HttpWebClient.GetAsync(_baseUri);
         if (!response.IsSuccessStatusCode)
@@ -222,7 +217,7 @@ public partial class ViewModelConfig
             {
                 if (args.IsUpdateAvailable)
                 {
-                    if (IsMandatory && UpdateMode == Mode.ForcedDownload)
+                    if (Config is { IsMandatory: true, UpdateMode: Mode.ForcedDownload })
                         DownloadUpdate(args);
                     else
                         ShowUpdateForm(args);
@@ -230,7 +225,7 @@ public partial class ViewModelConfig
                     return true;
                 }
 
-                if (ReportErrors)
+                if (Config.ReportErrors)
                     MessageBox.Show(Settings.Default!.UpdateUnavailableMessage!, Settings.Default.UpdateUnavailableCaption!, MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
@@ -255,7 +250,7 @@ public partial class ViewModelConfig
         }
         else
         {
-            if (!ReportErrors)
+            if (!Config.ReportErrors)
                 return;
 
             if (exception is WebException)
@@ -263,21 +258,5 @@ public partial class ViewModelConfig
             else
                 MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
         }
-    }
-
-
-    private void SetVersion()
-    {
-        if (!InstalledVersionOverride)
-        {
-            var defaultVersion = GetType().Assembly.Version()!;
-
-            MajorVersion    = (ushort)defaultVersion.Major;
-            MinorVersion    = (ushort)defaultVersion.Minor;
-            BuildVersion    = (ushort)defaultVersion.Build;
-            RevisionVersion = (ushort)defaultVersion.Revision;
-        }
-
-        base.Update();
     }
 }

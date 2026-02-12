@@ -16,6 +16,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows.Controls;
+using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.Properties;
 
 namespace AutoUpdaterDotNET.ViewModels;
@@ -25,22 +26,22 @@ public partial class ViewModelConfig
     [RelayCommand]
     private void Loaded()
     {
-        _updateTimer.Interval = GetRemindLaterInterval(TimerInterval);
+        _updateTimer.Interval = GetRemindLaterInterval(_config.TimerInterval);
         _updateTimer.Tick += (_, _) => { };
 
-        UpdateIcon += img => _configOrig.TmpIcon = img;
+        _config.UpdateIcon += img => _configOrig.TmpIcon = img;
 
-        InvocationListGenerator(_updateTimer, nameof(_updateTimer.Tick), TimerNodeList);
-        InvocationListGenerator(this,         nameof(UpdateComplete),   UpdateCompleteNodeList);
-        InvocationListGenerator(this,         nameof(CheckForUpdates),  CheckForUpdatesNodeList);
+        InvocationListGenerator(_updateTimer, nameof(_updateTimer.Tick), _config.TimerNodeList);
+        InvocationListGenerator(this,         nameof(UpdateComplete),    _config.UpdateCompleteNodeList);
+        InvocationListGenerator(this,         nameof(CheckForUpdates),   _config.CheckForUpdatesNodeList);
 
         LoadConfig();
 
-        SetVersion();
+        _config.SetVersion();
         return;
 
         // -------------------------------------------
-        TimeSpan GetRemindLaterInterval(ushort interval) => TimerDurationTimeSpan switch
+        TimeSpan GetRemindLaterInterval(ushort interval) => _config.TimerDurationTimeSpan switch
         {
             RemindLaterFormat.Seconds => TimeSpan.FromSeconds(interval),
             RemindLaterFormat.Minutes => TimeSpan.FromMinutes(interval),
@@ -81,11 +82,11 @@ public partial class ViewModelConfig
 
 
     [RelayCommand]
-    private void Cancel() => Copy(_configOrig);
+    private void Cancel() => _config.Copy(_configOrig);
 
 
     [RelayCommand]
-    public override void Update()
+    private void Update()
     {
         SaveConfig();
 
@@ -95,13 +96,13 @@ public partial class ViewModelConfig
 
     private void _Update()
     {
-        SetVersion();
+        _config.SetVersion();
 
-        _configOrig.Copy(this);
+        _configOrig.Copy(_config);
 
-        _UpdateTitle();
-        _UpdateIcon(TmpIcon);
-        _UpdateValidation(false);
+        _config._UpdateTitle();
+        _config._UpdateIcon(_config.TmpIcon);
+        _config._UpdateValidation(false);
     }
 
 
@@ -133,7 +134,7 @@ public partial class ViewModelConfig
         {
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            var json = JsonSerializer.Serialize<ViewModelMainConfig>(this, _jso);
+            var json = JsonSerializer.Serialize(_config, _jso);
             File.WriteAllTextAsync(file, json);
         }
         catch (Exception ex)
@@ -154,8 +155,11 @@ public partial class ViewModelConfig
 
         try
         {
-            var vmmc = JsonSerializer.Deserialize<ViewModelMainConfig>(json, _jso);
-            Copy(vmmc);
+            var vmmc = JsonSerializer.Deserialize<Config>(json, _jso);
+            if (vmmc is null)
+                throw new NullReferenceException("Unable to deserialize json from 'Config'.");
+
+            _config.Copy(vmmc);
 
             _Update();
         }
@@ -183,7 +187,7 @@ public partial class ViewModelConfig
         var imageUri = Path.GetRelativePath(Environment.CurrentDirectory, fd.FileName);
         var uri = new Uri(imageUri, imageUri.StartsWith("pack:") ? UriKind.Absolute : UriKind.Relative);
 
-        TmpIcon = uri.ConvertToBitmapImage();
+        _config.TmpIcon = uri.ConvertToBitmapImage();
 
         return;
 

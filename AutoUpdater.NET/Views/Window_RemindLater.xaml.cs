@@ -7,11 +7,10 @@
 // ReSharper disable InconsistentNaming
 
 using System.ComponentModel;
-using AutoUpdaterDotNET.Controls;
 
 namespace AutoUpdaterDotNET.Views;
 
-public partial class Window_RemindLater : Window_Restricted
+public partial class Window_RemindLater
 {
     /// <summary>
     /// Constructor

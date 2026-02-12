@@ -9,8 +9,8 @@
     xmlns:enums="clr-namespace:AutoUpdaterDotNET.Enums"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:views="clr-namespace:AutoUpdaterDotNET.Views"
-    xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
     xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
     Width="400"
     Height="550"
     Title="Options"
@@ -131,7 +131,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbRunUpdateAsAdmin"
-                    IsChecked="{Binding RunUpdateAsAdmin}"
+                    IsChecked="{Binding Config.RunUpdateAsAdmin}"
                     ToolTip="Check this to run update process without admin privileges."
                     Content="Run Update As Admin"
                 />
@@ -139,7 +139,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbOpenDownloadPage"
-                    IsChecked="{Binding OpenDownloadPage}"
+                    IsChecked="{Binding Config.OpenDownloadPage}"
                     ToolTip="Check this to open the download page instead of downloading the update file when the user clicks on the download button."
                     Content="Open Download Page"
                 />
@@ -147,7 +147,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbUserSelectRemindLater"
-                    IsChecked="{Binding UserSelectRemindLater}"
+                    IsChecked="{Binding Config.UserSelectRemindLater}"
                     ToolTip="Check this if you want to show the 'Remind Later' or 'Time' options within the AutoUpdater notification window."
                     Content="User Select Remind Later"
                 />
@@ -157,7 +157,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <xctk:IntegerUpDown
                         Name="iudRemindLaterAt"
-                        Value="{Binding RemindLaterAt}"
+                        Value="{Binding Config.RemindLaterAt}"
                         Minimum="1"
                         ToolTip="Set the duration time."
                         HorizontalAlignment="Left"
@@ -184,7 +184,7 @@
                         Name="cbRemindLaterTimeSpan"
                         ToolTip="Select the duration type."
                         ItemsSource="{Binding RemindLaterFormatEnumValues}"
-                        SelectedValue="{Binding RemindLaterTimeSpan}"
+                        SelectedValue="{Binding Config.RemindLaterTimeSpan}"
                         IsSynchronizedWithCurrentItem="True"
                         HorizontalAlignment="Left"
                         Margin="10,0,0,0"
@@ -210,7 +210,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbIsManditory"
-                    IsChecked="{Binding IsMandatory}"
+                    IsChecked="{Binding Config.IsMandatory}"
                     ToolTip="Check this if you want to show the 'ShowSkipButton' or 'ShowRemindLaterButton'."
                     Content="Is Mandatory"
                 />
@@ -218,7 +218,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbShowSkipButton"
-                    IsChecked="{Binding ShowSkipButton}"
+                    IsChecked="{Binding Config.ShowSkipButton}"
                     ToolTip="Check this if you want to show the 'Skip' button."
                     Margin="10,0,0,0"
                     Content="Skip Button"
@@ -240,7 +240,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbShowRemindLaterButton"
-                    IsChecked="{Binding ShowRemindLaterButton}"
+                    IsChecked="{Binding Config.ShowRemindLaterButton}"
                     ToolTip="Check this if you want to show the 'Remind Later' button."
                     Margin="10,0,0,0"
                     Content="Remind Later Button"
@@ -264,7 +264,7 @@
                     Name="cbUpdateMode"
                     ToolTip="Normal                - Ignores 'Remind Later' and 'Skip' values set previously and will hide both buttons.&#x0a;Forced                 - Same as Normal mode, minus showing the close box.&#x0a;ForcedDownload - Will start downloading and applying update without showing standard update dialog in addition to Forced mode behaviour."
                     ItemsSource="{Binding Source={StaticResource UpdateModeEnumValues}}"
-                    SelectedValue="{Binding UpdateMode}"
+                    SelectedValue="{Binding Config.UpdateMode}"
                     IsSynchronizedWithCurrentItem="True"
                     HorizontalAlignment="Left"
                     Width="150"
@@ -290,7 +290,7 @@
                     Name="cbAppTitle"
                     ToolTip="Check this if you want to show a custom application title in AutoUpdater notification window."
                     Content="App Title"
-                    IsChecked="{Binding IsAppTitle}"
+                    IsChecked="{Binding Config.IsAppTitle}"
                 />
 
                 <StackPanel Orientation="Horizontal">
@@ -315,7 +315,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <TextBox
                         Name="tbAppTitle"
-                        Text="{Binding AppTitle}"
+                        Text="{Binding Config.AppTitle}"
                         VerticalAlignment="Center"
                         Width="150"
                         ToolTip="Modify this to show a custom application title in AutoUpdater notification window."
@@ -340,7 +340,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbReportErrors"
-                    IsChecked="{Binding ReportErrors}"
+                    IsChecked="{Binding Config.ReportErrors}"
                     ToolTip="Check this if you want to show any errors."
                     Content="Report Errors"
                 />
@@ -348,7 +348,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbProxy"
-                    IsChecked="{Binding ProxyEnabled}"
+                    IsChecked="{Binding Config.ProxyEnabled}"
                     ToolTip="Check this to configure web proxy credentials."
                     Content="Enable Proxy"
                 />
@@ -375,7 +375,7 @@
                     <TextBox
                         Name="tbProxyUri"
                         ToolTip="Check this to update file served only through Proxy."
-                        Text="{Binding ProxyUri}"
+                        Text="{Binding Config.ProxyUri}"
                         Width="150"
                         VerticalAlignment="Center"
                         PreviewTextInput="TbProxyUri_OnPreviewTextInput"
@@ -417,7 +417,7 @@
                     <TextBox
                         Name="tbProxyUsername"
                         ToolTip="Enter the username for the remote Proxy."
-                        Text="{Binding ProxyUserName}"
+                        Text="{Binding Config.ProxyUserName}"
                         Width="150"
                         VerticalAlignment="Center"
                     >
@@ -458,7 +458,7 @@
                     <TextBox
                         Name="tbProxyPassword"
                         ToolTip="Enter the password for the remote Proxy, if applicable."
-                        Text="{Binding ProxyPassword}"
+                        Text="{Binding Config.ProxyPassword}"
                         Width="150"
                         VerticalAlignment="Center"
                     >
@@ -480,7 +480,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbTimerEnabled"
-                    IsChecked="{Binding TimerEnabled}"
+                    IsChecked="{Binding Config.TimerEnabled}"
                     ToolTip="Check this if periodically check for updates."
                     Content="Enable Timer"
                 />
@@ -491,7 +491,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <xctk:IntegerUpDown
                         Name="iudTimers"
-                        Value="{Binding TimerInterval}"
+                        Value="{Binding Config.TimerInterval}"
                         Minimum="1"
                         HorizontalAlignment="Left"
                         ToolTip="Modify this for the interval value."
@@ -518,7 +518,7 @@
                         Name="cbTimerDuration"
                         ToolTip="Select the interval duration within the combo-box."
                         ItemsSource="{Binding Source={StaticResource TimerDurationFormatEnumValues}}"
-                        SelectedValue="{Binding TimerDurationTimeSpan}"
+                        SelectedValue="{Binding Config.TimerDurationTimeSpan}"
                         IsSynchronizedWithCurrentItem="True"
                         HorizontalAlignment="Left"
                         Margin="10,0,0,0"
@@ -545,7 +545,7 @@
                         Name="tvTimers"
                         Margin="10,0,0,0"
                         BorderThickness="0"
-                        ItemsSource="{Binding TimerNodeList}"
+                        ItemsSource="{Binding Config.TimerNodeList}"
                         MouseUp="Timers_OnMouseUp"
                     >
                         <TreeView.ItemContainerStyle>
@@ -568,7 +568,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbBasicAuth"
-                    IsChecked="{Binding IsBasicAuth}"
+                    IsChecked="{Binding Config.IsBasicAuth}"
                     ToolTip="Check this to set basic authentication on credentials."
                     Content="Basic Authentication"
                 />
@@ -577,7 +577,7 @@
                 <CheckBox
                     Name="cbBasicAuthChangeLog"
                     Margin="10,0,0,0"
-                    IsChecked="{Binding BasicAuthChangeLog}"
+                    IsChecked="{Binding Config.BasicAuthChangeLog}"
                     ToolTip="Check this to set provide basic authentication change log credentials needed to access update resources."
                     Content="Change Log"
                 >
@@ -599,7 +599,7 @@
                 <CheckBox
                     Name="cbBasicAuthDownload"
                     Margin="10,0,0,0"
-                    IsChecked="{Binding BasicAuthDownload}"
+                    IsChecked="{Binding Config.BasicAuthDownload}"
                     ToolTip="Check this to set provide basic authentication download credentials needed to access update resources."
                     Content="Download"
                 >
@@ -639,7 +639,7 @@
                     <TextBox
                         Name="tbBasicAuthUserName"
                         ToolTip="Enter the username for the basic authentication."
-                        Text="{Binding BasicAuthUserName}"
+                        Text="{Binding Config.BasicAuthUserName}"
                         Width="150"
                         VerticalAlignment="Center"
                     >
@@ -680,7 +680,7 @@
                     <TextBox
                         Name="tbBasicAuthPassword"
                         ToolTip="Enter the password for the basic authentication, if applicable."
-                        Text="{Binding BasicAuthPassword}"
+                        Text="{Binding Config.BasicAuthPassword}"
                         Width="150"
                         VerticalAlignment="Center"
                     >
@@ -702,7 +702,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbFTPProtocol"
-                    IsChecked="{Binding FtpProtocol}"
+                    IsChecked="{Binding Config.FtpProtocol}"
                     ToolTip="Check this if the protocol used is only able to be accessed via FTP."
                     Content="FTP instead of HTTP"
                 />
@@ -710,7 +710,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbUseZipFile"
-                    IsChecked="{Binding UseZipFile}"
+                    IsChecked="{Binding Config.UseZipFile}"
                     ToolTip="Check this to persist 'Remind Later' and 'Skip' values in a JSON file instead of the registry."
                     Content="Use ZIP File"
                 />
@@ -718,7 +718,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbClearAppDirectory"
-                    IsChecked="{Binding ClearAppDirectory}"
+                    IsChecked="{Binding Config.ClearAppDirectory}"
                     Margin="10,0,0,0"
                     ToolTip="Check this to clear application directory before update zip is extracted.&#x0a;This only works when using a zip file as an update file."
                     Content="Clear App Directory"
@@ -747,7 +747,7 @@
                 <CheckBox
                     Name="cbExecutablePathOverride"
                     Margin="10,0,0,0"
-                    IsChecked="{Binding ExecutablePathOverride}"
+                    IsChecked="{Binding Config.ExecutablePathOverride}"
                     ToolTip="Check this to execute different executable after the update.&#x0a;This only works when using a zip file as an update file."
                     Content="Executable Path Override"
                 >
@@ -805,7 +805,7 @@
                     <TextBox
                         Name="tbExecutablePathOverride"
                         ToolTip="Enter the customized executable path to be executed after the update."
-                        Text="{Binding ExecutablePath}"
+                        Text="{Binding Config.ExecutablePath}"
                         Width="150"
                     >
                         <TextBox.Style>
@@ -839,7 +839,7 @@
                 <CheckBox
                     Name="cbZipExtractionPathOverride"
                     Margin="10,0,0,0"
-                    IsChecked="{Binding ZipExtractionPathOverride}"
+                    IsChecked="{Binding Config.ZipExtractionPathOverride}"
                     ToolTip="Check this to change the update zip extraction path.&#x0a;This only works when using a zip file as an update file."
                     Content="ZIP Extraction Path Override"
                 >
@@ -897,7 +897,7 @@
                     <TextBox
                         Name="tbInstallationPath"
                         ToolTip="Enter the customized update zip extraction path."
-                        Text="{Binding InstallationPath}"
+                        Text="{Binding Config.InstallationPath}"
                         Width="150"
                     >
                         <TextBox.Style>
@@ -930,7 +930,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbCheckSynchronously"
-                    IsChecked="{Binding CheckSynchronously}"
+                    IsChecked="{Binding Config.CheckSynchronously}"
                     ToolTip="Check this to update synchronously."
                     Content="Check Synchronously"
                 />
@@ -938,7 +938,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbInstalledVersionOverride"
-                    IsChecked="{Binding InstalledVersionOverride}"
+                    IsChecked="{Binding Config.InstalledVersionOverride}"
                     ToolTip="Check this to assign installed version manually and don't want to rely on the library to determine the installed version from the originating assembly."
                     Content="Installed Version Override"
                 />
@@ -950,7 +950,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <xctk:IntegerUpDown
                         Name="iudMajorVersion"
-                        Value="{Binding MajorVersion}"
+                        Value="{Binding Config.MajorVersion}"
                         DefaultValue="1"
                         Minimum="0"
                         HorizontalAlignment="Left"
@@ -994,7 +994,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <xctk:IntegerUpDown
                         Name="iudMinorVersion"
-                        Value="{Binding MinorVersion}"
+                        Value="{Binding Config.MinorVersion}"
                         DefaultValue="0"
                         Minimum="0"
                         ToolTip="Modify this for the minor version's value."
@@ -1037,7 +1037,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <xctk:IntegerUpDown
                         Name="iudBuildVersion"
-                        Value="{Binding BuildVersion}"
+                        Value="{Binding Config.BuildVersion}"
                         DefaultValue="0"
                         Minimum="0"
                         ToolTip="Modify this for the build version's value."
@@ -1080,7 +1080,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <xctk:IntegerUpDown
                         Name="iudRevisionVersion"
-                        Value="{Binding RevisionVersion}"
+                        Value="{Binding Config.RevisionVersion}"
                         DefaultValue="0"
                         Minimum="0"
                         ToolTip="Modify this for the sub-patch version's value."
@@ -1106,7 +1106,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbDoNoBindOwnerWindow"
-                    IsChecked="{Binding DoNotBindOwnerWindow}"
+                    IsChecked="{Binding Config.DoNotBindOwnerWindow}"
                     ToolTip="Check this to not bind dialog windows to parent owner."
                     Content="Do Not Bind To Owner Window"
                 />
@@ -1114,7 +1114,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbDisableTopMost"
-                    IsChecked="{Binding TopMostDisabled}"
+                    IsChecked="{Binding Config.TopMostDisabled}"
                     ToolTip="Check this to not set window as 'TopMost'.&#x0a;It is not standard to do this if TopMost is set 'false' in other windows."
                     Content="Top Most Disabled"
                 />
@@ -1122,7 +1122,7 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbIsIconOverride"
-                    IsChecked="{Binding IsIconOverride}"
+                    IsChecked="{Binding Config.IsIconOverride}"
                     ToolTip="Check this to change the Icon shown on the updater dialog."
                     Content="Icon Override"
                 />
@@ -1150,6 +1150,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <Button
                         Command="{Binding ImageChangeCommand}"
+                        Cursor="Hand"
                         CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type views:Window_Config}}}"
                     >
                         <Button.Style>
@@ -1170,7 +1171,7 @@
                             Name="imgIcon"
                             Stretch="UniformToFill"
                             Width="100"
-                            Source="{Binding TmpIcon}" />
+                            Source="{Binding Config.TmpIcon}" />
                     </Button>
                 </StackPanel>
 
@@ -1178,19 +1179,13 @@
                 <TreeView
                     Name="tvApplicationExit"
                     BorderThickness="0"
-                    ItemsSource="{Binding UpdateCompleteNodeList}" />
+                    ItemsSource="{Binding Config.UpdateCompleteNodeList}" />
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <TreeView
                     Name="tvCheckForUpdates"
                     BorderThickness="0"
-                    ItemsSource="{Binding CheckForUpdatesNodeList}" />
-
-                <!-- ReSharper disable once InconsistentNaming -->
-                <TreeView
-                    Name="tvParseUpdateInfo"
-                    BorderThickness="0"
-                    ItemsSource="{Binding ParseUpdateInfoNodeList}" />
+                    ItemsSource="{Binding Config.CheckForUpdatesNodeList}" />
 
             </StackPanel>
         </ScrollViewer>
@@ -1199,7 +1194,7 @@
                    Grid.Column="1"
                    Grid.ColumnSpan="2"
                    Grid.Row="2"
-                   Text="{Binding InstalledVersion}"
+                   Text="{Binding Config.InstalledVersion}"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Bottom"
                    Foreground="DarkSlateGray" />

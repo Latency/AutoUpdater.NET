@@ -8,6 +8,7 @@
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Views;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -32,12 +33,14 @@ public partial class ViewModelUpdate
         (parameter as Window_Update)?.Close();
 
         var dlWin = Dependencies.WindowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(Window);
-        if (Config.OpenDownloadPage)
+        var vm = Dependencies.ServiceProvider.GetRequiredService<IViewModelConfig>();
+
+        if (vm.Config.OpenDownloadPage)
             dlWin.Show();
         else
         {
             if (dlWin.DataContext is IViewModelDownloadUpdate vmModelDownloadUpdate)
-                await vmModelDownloadUpdate.DownloadUpdate(); // Start automatic updates!
+                await vmModelDownloadUpdate.DownloadUpdate(vm.Config); // Start automatic updates!
         }
     }
 }

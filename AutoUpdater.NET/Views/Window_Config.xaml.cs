@@ -6,7 +6,6 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Controls;
 using AutoUpdaterDotNET.ViewModels;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -14,10 +13,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using AutoUpdaterDotNET.Models;
 
 namespace AutoUpdaterDotNET.Views;
 
-public partial class Window_Config : Window_Restricted
+public partial class Window_Config
 {
     [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
     private static partial Regex MyRegex();
@@ -49,15 +49,16 @@ public partial class Window_Config : Window_Restricted
         if (DataContext is not ViewModelConfig vm)
             return;
 
-        vm.UpdateIcon       += OnUpdateIcon;
-        vm.UpdateVersion    += OnUpdateVersion;
-        vm.UpdateValidation += OnUpdateValidation;
-        vm.UpdateTitle      += OnUpdateTitle;
+        var config = (Config) vm.Config;
 
-        vm.TmpIcon = FindResource("project") as BitmapImage;
+        config.UpdateIcon       += OnUpdateIcon;
+        config.UpdateVersion    += OnUpdateVersion;
+        config.UpdateValidation += OnUpdateValidation;
+        config.UpdateTitle      += OnUpdateTitle;
 
-        OnUpdateIcon(vm.TmpIcon);
-    }
+        config.TmpIcon = FindResource("project") as BitmapImage;
+        OnUpdateIcon(config.TmpIcon);
+}
 
 
     private void OnUpdateIcon(BitmapImage? imagePath)
@@ -107,13 +108,14 @@ public partial class Window_Config : Window_Restricted
 
     private void TbAppTitle_OnTextChanged(object sender, TextChangedEventArgs e)
     {
-        if (DataContext is not ViewModelConfig vm)
-            return;
-
         var text = (e.Source as TextBox)?.Text;
         if (string.IsNullOrEmpty(text))
             return;
 
-        vm.AppTitle = text;
+        if (DataContext is not ViewModelConfig vm)
+            return;
+
+        var config = (Config) vm.Config;
+        config.AppTitle = text;
     }
 }

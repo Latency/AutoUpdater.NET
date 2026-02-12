@@ -8,6 +8,7 @@
 using System.Collections.ObjectModel;
 using AutoUpdaterDotNET.Enums;
 using CommunityToolkit.Mvvm.Input;
+using WindowService.Interfaces;
 
 namespace AutoUpdaterDotNET.Interfaces;
 

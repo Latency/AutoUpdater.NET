@@ -6,10 +6,13 @@
 // ****************************************************************************
 
 using System.Reflection;
+using WindowService.Interfaces;
 
 namespace AutoUpdaterDotNET.Interfaces;
 
-public interface IViewModelConfig : IViewModelMainConfig, IViewModelRestricted
+public interface IViewModelConfig : IViewModelRestricted
 {
+    IConfig Config { get; }
+
     Task Start(string domain, Assembly? myAssembly = null);
 }

@@ -2,14 +2,13 @@
 // Project:  AutoUpdater.NET
 // File:     Window_Restricted.cs
 // Author:   Latency McLaughlin
-// Date:     01/07/2026
+// Date:     02/12/2026
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Dependency_Properties;
-using System.ComponentModel;
 using System.Windows;
 using AutoUpdaterDotNET.Interfaces;
+using WindowService.Dependency_Properties;
 
 namespace AutoUpdaterDotNET.Controls;
 
@@ -17,88 +16,35 @@ namespace AutoUpdaterDotNET.Controls;
 ///     Interaction logic for Window_Restricted.xaml
 /// </summary>
 [Localizability(LocalizationCategory.Ignore)]
-public abstract class Window_Restricted : Window
+public abstract class Window_Restricted : WindowService.Controls.Window_Restricted
 {
-    #region Fields
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private readonly OwnerConverter      _ownerConverter;
-    private readonly TopmostConverter    _topmostConverter;
-    private readonly ControlBoxConverter _controlBoxConverter;
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Fields
-
-
-    #region Constructor
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    /// <summary>
-    ///     Default Constructor
-    /// </summary>
-    protected Window_Restricted()
-    {
-        _ownerConverter       = new OwnerConverter(this);
-        _topmostConverter     = new TopmostConverter(this);
-        _controlBoxConverter  = new ControlBoxConverter(this);
-
-        ResizeMode            = ResizeMode.NoResize;
-        ShowActivated         = true;
-        ShowInTaskbar         = true;
-        WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        WindowStyle           = WindowStyle.SingleBorderWindow;
-
-        Closing += OnClosing;
-    }
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Constructor
-
-
-    #region Properties
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-    public string? BaseName
-    {
-        get => Name;
-        set => Name = value!;
-    }
-
-    public new bool Topmost
-    {
-        get => _topmostConverter.Topmost;
-        set => _topmostConverter.Topmost = value;
-    }
-
-    public bool? ControlBox
-    {
-        get => _controlBoxConverter.ControlBox;
-        set => _controlBoxConverter.ControlBox = value;
-    }
-
-    [DefaultValue(null)]
-    public new Window? Owner
-    {
-        get => _ownerConverter.Owner;
-        set => _ownerConverter.Owner = value;
-    }
-    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Properties
-
-
     #region Methods
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
     /// <summary>
     /// SetBindings
     /// </summary>
-    public virtual void SetBindings(IViewModelConfig vmc)
+    public override void SetBindings<T>(T vmc)
     {
-        _ownerConverter.SetBindings(vmc);
-        _topmostConverter.SetBindings(vmc);
-        _controlBoxConverter.SetBindings(vmc);
-    }
+        // ReSharper disable once EntityNameCapturedOnly.Local
+        // ReSharper disable once RedundantAssignment
+        if (vmc is not IViewModelConfig vm)
+            throw new NullReferenceException($"Unable to resolve generic type parameter '{(vmc?.GetType().Name ?? "<None>")}'");
 
-    protected virtual void OnClosing(object? sender, CancelEventArgs e)
-    {
-        e.Cancel = true;
-        Hide();
+        _ownerConverter.SetBindings(new BaseConverter.BindingObject<IConfig>
+        {
+            Class = vm.Config,
+            Path = new PropertyPath(nameof(vm.Config.DoNotBindOwnerWindow))
+        });
+        _topmostConverter.SetBindings(new BaseConverter.BindingObject<IConfig>
+        {
+            Class = vm.Config,
+            Path  = new PropertyPath(nameof(vm.Config.TopMostDisabled))
+        });
+        _controlBoxConverter.SetBindings(new BaseConverter.BindingObject<IConfig>
+        {
+            Class = vm.Config,
+            Path  = new PropertyPath(nameof(vm.Config.UpdateMode))
+        });
     }
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Methods

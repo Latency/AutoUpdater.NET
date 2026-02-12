@@ -6,21 +6,17 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Controls;
-using AutoUpdaterDotNET.Enums;
-using AutoUpdaterDotNET.ViewModels;
-using System.ComponentModel;
-using System.Globalization;
-using System.Windows;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Properties;
+using AutoUpdaterDotNET.ViewModels;
+using System.Globalization;
+using System.Windows;
 
 namespace AutoUpdaterDotNET.Views;
 
-public sealed partial class Window_DownloadUpdate : Window_Restricted
+public sealed partial class Window_DownloadUpdate
 {
-    private IViewModelDownloadUpdate _vmDownloadUpdate = null!;
-    private DateTime                 _startedAt;
+    private DateTime _startedAt;
 
 
     /// <summary>
@@ -32,17 +28,6 @@ public sealed partial class Window_DownloadUpdate : Window_Restricted
     }
 
 
-    protected override void OnClosing(object? sender, CancelEventArgs e)
-    {
-        if (_vmDownloadUpdate.Config is not { IsMandatory: true, UpdateMode: Mode.ForcedDownload })
-            ViewModelConfig.HttpWebClient.CancelPendingRequests();
-
-        _vmDownloadUpdate.CTS?.Cancel();
-
-        base.OnClosing(sender, e);
-    }
-
-
     private void Window_Restricted_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.NewValue is not IViewModelDownloadUpdate vmDownloadUpdate)
@@ -50,8 +35,6 @@ public sealed partial class Window_DownloadUpdate : Window_Restricted
 
         vmDownloadUpdate.ProgressBarCallback = OnProgressBarChanged;
         vmDownloadUpdate.ContentCallback     = OnContentChanged;
-
-        _vmDownloadUpdate = vmDownloadUpdate;
 
         ViewModelDownloadUpdate.Wnd_Loaded(this);
     }

@@ -1,7 +1,6 @@
 // ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     ViewModel
-// .cs
+// File:     ViewModelRemindLater.cs
 // Author:   Latency McLaughlin
 // Date:     06/10/2025
 // ****************************************************************************
@@ -11,17 +10,19 @@ using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using WindowService.ViewModels;
 using kvp = System.Collections.Generic.KeyValuePair<ushort, AutoUpdaterDotNET.Enums.RemindLaterFormat>;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
-public partial class ViewModelRemindLater(BaseServiceDependencies dependencies) : ViewModelRestricted(dependencies), IViewModelRemindLater
+public partial class ViewModelRemindLater : ViewModelRestricted, IViewModelRemindLater
 {
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     [ObservableProperty]
-    public partial ObservableCollection<kvp> ComboBoxItems { get; set; } = [
+    public partial ObservableCollection<kvp> ComboBoxItems { get; set; } =
+    [
         new(05, RemindLaterFormat.Minutes),
         new(10, RemindLaterFormat.Minutes),
         new(15, RemindLaterFormat.Minutes),
@@ -44,6 +45,20 @@ public partial class ViewModelRemindLater(BaseServiceDependencies dependencies) 
     [ObservableProperty]
     public partial IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues { get; set; } = Enum.GetValues<RemindLaterFormat>().Skip(1);
 
+
+    public IConfig Config { get; init; }
+
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
+
+
+    /// <summary>
+    ///     Default Constructor
+    /// </summary>
+    /// <param name="dependencies"></param>
+    /// <param name="vm"></param>
+    public ViewModelRemindLater(BaseServiceDependencies dependencies, IViewModelConfig vm) : base(dependencies)
+    {
+        Config = vm.Config;
+    }
 }
