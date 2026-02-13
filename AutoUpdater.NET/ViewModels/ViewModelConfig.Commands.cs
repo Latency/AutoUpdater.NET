@@ -8,6 +8,8 @@
 
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Extensions;
+using AutoUpdaterDotNET.Models;
+using AutoUpdaterDotNET.Properties;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
@@ -16,8 +18,6 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows.Controls;
-using AutoUpdaterDotNET.Models;
-using AutoUpdaterDotNET.Properties;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -27,9 +27,6 @@ public partial class ViewModelConfig
     private void Loaded()
     {
         _updateTimer.Interval = GetRemindLaterInterval(_config.TimerInterval);
-        _updateTimer.Tick += (_, _) => { };
-
-        _config.UpdateIcon += img => _configOrig.TmpIcon = img;
 
         InvocationListGenerator(_updateTimer, nameof(_updateTimer.Tick), _config.TimerNodeList);
         InvocationListGenerator(this,         nameof(UpdateComplete),    _config.UpdateCompleteNodeList);
@@ -37,7 +34,6 @@ public partial class ViewModelConfig
 
         LoadConfig();
 
-        _config.SetVersion();
         return;
 
         // -------------------------------------------
@@ -89,7 +85,6 @@ public partial class ViewModelConfig
     private void Update()
     {
         SaveConfig();
-
         _Update();
     }
 
@@ -159,6 +154,12 @@ public partial class ViewModelConfig
             if (vmmc is null)
                 throw new NullReferenceException("Unable to deserialize json from 'Config'.");
 
+            // Preserve Properties
+            vmmc.EqualsPredicate         = _config.EqualsPredicate;
+            vmmc.CheckForUpdatesNodeList = _config.CheckForUpdatesNodeList;
+            vmmc.TimerNodeList           = _config.TimerNodeList;
+            vmmc.UpdateCompleteNodeList  = _config.UpdateCompleteNodeList;
+
             _config.Copy(vmmc);
 
             _Update();
@@ -185,9 +186,8 @@ public partial class ViewModelConfig
             return;
 
         var imageUri = Path.GetRelativePath(Environment.CurrentDirectory, fd.FileName);
-        var uri = new Uri(imageUri, imageUri.StartsWith("pack:") ? UriKind.Absolute : UriKind.Relative);
-
-        _config.TmpIcon = uri.ConvertToBitmapImage();
+        _config.IconOverride!.Uri = new Uri(imageUri, imageUri.StartsWith("pack:") ? UriKind.Absolute : UriKind.Relative);
+        _config.TmpIcon = _config.IconOverride.Uri.ConvertToBitmapImage();
 
         return;
 

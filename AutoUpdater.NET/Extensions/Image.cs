@@ -21,8 +21,7 @@ public static class ImageExtensions
 
     public static BitmapImage? ConvertStreamToBitmapImage(this Stream imageStream, Uri? resourceUri = null)
     {
-        return imageStream is not { CanRead: true } ? null : // Or throw an exception
-                   CreateNewBitmapImage(OnCreate);
+        return imageStream is not { CanRead: true } ? null : CreateNewBitmapImage(OnCreate);
 
         void OnCreate(BitmapImage image)
         {

@@ -55,9 +55,6 @@ public partial class Window_Config
         config.UpdateVersion    += OnUpdateVersion;
         config.UpdateValidation += OnUpdateValidation;
         config.UpdateTitle      += OnUpdateTitle;
-
-        config.TmpIcon = FindResource("project") as BitmapImage;
-        OnUpdateIcon(config.TmpIcon);
 }
 
 
@@ -75,10 +72,7 @@ public partial class Window_Config
     }
 
 
-    private void OnUpdateValidation(bool? isEnabled)
-    {
-        ButtonUpdate?.IsEnabled = isEnabled ?? false;
-    }
+    private void OnUpdateValidation(bool? isEnabled) => ButtonUpdate?.IsEnabled = isEnabled ?? false;
 
 
     private void OnUpdateTitle(string? title)

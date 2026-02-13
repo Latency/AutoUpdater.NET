@@ -18,6 +18,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Interfaces;
+using FluentFTP;
 
 namespace AutoUpdaterDotNET.Models;
 
@@ -43,13 +44,21 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     private ZipFile? _defaultZipFile;
 
-    internal Lazy<Func<bool>> EqualsPredicate = new(() => true);
+    internal Lazy<Func<bool>>? EqualsPredicate;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
 
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    #region FTP
+
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial FtpProfile? FtpProfile { get; set; }
+
+    #endregion FTP
 
     #region AppTitle
     /// <summary>
@@ -647,7 +656,8 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     #region Event Invocators
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private  void _UpdateValidation()            => _UpdateValidation(!EqualsPredicate.Value.Invoke());
+    private  void _UpdateValidation() => _UpdateValidation(!EqualsPredicate.Value.Invoke());
+
     internal void _UpdateValidation(bool? value) => UpdateValidation?.Invoke(value);
 
     internal void _UpdateTitle() => UpdateTitle?.Invoke(AppTitle);
@@ -737,67 +747,15 @@ internal sealed partial class Config : ObservableObject, IConfig
         if (other is null)
             return null;
 
-        RunUpdateAsAdmin = other.RunUpdateAsAdmin;
-        OpenDownloadPage = other.OpenDownloadPage;
+        foreach (var prop in other.GetType().GetProperties())
+            GetType().GetProperty(prop.Name)?.SetValue(this, prop.GetValue(other));
 
-        RemmindLaterTimer     = other.RemmindLaterTimer;                                        // User Select Remind Later
-        UserSelectRemindLater = other.RemmindLaterTimer != null;                                // User Select Remind Later
-        RemindLaterAt         = other.RemmindLaterTimer?.Interval ?? 1;                         // User Select Remind Later
-        RemindLaterTimeSpan   = other.RemmindLaterTimer?.TimeSpan ?? RemindLaterFormat.Seconds; // User Select Remind Later
+        EqualsPredicate         = other.EqualsPredicate;
+        CheckForUpdatesNodeList = other.CheckForUpdatesNodeList;
+        TimerNodeList           = other.TimerNodeList;
+        UpdateCompleteNodeList  = other.UpdateCompleteNodeList;
 
-        Mandatory             = other.Mandatory;                            // IsMandatory
-        IsMandatory           = other.Mandatory != null;                    // IsMandatory
-        UpdateMode            = other.Mandatory?.UpdateMode ?? Mode.Normal; // IsMandatory (True) -> Update Mode
-        ShowSkipButton        = other.ShowSkipButton;                       // IsMandatory (False) -> Show Skip Button
-        ShowRemindLaterButton = other.ShowRemindLaterButton;                // IsMandatory (False) -> Show Remind Later Button
-
-        AppTitle     = other.AppTitle;         // App Title -> Title
-        IsAppTitle   = other.IsAppTitle;
-        ReportErrors = other.ReportErrors;
-
-        Proxy         = other.Proxy;           // Enable Proxy
-        ProxyEnabled  = other.Proxy != null;   // Enable Proxy
-        ProxyUri      = other.Proxy?.Uri;      // Enable Proxy -> Uri
-        ProxyUserName = other.Proxy?.UserName; // Enable Proxy -> UserName
-        ProxyPassword = other.Proxy?.Password; // Enable Proxy -> Password
-
-        Timer                 = other.Timer;                                        // Enable Timer
-        TimerEnabled          = other.Timer != null;                                // Enable Timer
-        TimerInterval         = other.Timer?.Interval ?? 1;                         // Enable Timer -> SpinBox
-        TimerDurationTimeSpan = other.Timer?.TimeSpan ?? RemindLaterFormat.Seconds; // Enable Timer -> ComboBox
-
-        BasicAuth          = other.BasicAuth;                     // Basic Authentication
-        IsBasicAuth        = other.BasicAuth != null;             // Basic Authentication
-        BasicAuthChangeLog = other.BasicAuth?.ChangeLog ?? false; // Basic Authentication -> Change Log
-        BasicAuthDownload  = other.BasicAuth?.Download  ?? false; // Basic Authentication -> Download
-        BasicAuthPassword  = other.BasicAuth?.Password;           // Basic Authentication -> Password
-        BasicAuthUserName  = other.BasicAuth?.UserName;           // Basic Authentication -> UserName
-
-        FtpProtocol          = other.FtpProtocol;
-
-        ZipFile                   = other.ZipFile;                                    // Use Zip File
-        UseZipFile                = other.ZipFile != null;                            // Use Zip File
-        ClearAppDirectory         = other.ZipFile?.ClearAppDirectory ?? false;        // Use Zip File -> Clear App Directory
-        ExecutablePathOverride    = other.ZipFile?.ExecutablePathOverride != null;    // Use Zip File -> Executable Path Override
-        ExecutablePath            = other.ZipFile?.ExecutablePathOverride?.Path;      // Use Zip File -> Executable Path Override
-        ZipExtractionPathOverride = other.ZipFile?.ZipExtractionPathOverride != null; // Use Zip File -> Zip Extraction Path Override
-        InstallationPath          = other.ZipFile?.ZipExtractionPathOverride?.Path;   // Use Zip File -> Zip Extraction Path Override
-
-        CheckSynchronously = other.CheckSynchronously;
-
-        InstalledVersion         = other.InstalledVersion;                                   // Installed Version Override
-        InstalledVersionOverride = other.InstalledVersion != null;                           // Installed Version Override
-        MajorVersion             = (ushort)(other.InstalledVersion?.Version?.Major    ?? 1); // Installed Version Override -> SpinBox [Major]
-        MinorVersion             = (ushort)(other.InstalledVersion?.Version?.Minor    ?? 0); // Installed Version Override -> SpinBox [Minor]
-        BuildVersion             = (ushort)(other.InstalledVersion?.Version?.Build    ?? 0); // Installed Version Override -> SpinBox [Build]
-        RevisionVersion          = (ushort)(other.InstalledVersion?.Version?.Revision ?? 0); // Installed Version Override -> SpinBox [Revision]
-
-        DoNotBindOwnerWindow = other.DoNotBindOwnerWindow;
-        TopMostDisabled      = other.TopMostDisabled;
-
-        IconOverride   = other.IconOverride;                                                               // Icon Override
-        IsIconOverride = other.IconOverride != null;                                                       // Icon Override
-        TmpIcon        = other.IconOverride?.Uri is null ? null : new BitmapImage(other.IconOverride.Uri); // Icon Override -> (ICO)
+        TmpIcon = other.IconOverride?.Uri != null ? other.IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
 
         return this;
     }
@@ -843,7 +801,7 @@ internal sealed partial class Config : ObservableObject, IConfig
         bool IsIconOverride()
         {
             if (other.IsIconOverride)
-                return TmpIcon == other.TmpIcon;
+                return TmpIcon?.UriSource?.OriginalString == other.TmpIcon?.UriSource?.OriginalString;
 
             return this.IsIconOverride == other.IsIconOverride;
         }

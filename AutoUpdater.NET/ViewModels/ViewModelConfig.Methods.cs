@@ -6,18 +6,20 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using System.Diagnostics;
 using AssemblyLoader;
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Models;
+using AutoUpdaterDotNET.Properties;
 using AutoUpdaterDotNET.Views;
+using FluentFTP;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows;
-using AutoUpdaterDotNET.Properties;
 using WindowService.Interfaces;
 using Timer = System.Timers.Timer;
 
@@ -147,19 +149,81 @@ public partial class ViewModelConfig
         if (string.IsNullOrEmpty(Config.AppTitle))
             Config.AppTitle = _assembly.Title() ?? _assembly.GetName().Name!;
 
-        using var response = await HttpWebClient.GetAsync(_baseUri);
-        if (!response.IsSuccessStatusCode)
-        {
-            //var a = JsonSerializer.Serialize(new UpdateInfoEventArgs(), new JsonSerializerOptions { WriteIndented = true });
-            //await File.WriteAllTextAsync($@"K:\{Settings.Default!.ConfigFile}", a);
+        var json = string.Empty;
 
-            ShowError(new HttpRequestException(response.ReasonPhrase));
-            return null;
+        if (_baseUri.Scheme.Equals(Uri.UriSchemeFtp))
+        {
+            try
+            {
+                _ftpCTS = new CancellationTokenSource();
+                await FtpClient.Connect(Config.FtpProfile, _ftpCTS.Token);
+
+                #if DEBUG
+                // Example operation: get a list of files
+                foreach (var item in await FtpClient.GetListing("/"))
+                {
+                    Console.WriteLine($"{item.Type}: {item.Name}");
+                }
+                #endif
+
+                var compareResult = await FtpClient.CompareFile(_config.ExecutablePath, _config.InstallationPath, FtpCompareOption.Auto, _ftpCTS.Token);
+                if (compareResult is FtpCompareResult.FileNotExisting or FtpCompareResult.NotEqual)
+                {
+                    var status = await FtpClient.DownloadFile(_config.ExecutablePath, _config.InstallationPath, FtpLocalExists.Overwrite, FtpVerify.Retry, _ftpProgress, _ftpCTS.Token);
+                    switch (status)
+                    {
+                        case FtpStatus.Failed:
+                            break;
+                        case FtpStatus.Success:
+                            break;
+                        case FtpStatus.Skipped:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+
+                json = await File.ReadAllTextAsync(_config.ExecutablePath);
+            }
+            catch (TaskCanceledException)
+            {
+                // Handled
+            }
+            finally
+            {
+                await FtpClient.Disconnect();
+
+                if (_ftpCTS is not null)
+                {
+                    _ftpCTS?.Dispose();
+                    _ftpCTS = null;
+                }
+            }
+        }
+        else
+        {
+            using var response = await HttpWebClient.GetAsync(_baseUri);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                //var a = JsonSerializer.Serialize(new UpdateInfoEventArgs(), new JsonSerializerOptions { WriteIndented = true });
+                //await File.WriteAllTextAsync($@"K:\{Settings.Default!.ConfigFile}", a);
+
+                ShowError(new HttpRequestException(response.ReasonPhrase));
+                return null;
+            }
+
+            json = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(json))
+                throw new Exception("The JSON is required to handle the ParseUpdateInfoEvent when url is not specified.");
         }
 
-        var json = await response.Content.ReadAsStringAsync();
+        // Check if the JSON file was read properly.
         if (string.IsNullOrEmpty(json))
-            throw new Exception("The JSON is required to handle the ParseUpdateInfoEvent when url is not specified.");
+        {
+            Trace.WriteLine("Unable to read JSON configuration file.");
+            return null;
+        }
 
         var args = JsonSerializer.Deserialize<UpdateInfoEventArgs>(json);
 
