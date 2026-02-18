@@ -24,6 +24,32 @@
         </behaviors:EventTrigger>
     </behaviors:Interaction.Triggers>
     <controls:Window_Restricted.Resources>
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <DataTemplate x:Key="SecurePasswordBox">
+            <xctk:WatermarkPasswordBox
+                Name="SecurePasswordBox"
+                Watermark="Enter Password here..."
+                WatermarkTemplate="{x:Null}"
+                MaxLength="10"
+                KeepWatermarkOnGotFocus="True"
+                PasswordChanged="WatermarkPasswordBox_OnPasswordChanged"
+            />
+        </DataTemplate>
+        <DataTemplate x:Key="UnsecuredPasswordBox">
+            <xctk:WatermarkTextBox
+                Name="UnsecuredPasswordBox"
+                TextChanged="WatermarkPasswordBox_OnPasswordChanged"
+            />
+        </DataTemplate>
+        <ObjectDataProvider
+            x:Key="EncodingEnumValues"
+            MethodName="GetValues"
+            ObjectType="{x:Type sys:Enum}"
+        >
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:Encodings" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
         <ObjectDataProvider
             x:Key="TimerDurationFormatEnumValues"
             MethodName="GetValues"
@@ -51,7 +77,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" SharedSizeGroup="B" />
-            <ColumnDefinition Width="110" SharedSizeGroup="C" />
+            <ColumnDefinition Width="60" SharedSizeGroup="C" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
@@ -706,6 +732,191 @@
                     ToolTip="Check this if the protocol used is only able to be accessed via FTP."
                     Content="FTP instead of HTTP"
                 />
+
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbFTPProtocol}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbFTPProtocol}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Expander
+                        Name="FtpNetworkCredentials"
+                        Header="Network Credentials"
+                        IsExpanded="False"
+                        ExpandDirection="Down"
+                        Expanded="FtpNetworkCredentials_OnExpanded"
+                    >
+                        <xctk:PropertyGrid
+                            x:Name="FtpCredentialsPropertyGrid"
+                            SelectedObject="{Binding Config.FtpProfile.Credentials, FallbackValue=''}"
+                            AutoGenerateProperties="False"
+                            ShowSearchBox="False"
+                            ShowSortOptions="False"
+                            ShowTitle="False"
+                            ShowSummary="False"
+                            Margin="10,0,0,0"
+                        >
+                            <!-- Override the following properties in the PropertyGrid -->
+                            <xctk:PropertyGrid.EditorDefinitions>
+                                <xctk:EditorTemplateDefinition TargetProperties="Domain">
+                                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                                        <DataTemplate>
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                            <TextBox Text="{Binding Value}" />
+                                        </DataTemplate>
+                                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                                </xctk:EditorTemplateDefinition>
+                                <xctk:EditorTemplateDefinition TargetProperties="Password">
+                                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                                        <DataTemplate>
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                            <ContentControl Content="{Binding Value}" Loaded="PasswordTextBox_OnLoaded">
+                                                <ContentControl.Style>
+                                                    <Style TargetType="ContentControl">
+                                                        <Setter Property="ContentTemplate" Value="{StaticResource UnsecuredPasswordBox}"/>
+                                                    </Style>
+                                                </ContentControl.Style>
+                                            </ContentControl>
+                                        </DataTemplate>
+                                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                                </xctk:EditorTemplateDefinition>
+                                <xctk:EditorTemplateDefinition TargetProperties="SecurePassword">
+                                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Click="SecurePassword_OnClick" />
+                                        </DataTemplate>
+                                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                                </xctk:EditorTemplateDefinition>
+                                <xctk:EditorTemplateDefinition TargetProperties="UserName">
+                                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                                        <DataTemplate>
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                            <TextBox Text="{Binding Value}" />
+                                        </DataTemplate>
+                                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                                </xctk:EditorTemplateDefinition>
+                            </xctk:PropertyGrid.EditorDefinitions>
+                            <xctk:PropertyGrid.PropertyDefinitions>
+                                <xctk:PropertyDefinition TargetProperties="Domain"             DisplayName="Domain" />
+                                <xctk:PropertyDefinition TargetProperties="Password"           DisplayName="Password" />
+                                <xctk:PropertyDefinition TargetProperties="SecurePassword"     DisplayName="Secure Password" />
+                                <xctk:PropertyDefinition TargetProperties="UserName"           DisplayName="User Name" />
+                            </xctk:PropertyGrid.PropertyDefinitions>
+                        </xctk:PropertyGrid>
+                    </Expander>
+                    <Expander
+                        Header="Encoding"
+                        IsExpanded="False"
+                        ExpandDirection="Down"
+                    >
+                        <!-- ReSharper disable once Xaml.PossibleNullReferenceException -->
+                        <xctk:PropertyGrid
+                            Name="FtpEncodingPropertyGrid"
+                            SelectedObject="{Binding Config.FtpProfile.Encoding}"
+                            AutoGenerateProperties="False"
+                            ShowAdvancedOptions="False"
+                            ShowDescriptionByTooltip="False"
+                            ShowPreview="False"
+                            ShowSearchBox="False"
+                            ShowSortOptions="False"
+                            ShowSummary="False"
+                            ShowTitle="False"
+                            Margin="10,0,0,0"
+                        >
+                            <xctk:PropertyGrid.PropertyDefinitions>
+                                <xctk:PropertyDefinition TargetProperties="BodyName" DisplayName="Name" />
+                                <xctk:PropertyDefinition TargetProperties="CodePage" />
+                                <xctk:PropertyDefinition TargetProperties="IsBrowserDisplay" />
+                                <xctk:PropertyDefinition TargetProperties="IsBrowserSave" />
+                                <xctk:PropertyDefinition TargetProperties="IsMailNewsDisplay" />
+                                <xctk:PropertyDefinition TargetProperties="IsMailNewsSave" />
+                                <xctk:PropertyDefinition TargetProperties="IsReadOnly" />
+                                <xctk:PropertyDefinition TargetProperties="IsSingleByte" />
+                                <xctk:PropertyDefinition TargetProperties="WindowsCodePage" />
+                            </xctk:PropertyGrid.PropertyDefinitions>
+                        </xctk:PropertyGrid>
+                    </Expander>
+                    <xctk:PropertyGrid
+                        Name="FtpPropertyGrid"
+                        AutoGenerateProperties="True"
+                        IsCategorized="False"
+                        SelectedObject="{Binding Config.FtpProfile}"
+                        ShowAdvancedOptions="False"
+                        ShowDescriptionByTooltip="False"
+                        ShowPreview="False"
+                        ShowSearchBox="False"
+                        ShowSortOptions="False"
+                        ShowSummary="False"
+                        ShowTitle="False"
+                        Margin="10,0,0,0"
+                    >
+                        <!-- Override the following properties in the PropertyGrid -->
+                        <xctk:PropertyGrid.EditorDefinitions>
+                            <xctk:EditorTemplateDefinition TargetProperties="Credentials">
+                                <xctk:EditorTemplateDefinition.EditingTemplate>
+                                    <DataTemplate>
+                                        <CheckBox
+                                            Loaded="CbHasCredentials_OnLoaded"
+                                            Unchecked="CbHasCredentials_OnUnchecked"
+                                            Checked="CbHasCredentials_OnChecked"
+                                        />
+                                    </DataTemplate>
+                                </xctk:EditorTemplateDefinition.EditingTemplate>
+                            </xctk:EditorTemplateDefinition>
+                            <xctk:EditorTemplateDefinition TargetProperties="RetryAttempts">
+                                <xctk:EditorTemplateDefinition.EditingTemplate>
+                                    <DataTemplate>
+                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                        <xctk:IntegerUpDown Value="{Binding Value}" Minimum="0" />
+                                    </DataTemplate>
+                                </xctk:EditorTemplateDefinition.EditingTemplate>
+                            </xctk:EditorTemplateDefinition>
+                            <xctk:EditorTemplateDefinition TargetProperties="Encoding">
+                                <xctk:EditorTemplateDefinition.EditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox
+                                            Name="CbEncoding"
+                                            SelectedIndex="0"
+                                            ItemsSource="{Binding Source={StaticResource EncodingEnumValues}}"
+                                            SelectionChanged="CbEncoding_OnSelectionChanged"
+                                        >
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </xctk:EditorTemplateDefinition.EditingTemplate>
+                            </xctk:EditorTemplateDefinition>
+                            <xctk:EditorTemplateDefinition TargetProperties="SocketPollInterval">
+                                <xctk:EditorTemplateDefinition.EditingTemplate>
+                                    <DataTemplate>
+                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                        <xctk:IntegerUpDown Value="{Binding Value}" Minimum="0" />
+                                    </DataTemplate>
+                                </xctk:EditorTemplateDefinition.EditingTemplate>
+                            </xctk:EditorTemplateDefinition>
+                            <xctk:EditorTemplateDefinition TargetProperties="Timeout">
+                                <xctk:EditorTemplateDefinition.EditingTemplate>
+                                    <DataTemplate>
+                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                        <xctk:IntegerUpDown Value="{Binding Value}" Minimum="0" />
+                                    </DataTemplate>
+                                </xctk:EditorTemplateDefinition.EditingTemplate>
+                            </xctk:EditorTemplateDefinition>
+                        </xctk:PropertyGrid.EditorDefinitions>
+                        <xctk:PropertyGrid.PropertyDefinitions>
+                            <xctk:PropertyDefinition TargetProperties="DataConnection"     DisplayName="Data Connection" />
+                            <xctk:PropertyDefinition TargetProperties="SocketPollInterval" DisplayName="Socket Poll Interval" />
+                            <xctk:PropertyDefinition TargetProperties="RetryAttempts"      DisplayName="Retry Attempts" />
+                            <xctk:PropertyDefinition TargetProperties="EncodingVerified"   DisplayName="Encoding Verified" />
+                        </xctk:PropertyGrid.PropertyDefinitions>
+                    </xctk:PropertyGrid>
+
+                </StackPanel>
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox

@@ -97,7 +97,7 @@ public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
                 if (_config.BasicAuthUserName is null)
                     throw new NullReferenceException(_config.BasicAuthUserName);
 
-                var client = new AsyncFtpClient(value.Host, _config.BasicAuthUserName, _config.BasicAuthPassword ?? string.Empty);
+                var client = new AsyncFtpClient(_config.FtpProfile.Host, _config.FtpProfile.Credentials.UserName, _config.FtpProfile.Credentials.Password);
 
                 // Recommended: Auto-detect encryption and accept any server certificate for simplicity
                 client.Config!.EncryptionMode         = FtpEncryptionMode.Auto;

@@ -56,7 +56,10 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial FtpProfile? FtpProfile { get; set; }
+    public partial FtpProfile? FtpProfile { get; set; } = new()
+    {
+        Credentials = new()
+    };
 
     #endregion FTP
 
@@ -726,22 +729,6 @@ internal sealed partial class Config : ObservableObject, IConfig
     }
 
 
-    internal void SetVersion()
-    {
-        if (!InstalledVersionOverride)
-        {
-            var defaultVersion = GetType().Assembly.Version()!;
-
-            MajorVersion    = (ushort)defaultVersion.Major;
-            MinorVersion    = (ushort)defaultVersion.Minor;
-            BuildVersion    = (ushort)defaultVersion.Build;
-            RevisionVersion = (ushort)defaultVersion.Revision;
-        }
-
-        _UpdateVersion();
-    }
-
-
     internal Config? Copy(Config? other)
     {
         if (other is null)
@@ -755,7 +742,25 @@ internal sealed partial class Config : ObservableObject, IConfig
         TimerNodeList           = other.TimerNodeList;
         UpdateCompleteNodeList  = other.UpdateCompleteNodeList;
 
-        TmpIcon = other.IconOverride?.Uri != null ? other.IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
+        TmpIcon                  = other.IconOverride?.Uri != null ? other.IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
+        InstalledVersionOverride = other.InstalledVersion != null;
+
+        if (other.InstalledVersion?.Version != null)
+        {
+            MajorVersion    = (ushort)other.InstalledVersion.Version.Major;
+            MinorVersion    = (ushort)other.InstalledVersion.Version.Minor;
+            BuildVersion    = (ushort)other.InstalledVersion.Version.Build;
+            RevisionVersion = (ushort)other.InstalledVersion.Version.Revision;
+        }
+        else
+        {
+            var defaultVersion = GetType().Assembly.Version()!;
+
+            MajorVersion    = (ushort)defaultVersion.Major;
+            MinorVersion    = (ushort)defaultVersion.Minor;
+            BuildVersion    = (ushort)defaultVersion.Build;
+            RevisionVersion = (ushort)defaultVersion.Revision;
+        }
 
         return this;
     }

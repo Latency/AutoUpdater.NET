@@ -73,21 +73,10 @@ public partial class ViewModelConfig
         if (Running || _remindLaterTimer != null)
             return;
 
-        try
-        {
-            _baseUri  = new Uri(Path.Combine(domain, Settings.Default!.ConfigFile!));
-            _assembly = myAssembly ?? Assembly.GetEntryAssembly()!;
+        _baseUri  = new Uri(Path.Combine(domain, Settings.Default!.ConfigFile!));
+        _assembly = myAssembly ?? Assembly.GetEntryAssembly()!;
 
-            await Start();
-        }
-        catch (Exception ex)
-        {
-            ShowError(ex);
-        }
-        finally
-        {
-            HttpWebClient.Dispose();
-        }
+        await Start();
     }
 
 
@@ -97,17 +86,7 @@ public partial class ViewModelConfig
         {
             Running = true;
             if (Config.CheckSynchronously)
-            {
-                try
-                {
-                    var args = await CheckUpdate();
-                    StartUpdate(args);
-                }
-                catch (Exception exception)
-                {
-                    ShowError(exception);
-                }
-            }
+                StartUpdate(CheckUpdate().Result);
             else
             {
                 try
@@ -116,14 +95,12 @@ public partial class ViewModelConfig
                     {
                        var args = t.Result;
                        if (args?.Error != null)
-                           ShowError(args.Error);
-                       else
-                       {
-                           if (!t.IsCanceled && StartUpdate(args))
-                               return;
+                           throw new Exception(args.Error.Message, args.Error);
 
-                           Running = false;
-                       }
+                       if (t.IsCanceled)
+                           throw new TaskCanceledException();
+
+                       StartUpdate(args);
                     })
                     .ConfigureAwait(false);
                 }
@@ -131,11 +108,11 @@ public partial class ViewModelConfig
                 {
                     // Handled
                 }
-                catch (Exception exception)
-                {
-                    ShowError(exception);
-                }
             }
+        }
+        catch (Exception exception)
+        {
+            ShowError(exception);
         }
         finally
         {
@@ -191,7 +168,7 @@ public partial class ViewModelConfig
             }
             finally
             {
-                await FtpClient.Disconnect();
+                await FtpClient.Disconnect()!;
 
                 if (_ftpCTS is not null)
                 {

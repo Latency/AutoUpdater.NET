@@ -91,10 +91,9 @@ public partial class ViewModelConfig
 
     private void _Update()
     {
-        _config.SetVersion();
-
         _configOrig.Copy(_config);
 
+        _config._UpdateVersion();
         _config._UpdateTitle();
         _config._UpdateIcon(_config.TmpIcon);
         _config._UpdateValidation(false);

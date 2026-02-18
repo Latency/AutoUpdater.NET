@@ -6,14 +6,19 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.ViewModels;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using AutoUpdaterDotNET.Models;
+using AutoUpdaterDotNET.Extensions;
+using Xceed.Wpf.Toolkit;
+using MessageBox = System.Windows.MessageBox;
 
 namespace AutoUpdaterDotNET.Views;
 
@@ -21,6 +26,9 @@ public partial class Window_Config
 {
     [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
     private static partial Regex MyRegex();
+
+    private Config?           _config;
+    private ContentControl?   _cc;
 
 
     /// <summary>
@@ -49,13 +57,13 @@ public partial class Window_Config
         if (DataContext is not ViewModelConfig vm)
             return;
 
-        var config = (Config) vm.Config;
+        _config = (Config) vm.Config;
 
-        config.UpdateIcon       += OnUpdateIcon;
-        config.UpdateVersion    += OnUpdateVersion;
-        config.UpdateValidation += OnUpdateValidation;
-        config.UpdateTitle      += OnUpdateTitle;
-}
+        _config.UpdateIcon       += OnUpdateIcon;
+        _config.UpdateVersion    += OnUpdateVersion;
+        _config.UpdateValidation += OnUpdateValidation;
+        _config.UpdateTitle      += OnUpdateTitle;
+    }
 
 
     private void OnUpdateIcon(BitmapImage? imagePath)
@@ -112,4 +120,93 @@ public partial class Window_Config
         var config = (Config) vm.Config;
         config.AppTitle = text;
     }
+
+
+    private void CbEncoding_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_config?.FtpProfile is null)
+            return;
+
+        var cb = (ComboBox)sender;
+        _config.FtpProfile.Encoding = cb.SelectedItem switch
+        {
+            Encodings.Default          => Encoding.Default,
+            Encodings.ASCII            => Encoding.ASCII,
+            Encodings.BigEndianUnicode => Encoding.BigEndianUnicode,
+            Encodings.Latin1           => Encoding.Latin1,
+            Encodings.UTF32            => Encoding.UTF32,
+            Encodings.UTF8             => Encoding.UTF8,
+            Encodings.Unicode          => Encoding.Unicode,
+            _                          => throw new ArgumentOutOfRangeException(nameof(cb.SelectedItem), cb.SelectedItem, null)
+        };
+        FtpEncodingPropertyGrid!.SelectedObject = _config.FtpProfile.Encoding;
+    }
+
+
+    private void CbHasCredentials_OnChecked(object sender, RoutedEventArgs e) => FtpNetworkCredentials?.Visibility = Visibility.Visible;
+
+
+    private void CbHasCredentials_OnUnchecked(object sender, RoutedEventArgs e) => FtpNetworkCredentials?.Visibility = Visibility.Collapsed;
+
+
+    private void CbHasCredentials_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is CheckBox { IsChecked: true })
+            CbHasCredentials_OnChecked(sender, e);
+        else
+            CbHasCredentials_OnUnchecked(sender, e);
+    }
+
+
+    private void WatermarkPasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
+    {
+        switch (sender)
+        {
+            case WatermarkPasswordBox box:
+                _config?.FtpProfile?.Credentials?.Password       = box.Password;
+                _config?.FtpProfile?.Credentials?.SecurePassword = box.SecurePassword;
+                break;
+            case WatermarkTextBox box:
+                _config?.FtpProfile?.Credentials?.Password = box.Text;
+                break;
+        }
+    }
+
+
+    private void FtpNetworkCredentials_OnExpanded(object sender, RoutedEventArgs e)
+    {
+        Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(250)).ConfigureAwait(false);
+            Dispatcher?.Invoke(() =>
+            {
+                var cb = FtpCredentialsPropertyGrid?.FindVisualChild<CheckBox>();
+                if (cb is not null)
+                    SecurePassword_OnClick(cb, new RoutedEventArgs());
+            });
+        });
+    }
+
+
+    private void SecurePassword_OnClick(object sender, RoutedEventArgs e)
+    {
+        var cb     = sender as CheckBox;
+        var passwd = _config?.FtpProfile?.Credentials?.Password!;
+        _cc?.ContentTemplate = (TryFindResource(cb?.IsChecked == true ? "SecurePasswordBox" : "UnsecuredPasswordBox") as DataTemplate)!;
+
+        Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(250)).ConfigureAwait(false);
+            Dispatcher?.Invoke(() =>
+            {
+                if (cb?.IsChecked == true)
+                    FtpCredentialsPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = passwd;
+                else
+                    FtpCredentialsPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = passwd;
+            });
+        });
+    }
+
+
+    private void PasswordTextBox_OnLoaded(object sender, RoutedEventArgs e) => _cc = sender as ContentControl;
 }
