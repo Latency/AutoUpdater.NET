@@ -100,16 +100,7 @@ public partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDo
     /// <returns></returns>
     public async Task DownloadUpdate(IConfig? config)
     {
-        string tempFile;
-
-        if (string.IsNullOrEmpty(_args.DownloadPath))
-            tempFile = Path.GetTempFileName();
-        else
-        {
-            tempFile = Path.Combine(_args.DownloadPath, $"{Guid.NewGuid().ToString()}.tmp");
-            if (!Directory.Exists(_args.DownloadPath))
-                Directory.CreateDirectory(_args.DownloadPath);
-        }
+        var tempFile = Path.GetTempFileName();
 
         // Create a file stream to store the downloaded data.
         // This really can be any type of writeable stream.
@@ -135,12 +126,7 @@ public partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDo
             if (_args.CheckSum != null)
                 CompareChecksum(tempFile, _args.CheckSum);
 
-            var tempPath =
-                Path.Combine(
-                    string.IsNullOrEmpty(_args.DownloadPath)
-                        ? Path.GetTempPath()
-                        : _args.DownloadPath,
-                    tempFile);
+            var tempPath = Path.Combine(Path.GetTempPath(), tempFile);
 
             if (File.Exists(tempPath))
                 File.Delete(tempPath);

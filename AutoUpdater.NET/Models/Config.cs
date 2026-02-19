@@ -63,6 +63,20 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     #endregion FTP
 
+    #region WindowSize
+    [ObservableProperty]
+    public partial bool WindowSizeOverride { get; set; }
+
+    /// <summary>
+    ///     Resizes the update window.
+    /// </summary>
+    [ObservableProperty]
+    public partial Size? WindowSize { get; set; } = new() { Width = 1, Height = 1 };
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnWindowSizeChanged(Size? value) => _UpdateValidation();
+
+    #endregion WindowSize
+
     #region AppTitle
     /// <summary>
     ///     Set the Application Title shown in Update dialog. Although AutoUpdater.NET will get it automatically, you can set
@@ -659,7 +673,7 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     #region Event Invocators
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private  void _UpdateValidation() => _UpdateValidation(!EqualsPredicate.Value.Invoke());
+    private  void _UpdateValidation() => _UpdateValidation(!EqualsPredicate?.Value.Invoke());
 
     internal void _UpdateValidation(bool? value) => UpdateValidation?.Invoke(value);
 
@@ -800,6 +814,7 @@ internal sealed partial class Config : ObservableObject, IConfig
                TimerInterval             == other.TimerInterval &&
                TopMostDisabled           == other.TopMostDisabled &&
                UserSelectRemindLater     == other.UserSelectRemindLater &&
+               WindowSize                == other.WindowSize &&
                ZipExtractionPathOverride == other.ZipExtractionPathOverride;
 
 

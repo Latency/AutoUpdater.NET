@@ -768,16 +768,14 @@
                                 <xctk:EditorTemplateDefinition TargetProperties="Domain">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
-                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                                            <TextBox Text="{Binding Value}" />
+                                            <TextBox />
                                         </DataTemplate>
                                     </xctk:EditorTemplateDefinition.EditingTemplate>
                                 </xctk:EditorTemplateDefinition>
                                 <xctk:EditorTemplateDefinition TargetProperties="Password">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
-                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                                            <ContentControl Content="{Binding Value}" Loaded="PasswordTextBox_OnLoaded">
+                                            <ContentControl Loaded="PasswordTextBox_OnLoaded">
                                                 <ContentControl.Style>
                                                     <Style TargetType="ContentControl">
                                                         <Setter Property="ContentTemplate" Value="{StaticResource UnsecuredPasswordBox}"/>
@@ -797,8 +795,7 @@
                                 <xctk:EditorTemplateDefinition TargetProperties="UserName">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
-                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                                            <TextBox Text="{Binding Value}" />
+                                            <TextBox />
                                         </DataTemplate>
                                     </xctk:EditorTemplateDefinition.EditingTemplate>
                                 </xctk:EditorTemplateDefinition>
@@ -873,8 +870,7 @@
                             <xctk:EditorTemplateDefinition TargetProperties="RetryAttempts">
                                 <xctk:EditorTemplateDefinition.EditingTemplate>
                                     <DataTemplate>
-                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                                        <xctk:IntegerUpDown Value="{Binding Value}" Minimum="0" />
+                                        <xctk:IntegerUpDown Minimum="0" />
                                     </DataTemplate>
                                 </xctk:EditorTemplateDefinition.EditingTemplate>
                             </xctk:EditorTemplateDefinition>
@@ -891,19 +887,26 @@
                                     </DataTemplate>
                                 </xctk:EditorTemplateDefinition.EditingTemplate>
                             </xctk:EditorTemplateDefinition>
+                            <xctk:EditorTemplateDefinition TargetProperties="Host">
+                                <xctk:EditorTemplateDefinition.EditingTemplate>
+                                    <DataTemplate>
+                                        <xctk:WatermarkTextBox
+                                            Watermark="Enter the hostname"
+                                        />
+                                    </DataTemplate>
+                                </xctk:EditorTemplateDefinition.EditingTemplate>
+                            </xctk:EditorTemplateDefinition>
                             <xctk:EditorTemplateDefinition TargetProperties="SocketPollInterval">
                                 <xctk:EditorTemplateDefinition.EditingTemplate>
                                     <DataTemplate>
-                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                                        <xctk:IntegerUpDown Value="{Binding Value}" Minimum="0" />
+                                        <xctk:IntegerUpDown Minimum="0" />
                                     </DataTemplate>
                                 </xctk:EditorTemplateDefinition.EditingTemplate>
                             </xctk:EditorTemplateDefinition>
                             <xctk:EditorTemplateDefinition TargetProperties="Timeout">
                                 <xctk:EditorTemplateDefinition.EditingTemplate>
                                     <DataTemplate>
-                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                                        <xctk:IntegerUpDown Value="{Binding Value}" Minimum="0" />
+                                        <xctk:IntegerUpDown Minimum="0" />
                                     </DataTemplate>
                                 </xctk:EditorTemplateDefinition.EditingTemplate>
                             </xctk:EditorTemplateDefinition>
@@ -920,72 +923,25 @@
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
-                    Name="cbUseZipFile"
-                    IsChecked="{Binding Config.UseZipFile}"
-                    ToolTip="Check this to persist 'Remind Later' and 'Skip' values in a JSON file instead of the registry."
-                    Content="Use ZIP File"
+                    Name="cbClearAppDirectory"
+                    IsChecked="{Binding Config.ClearAppDirectory}"
+                    ToolTip="Check this to clear application directory before update zip is extracted.&#x0a;This only works when using a zip file as an update file."
+                    Content="Clear Application Directory"
                 />
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
-                    Name="cbClearAppDirectory"
-                    IsChecked="{Binding Config.ClearAppDirectory}"
-                    Margin="10,0,0,0"
-                    ToolTip="Check this to clear application directory before update zip is extracted.&#x0a;This only works when using a zip file as an update file."
-                    Content="Clear App Directory"
-                >
-                    <CheckBox.Style>
-                        <Style TargetType="CheckBox">
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </MultiDataTrigger>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True" />
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </CheckBox.Style>
-                </CheckBox>
-
-                <!-- ReSharper disable once InconsistentNaming -->
-                <CheckBox
                     Name="cbExecutablePathOverride"
-                    Margin="10,0,0,0"
                     IsChecked="{Binding Config.ExecutablePathOverride}"
                     ToolTip="Check this to execute different executable after the update.&#x0a;This only works when using a zip file as an update file."
                     Content="Executable Path Override"
-                >
-                    <CheckBox.Style>
-                        <Style TargetType="CheckBox">
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </MultiDataTrigger>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True" />
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </CheckBox.Style>
-                </CheckBox>
+                />
 
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="Executable Path:  "
-                           FontFamily="Courier New"
-                           Margin="20,0,0,0">
+                <StackPanel
+                    Margin="15,0"
+                    Orientation="Horizontal"
+                >
+                    <Label Content="Path:">
                         <Label.Style>
                             <Style TargetType="Label">
                                 <Style.Triggers>
@@ -1000,12 +956,6 @@
                                             <Condition Binding="{Binding IsChecked, ElementName=cbExecutablePathOverride}" Value="True" />
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible" />
-                                    </MultiDataTrigger>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Visibility" Value="Collapsed" />
                                     </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -1018,6 +968,7 @@
                         ToolTip="Enter the customized executable path to be executed after the update."
                         Text="{Binding Config.ExecutablePath}"
                         Width="150"
+                        Height="20"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">
@@ -1034,12 +985,6 @@
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible" />
                                     </MultiDataTrigger>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBox.Style>
@@ -1048,56 +993,30 @@
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
-                    Name="cbZipExtractionPathOverride"
-                    Margin="10,0,0,0"
+                    Name="cbInstallationPathOverride"
                     IsChecked="{Binding Config.ZipExtractionPathOverride}"
-                    ToolTip="Check this to change the update zip extraction path.&#x0a;This only works when using a zip file as an update file."
-                    Content="ZIP Extraction Path Override"
-                >
-                    <CheckBox.Style>
-                        <Style TargetType="CheckBox">
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </MultiDataTrigger>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="True" />
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </CheckBox.Style>
-                </CheckBox>
+                    ToolTip="Check this to change the installation path."
+                    Content="Installation Path Override"
+                />
 
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="Installation Path:"
-                           FontFamily="Courier New"
-                           Margin="20,0,0,0">
+                <StackPanel
+                    Margin="15,0"
+                    Orientation="Horizontal">
+                    <Label Content="Path:">
                         <Label.Style>
                             <Style TargetType="Label">
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}" Value="False" />
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbInstallationPathOverride}" Value="False" />
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </MultiDataTrigger>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}" Value="True" />
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbInstallationPathOverride}" Value="True" />
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible" />
-                                    </MultiDataTrigger>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Visibility" Value="Collapsed" />
                                     </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -1110,32 +1029,124 @@
                         ToolTip="Enter the customized update zip extraction path."
                         Text="{Binding Config.InstallationPath}"
                         Width="150"
+                        Height="20"
                     >
                         <TextBox.Style>
                             <Style TargetType="TextBox">
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}" Value="False" />
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbInstallationPathOverride}" Value="False" />
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </MultiDataTrigger>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsChecked, ElementName=cbZipExtractionPathOverride}" Value="True" />
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbInstallationPathOverride}" Value="True" />
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible" />
-                                    </MultiDataTrigger>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsChecked, ElementName=cbUseZipFile}" Value="False" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Visibility" Value="Collapsed" />
                                     </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBox.Style>
                     </TextBox>
+                </StackPanel>
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <CheckBox
+                    Name="cbWindowSizeOverride"
+                    IsChecked="{Binding Config.WindowSizeOverride}"
+                    ToolTip="Check this to override the window size."
+                    Content="Window Size Override"
+                    Checked="CbWindowSizeOverride_OnChecked"
+                />
+
+                <StackPanel
+                    Margin="15,0"
+                    Orientation="Horizontal">
+                    <Label Content="Size:">
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <!-- ReSharper disable once InconsistentNaming -->
+                    <xctk:PropertyGrid
+                        Name="WindowSizePropertyGrid"
+                        ToolTip="Enter the window size to be overriden."
+                        AutoGenerateProperties="False"
+                        IsCategorized="False"
+                        SelectedObject="{Binding Config.WindowSize}"
+                        ShowAdvancedOptions="False"
+                        ShowDescriptionByTooltip="False"
+                        ShowPreview="False"
+                        ShowSearchBox="False"
+                        ShowSortOptions="False"
+                        ShowSummary="False"
+                        ShowTitle="False"
+                    >
+                        <xctk:PropertyGrid.Style>
+                            <Style TargetType="xctk:PropertyGrid">
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </xctk:PropertyGrid.Style>
+                        <xctk:PropertyGrid.EditorDefinitions>
+                            <xctk:EditorTemplateDefinition TargetProperties="Height">
+                                <xctk:EditorTemplateDefinition.EditingTemplate>
+                                    <DataTemplate>
+                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                        <xctk:IntegerUpDown 
+                                            Name="WindowSizeHeight"
+                                            Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                            Minimum="1" />
+                                    </DataTemplate>
+                                </xctk:EditorTemplateDefinition.EditingTemplate>
+                            </xctk:EditorTemplateDefinition>
+                            <xctk:EditorTemplateDefinition TargetProperties="Width">
+                                <xctk:EditorTemplateDefinition.EditingTemplate>
+                                    <DataTemplate>
+                                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                        <xctk:IntegerUpDown
+                                            Name="WindowSizeWidth"
+                                            Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                            Minimum="1" />
+                                    </DataTemplate>
+                                </xctk:EditorTemplateDefinition.EditingTemplate>
+                            </xctk:EditorTemplateDefinition>
+                        </xctk:PropertyGrid.EditorDefinitions>
+                        <xctk:PropertyGrid.PropertyDefinitions>
+                            <xctk:PropertyDefinition TargetProperties="Height" />
+                            <xctk:PropertyDefinition TargetProperties="Width" />
+                        </xctk:PropertyGrid.PropertyDefinitions>
+                    </xctk:PropertyGrid>
                 </StackPanel>
 
                 <!-- ReSharper disable once InconsistentNaming -->

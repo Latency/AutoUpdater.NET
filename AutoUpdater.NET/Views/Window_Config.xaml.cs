@@ -208,5 +208,24 @@ public partial class Window_Config
     }
 
 
+    private void CbWindowSizeOverride_OnChecked(object sender, RoutedEventArgs e)
+    {
+        Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(250)).ConfigureAwait(false);
+
+            Dispatcher?.Invoke(() =>
+            {
+                var size = _config?.WindowSize;
+                if (!size.HasValue)
+                    return;
+
+                WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeHeight")?.Value = (int)size.Value.Height;
+                WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeWidth")?.Value  = (int)size.Value.Width;
+            });
+        });
+    }
+
+
     private void PasswordTextBox_OnLoaded(object sender, RoutedEventArgs e) => _cc = sender as ContentControl;
 }

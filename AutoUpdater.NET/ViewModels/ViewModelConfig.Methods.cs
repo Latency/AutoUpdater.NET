@@ -44,12 +44,12 @@ public partial class ViewModelConfig
         var window = Dependencies.WindowService.InitializeWindow<Window_Update, IViewModelUpdate>(((IViewModelRestricted)this).Owner);
 
         window.LabelTitle!.Content    = string.Format(window.LabelTitle.Tag!.ToString()!,       args.InstalledVersion);
-        window.LabelDescription!.Text = string.Format(window.LabelDescription.Tag!.ToString()!, args.CurrentVersion, args.InstalledVersion);
+        window.LabelDescription!.Text = string.Format(window.LabelDescription.Tag!.ToString()!, Assembly.GetExecutingAssembly().Version(), args.InstalledVersion);
 
-        if (args.WindowSize.HasValue)
+        if (Config.WindowSize.HasValue)
         {
-            window.Width  = args.WindowSize.Value.Width;
-            window.Height = args.WindowSize.Value.Height;
+            window.Width  = Config.WindowSize.Value.Width;
+            window.Height = Config.WindowSize.Value.Height;
         }
 
         window.Show();
@@ -91,16 +91,13 @@ public partial class ViewModelConfig
             {
                 try
                 {
-                    await CheckUpdate().ContinueWith(t =>
+                    await CheckUpdate()
+                    .ContinueWith(t =>
                     {
-                       var args = t.Result;
-                       if (args?.Error != null)
-                           throw new Exception(args.Error.Message, args.Error);
-
                        if (t.IsCanceled)
                            throw new TaskCanceledException();
 
-                       StartUpdate(args);
+                       StartUpdate(new UpdateInfoEventArgs());
                     })
                     .ConfigureAwait(false);
                 }
@@ -130,14 +127,15 @@ public partial class ViewModelConfig
 
         if (_baseUri.Scheme.Equals(Uri.UriSchemeFtp))
         {
+            _ftpCTS = new CancellationTokenSource();
+
             try
             {
-                _ftpCTS = new CancellationTokenSource();
                 await FtpClient.Connect(Config.FtpProfile, _ftpCTS.Token);
 
                 #if DEBUG
                 // Example operation: get a list of files
-                foreach (var item in await FtpClient.GetListing("/"))
+                foreach (var item in await FtpClient.GetListing("/").ConfigureAwait(false))
                 {
                     Console.WriteLine($"{item.Type}: {item.Name}");
                 }
@@ -148,6 +146,7 @@ public partial class ViewModelConfig
                 {
                     var status = await FtpClient.DownloadFile(_config.ExecutablePath, _config.InstallationPath, FtpLocalExists.Overwrite, FtpVerify.Retry, _ftpProgress, _ftpCTS.Token);
                     switch (status)
+
                     {
                         case FtpStatus.Failed:
                             break;
@@ -168,11 +167,11 @@ public partial class ViewModelConfig
             }
             finally
             {
-                await FtpClient.Disconnect()!;
+                await FtpClient.Disconnect(_ftpCTS.Token)!;
 
                 if (_ftpCTS is not null)
                 {
-                    _ftpCTS?.Dispose();
+                    _ftpCTS.Dispose();
                     _ftpCTS = null;
                 }
             }
@@ -204,13 +203,7 @@ public partial class ViewModelConfig
 
         var args = JsonSerializer.Deserialize<UpdateInfoEventArgs>(json);
 
-        if (string.IsNullOrEmpty(args?.CurrentVersion?.ToString()))
-        {
-            MessageBox.Show($"{nameof(args.CurrentVersion)} must be defined!", Settings.Default!.UpdateUnavailableCaption!, MessageBoxButton.OK, MessageBoxImage.Stop);
-            return args;
-        }
-
-        if (string.IsNullOrEmpty(args.CurrentVersion?.ToString()) || string.IsNullOrEmpty(args.DownloadURL))
+        if (string.IsNullOrEmpty(args.DownloadURL))
             throw new MissingFieldException();
 
         args.InstalledVersion = new Version2
@@ -253,10 +246,10 @@ public partial class ViewModelConfig
                 return false;
 
             if (CheckForUpdates != null)
-                CheckForUpdates?.Invoke(args);
+                CheckForUpdates.Invoke(args);
             else
             {
-                if (args.IsUpdateAvailable)
+                if (Assembly.GetExecutingAssembly().Version() > args.InstalledVersion?.Version)
                 {
                     if (Config is { IsMandatory: true, UpdateMode: Mode.ForcedDownload })
                         DownloadUpdate(args);
@@ -281,23 +274,12 @@ public partial class ViewModelConfig
     /// <param name="exception"></param>
     private void ShowError(Exception exception)
     {
-        if (CheckForUpdates != null)
-        {
-            // Event Invocator
-            CheckForUpdates.Invoke(new UpdateInfoEventArgs
-            {
-                Error = exception
-            });
-        }
-        else
-        {
-            if (!Config.ReportErrors)
-                return;
+        if (!Config.ReportErrors)
+            return;
 
-            if (exception is WebException)
-                MessageBox.Show(Settings.Default!.UpdateCheckFailedMessage!, Settings.Default.UpdateCheckFailedCaption!, MessageBoxButton.OK, MessageBoxImage.Error);
-            else
-                MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-        }
+        if (exception is WebException)
+            MessageBox.Show(Settings.Default!.UpdateCheckFailedMessage!, Settings.Default.UpdateCheckFailedCaption!, MessageBoxButton.OK, MessageBoxImage.Error);
+        else
+            MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
     }
 }

@@ -7,6 +7,7 @@
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using AutoUpdaterDotNET.Enums;
@@ -19,7 +20,11 @@ public interface IConfig : IEquatable<IConfig?>
 {
     FtpProfile? FtpProfile { get; set; }
 
-    bool IsAppTitle { get; set; }
+    bool WindowSizeOverride { get; set; }
+
+    Size? WindowSize { get; set; }
+
+    bool  IsAppTitle { get; set; }
 
     string? AppTitle { get; set; }
 

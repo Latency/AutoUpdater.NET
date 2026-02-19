@@ -5,7 +5,6 @@
 // Date:     06/10/2025
 // ****************************************************************************
 
-using System.Text.Json.Serialization;
 using System.Windows;
 
 namespace AutoUpdaterDotNET.Models;
@@ -13,19 +12,8 @@ namespace AutoUpdaterDotNET.Models;
 /// <summary>
 ///     Object of this class gives you all the details about the update useful in handling the update logic yourself.
 /// </summary>
-public class UpdateInfoEventArgs : EventArgs
+public class UpdateInfoEventArgs
 {
-    /// <summary>
-    ///     Resizes the update window.
-    /// </summary>
-    public Size? WindowSize { get; set; }
-
-    /// <summary>
-    ///     If new update is available then returns true otherwise false.
-    /// </summary>
-    [JsonIgnore]
-    public bool IsUpdateAvailable => CurrentVersion?.Version > InstalledVersion?.Version;
-
     /// <summary>
     ///     BaseUri
     /// </summary>
@@ -42,34 +30,9 @@ public class UpdateInfoEventArgs : EventArgs
     } = string.Empty;
 
     /// <summary>
-    ///     URL of the webpage specifying changes in the new update.
-    /// </summary>
-    // ReSharper disable once InconsistentNaming
-    public string? ChangelogURL
-    {
-        get => GetURL(BaseUri, field);
-        set;
-    } = string.Empty;
-
-    /// <summary>
-    ///     Returns newest version of the application available to download.
-    /// </summary>
-    public Version2? CurrentVersion { get; set; }
-
-    /// <summary>
     ///     Returns version of the application currently installed on the user's PC.
     /// </summary>
     public Version2? InstalledVersion { get; set; }
-
-    /// <summary>
-    ///     Shows if the update is required or optional.
-    /// </summary>
-    public Mandatory Mandatory { get; set; } = new();
-
-    /// <summary>
-    ///     Executable path of the updated application relative to installation directory.
-    /// </summary>
-    public string? ExecutablePath { get; set; }
 
     /// <summary>
     ///     Command line arguments used by Installer.
@@ -80,23 +43,6 @@ public class UpdateInfoEventArgs : EventArgs
     ///     Checksum of the update file.
     /// </summary>
     public CheckSum? CheckSum { get; set; }
-
-    /// <summary>
-    ///     If there is an error while checking for update then this property won't be null.
-    /// </summary>
-    [JsonIgnore]
-    public Exception? Error { get; set; }
-
-    /// <summary>
-    ///     Login/password/domain for FTP-request
-    /// </summary>
-    public string? DownloadPath { get; set; }
-
-    /// <summary>
-    ///     Date/Time value for <see cref="UpdateInfoEventArgs" />
-    /// </summary>
-    [JsonIgnore]
-    public DateTime TimeStamp { get; set; }
 
     // ReSharper disable once InconsistentNaming
     private static string? GetURL(Uri? baseUri, string? url)
