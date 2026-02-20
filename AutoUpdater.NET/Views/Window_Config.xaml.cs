@@ -7,6 +7,8 @@
 // ReSharper disable InconsistentNaming
 
 using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Extensions;
+using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.ViewModels;
 using System.Reflection;
@@ -16,7 +18,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using AutoUpdaterDotNET.Extensions;
 using Xceed.Wpf.Toolkit;
 using MessageBox = System.Windows.MessageBox;
 
@@ -25,17 +26,19 @@ namespace AutoUpdaterDotNET.Views;
 public partial class Window_Config
 {
     [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
-    private static partial Regex MyRegex();
+    private static partial Regex UriRegex();
 
-    private Config?           _config;
-    private ContentControl?   _cc;
+    private          Config?                  _config;
+    private          ContentControl?          _cc;
+    private readonly IViewModelDownloadUpdate _vmDownloadUpdate;
 
 
     /// <summary>
     ///     Constructor
     /// </summary>
-    public Window_Config()
+    public Window_Config(IViewModelDownloadUpdate vmDownloadUpdate)
     {
+        _vmDownloadUpdate = vmDownloadUpdate;
         InitializeComponent();
     }
 
@@ -63,6 +66,12 @@ public partial class Window_Config
         _config.UpdateVersion    += OnUpdateVersion;
         _config.UpdateValidation += OnUpdateValidation;
         _config.UpdateTitle      += OnUpdateTitle;
+
+        var dl                               = _vmDownloadUpdate.Download;
+        tvAfterCheckForUpdates!.ItemsSource  = dl.AfterCheckForUpdatesNodeList;
+        tvBeforeCheckForUpdates!.ItemsSource = dl.BeforeCheckForUpdatesNodeList;
+        tvUpdateComplete!.ItemsSource        = dl.UpdateCompleteNodeList;
+        tvTimers!.ItemsSource                = dl.TimerNodeList;
     }
 
 
@@ -100,7 +109,7 @@ public partial class Window_Config
         if (e.Text != "\r")
             return;
 
-        var regex = MyRegex();
+        var regex = UriRegex();
         if (!regex.IsMatch(((TextBox)e.OriginalSource!).Text))
             MessageBox.Show("Invalid Input!", "Validation Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
 

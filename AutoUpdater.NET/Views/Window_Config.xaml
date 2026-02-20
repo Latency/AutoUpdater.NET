@@ -932,7 +932,6 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbExecutablePathOverride"
-                    IsChecked="{Binding Config.ExecutablePathOverride}"
                     ToolTip="Check this to execute different executable after the update.&#x0a;This only works when using a zip file as an update file."
                     Content="Executable Path Override"
                 />
@@ -966,7 +965,7 @@
                     <TextBox
                         Name="tbExecutablePathOverride"
                         ToolTip="Enter the customized executable path to be executed after the update."
-                        Text="{Binding Config.ExecutablePath}"
+                        Text="{Binding Config.ExecutablePathOverride}"
                         Width="150"
                         Height="20"
                     >
@@ -994,7 +993,6 @@
                 <!-- ReSharper disable once InconsistentNaming -->
                 <CheckBox
                     Name="cbInstallationPathOverride"
-                    IsChecked="{Binding Config.ZipExtractionPathOverride}"
                     ToolTip="Check this to change the installation path."
                     Content="Installation Path Override"
                 />
@@ -1027,7 +1025,7 @@
                     <TextBox
                         Name="tbInstallationPath"
                         ToolTip="Enter the customized update zip extraction path."
-                        Text="{Binding Config.InstallationPath}"
+                        Text="{Binding Config.InstallationPathOverride}"
                         Width="150"
                         Height="20"
                     >
@@ -1399,15 +1397,21 @@
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <TreeView
-                    Name="tvApplicationExit"
+                    Name="tvUpdateComplete"
                     BorderThickness="0"
                     ItemsSource="{Binding Config.UpdateCompleteNodeList}" />
 
                 <!-- ReSharper disable once InconsistentNaming -->
                 <TreeView
-                    Name="tvCheckForUpdates"
+                    Name="tvBeforeCheckForUpdates"
                     BorderThickness="0"
-                    ItemsSource="{Binding Config.CheckForUpdatesNodeList}" />
+                    ItemsSource="{Binding Config.BeforeCheckForUpdatesNodeList}" />
+
+                <!-- ReSharper disable once InconsistentNaming -->
+                <TreeView
+                    Name="tvAfterCheckForUpdates"
+                    BorderThickness="0"
+                    ItemsSource="{Binding Config.AfterCheckForUpdatesNodeList}" />
 
             </StackPanel>
         </ScrollViewer>

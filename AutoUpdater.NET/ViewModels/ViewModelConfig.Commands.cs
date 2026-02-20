@@ -6,75 +6,21 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.Properties;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Text.Json;
-using System.Windows.Controls;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
 public partial class ViewModelConfig
 {
     [RelayCommand]
-    private void Loaded()
-    {
-        _updateTimer.Interval = GetRemindLaterInterval(_config.TimerInterval);
-
-        InvocationListGenerator(_updateTimer, nameof(_updateTimer.Tick), _config.TimerNodeList);
-        InvocationListGenerator(this,         nameof(UpdateComplete),    _config.UpdateCompleteNodeList);
-        InvocationListGenerator(this,         nameof(CheckForUpdates),   _config.CheckForUpdatesNodeList);
-
-        LoadConfig();
-
-        return;
-
-        // -------------------------------------------
-        TimeSpan GetRemindLaterInterval(ushort interval) => _config.TimerDurationTimeSpan switch
-        {
-            RemindLaterFormat.Seconds => TimeSpan.FromSeconds(interval),
-            RemindLaterFormat.Minutes => TimeSpan.FromMinutes(interval),
-            RemindLaterFormat.Hours   => TimeSpan.FromHours(interval),
-            RemindLaterFormat.Days    => TimeSpan.FromDays(interval),
-            RemindLaterFormat.Weeks   => TimeSpan.FromDays(interval * 7),
-            _                         => throw new ArgumentOutOfRangeException(nameof(interval))
-        };
-
-        static void InvocationListGenerator<T>(T obj, string eventHandlerName, ObservableCollection<TreeViewItem> nodeList)
-            where T : class
-        {
-            var y = typeof(T).GetField(eventHandlerName, BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ?? throw new NullReferenceException("Field not found in type.");
-            var root = new TreeViewItem
-            {
-                Header = $"On{eventHandlerName} (Delegates)"
-            };
-            nodeList.Add(root);
-
-            // Delegate was not registered within the object.
-            if (y.GetValue(obj) is not Delegate x)
-            {
-                root.Items.Add(new TreeViewItem
-                {
-                    Header = "(None)"
-                });
-                return;
-            }
-
-            var z = 1;
-            foreach (var signature in x.GetInvocationList())
-                root.Items.Add(new TreeViewItem
-                {
-                    Header = $"{z++}.  {y.GetValue(obj)!.GetType().Name} {signature.Method.Name}"
-                });
-        }
-    }
+    private void Loaded() => LoadConfig();
 
 
     [RelayCommand]
@@ -154,10 +100,11 @@ public partial class ViewModelConfig
                 throw new NullReferenceException("Unable to deserialize json from 'Config'.");
 
             // Preserve Properties
-            vmmc.EqualsPredicate         = _config.EqualsPredicate;
-            vmmc.CheckForUpdatesNodeList = _config.CheckForUpdatesNodeList;
-            vmmc.TimerNodeList           = _config.TimerNodeList;
-            vmmc.UpdateCompleteNodeList  = _config.UpdateCompleteNodeList;
+            vmmc.EqualsPredicate               = _config.EqualsPredicate;
+            vmmc.BeforeCheckForUpdatesNodeList = _config.BeforeCheckForUpdatesNodeList;
+            vmmc.AfterCheckForUpdatesNodeList  = _config.AfterCheckForUpdatesNodeList;
+            vmmc.TimerNodeList                 = _config.TimerNodeList;
+            vmmc.UpdateCompleteNodeList        = _config.UpdateCompleteNodeList;
 
             _config.Copy(vmmc);
 

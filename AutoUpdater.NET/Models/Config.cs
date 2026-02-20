@@ -42,8 +42,6 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     private BasicAuth? _defaultBasicAuth;
 
-    private ZipFile? _defaultZipFile;
-
     internal Lazy<Func<bool>>? EqualsPredicate;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
@@ -387,94 +385,34 @@ internal sealed partial class Config : ObservableObject, IConfig
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnTopMostDisabledChanged(bool value) => _UpdateValidation();
 
-    #region Use ZipFile
-    [JsonIgnore]
+    /// <summary>
+    ///     Checksum of the update file.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
-    public partial bool UseZipFile { get; set; }
-    partial void OnUseZipFileChanged(bool value)
-    {
-        ZipFile = !value ? null : new ZipFile(); // _clearAppDirectory || (_executablePathOverride && !string.IsNullOrEmpty(_executablePath)) || (_zipExtractionPathOverride && !string.IsNullOrEmpty(_installationPath)) ? _defaultZipFile ??= new ZipFile() : null;
-
-        _UpdateValidation();
-    }
+    public partial CheckSum? CheckSum { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnCheckSumChanged(CheckSum? value) => _UpdateValidation();
 
     /// <summary>
-    ///     Set this to true if you want to clear application directory before extracting update.
+    ///     Set this to true if you want to clear application directory before extracting the update.
     /// </summary>
-    [JsonIgnore]
     [ObservableProperty]
     public partial bool ClearAppDirectory { get; set; }
-    partial void OnClearAppDirectoryChanged(bool value)
-    {
-        ZipFile                    = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(ExecutablePath)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(InstallationPath)) ? _defaultZipFile ??= new ZipFile() : null;
-        ZipFile?.ClearAppDirectory = value;
-
-        _UpdateValidation();
-    }
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial bool ExecutablePathOverride { get; set; }
-    partial void OnExecutablePathOverrideChanged(bool value)
-    {
-        ZipFile                               = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(ExecutablePath)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(InstallationPath)) ? _defaultZipFile ??= new ZipFile() : null;
-        ZipFile?.ExecutablePathOverride       = value && !string.IsNullOrEmpty(ExecutablePath) ? new FilePath() : null;
-        ZipFile?.ExecutablePathOverride?.Path = ExecutablePath;
-
-        _UpdateValidation();
-    }
-
-    /// <summary>
-    ///     If you are using a zip file as an update file, then you can set this value to a new executable path relative to the
-    ///     installation directory.
-    /// </summary>
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial string? ExecutablePath { get; set; }
-    partial void OnExecutablePathChanged(string? value)
-    {
-        ZipFile                               = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(value)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(InstallationPath)) ? _defaultZipFile ??= new ZipFile() : null;
-        ZipFile?.ExecutablePathOverride       = !string.IsNullOrEmpty(value) ? new FilePath() : null;
-        ZipFile?.ExecutablePathOverride?.Path = value;
-
-        _UpdateValidation();
-    }
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial bool ZipExtractionPathOverride { get; set; }
-    partial void OnZipExtractionPathOverrideChanged(bool value)
-    {
-        ZipFile                                  = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(ExecutablePath)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(InstallationPath)) ? _defaultZipFile ??= new ZipFile() : null;
-        ZipFile?.ZipExtractionPathOverride       = value && !string.IsNullOrEmpty(InstallationPath) ? new FilePath() : null;
-        ZipFile?.ZipExtractionPathOverride?.Path = InstallationPath;
-
-        _UpdateValidation();
-    }
-
-    /// <summary>
-    ///     If you are using a zip file as an update file then you can set this value to path where your app is installed. This
-    ///     is only necessary when your installation directory differs from your executable path.
-    /// </summary>
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial string? InstallationPath { get; set; }
-    partial void OnInstallationPathChanged(string? value)
-    {
-        ZipFile                                  = ClearAppDirectory || (ExecutablePathOverride && !string.IsNullOrEmpty(ExecutablePath)) || (ZipExtractionPathOverride && !string.IsNullOrEmpty(value)) ? _defaultZipFile ??= new ZipFile() : null;
-        ZipFile?.ZipExtractionPathOverride       = !string.IsNullOrEmpty(value) ? new FilePath() : null;
-        ZipFile?.ZipExtractionPathOverride?.Path = value;
-
-        _UpdateValidation();
-    }
-
-    #endregion Use ZipFile
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnClearAppDirectoryChanged(bool value) => _UpdateValidation();
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ObservableProperty]
-    public partial ZipFile? ZipFile { get; set; }
+    public partial FilePath? ExecutablePathOverride { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
-    //partial void OnZipFileChanged(ZipFile value) => _UpdateValidation();
+    partial void OnExecutablePathOverrideChanged(FilePath? value) => _UpdateValidation();
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [ObservableProperty]
+    public partial FilePath? InstallationPathOverride { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnInstallationPathOverrideChanged(FilePath? value) => _UpdateValidation();
 
     #region TimerEnabled
 
@@ -647,15 +585,19 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     [ObservableProperty]
     [JsonIgnore]
-    public partial ObservableCollection<TreeViewItem> TimerNodeList { get; set; } = [];
+    public partial ObservableCollection<TreeViewItem>? TimerNodeList { get; set; }
 
     [ObservableProperty]
     [JsonIgnore]
-    public partial ObservableCollection<TreeViewItem> UpdateCompleteNodeList { get; set; } = [];
+    public partial ObservableCollection<TreeViewItem>? UpdateCompleteNodeList { get; set; }
 
     [ObservableProperty]
     [JsonIgnore]
-    public partial ObservableCollection<TreeViewItem> CheckForUpdatesNodeList { get; set; } = [];
+    public partial ObservableCollection<TreeViewItem>? BeforeCheckForUpdatesNodeList { get; set; }
+
+    [ObservableProperty]
+    [JsonIgnore]
+    public partial ObservableCollection<TreeViewItem>? AfterCheckForUpdatesNodeList { get; set; }
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
@@ -751,10 +693,11 @@ internal sealed partial class Config : ObservableObject, IConfig
         foreach (var prop in other.GetType().GetProperties())
             GetType().GetProperty(prop.Name)?.SetValue(this, prop.GetValue(other));
 
-        EqualsPredicate         = other.EqualsPredicate;
-        CheckForUpdatesNodeList = other.CheckForUpdatesNodeList;
-        TimerNodeList           = other.TimerNodeList;
-        UpdateCompleteNodeList  = other.UpdateCompleteNodeList;
+        EqualsPredicate               = other.EqualsPredicate;
+        BeforeCheckForUpdatesNodeList = other.BeforeCheckForUpdatesNodeList;
+        AfterCheckForUpdatesNodeList  = other.AfterCheckForUpdatesNodeList;
+        TimerNodeList                 = other.TimerNodeList;
+        UpdateCompleteNodeList        = other.UpdateCompleteNodeList;
 
         TmpIcon                  = other.IconOverride?.Uri != null ? other.IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
         InstalledVersionOverride = other.InstalledVersion != null;
@@ -792,8 +735,9 @@ internal sealed partial class Config : ObservableObject, IConfig
                IsAppTitle                == other.IsAppTitle &&
                BasicAuthPassword         == other.BasicAuthPassword &&
                BasicAuthUserName         == other.BasicAuthUserName &&
-               ExecutablePath            == other.ExecutablePath &&
-               InstallationPath          == other.InstallationPath &&
+               CheckSum                  == other.CheckSum &&
+               ExecutablePathOverride    == other.ExecutablePathOverride &&
+               InstallationPathOverride  == other.InstallationPathOverride &&
                Proxy?.Uri                == other.Proxy?.Uri &&
                Proxy?.Password           == other.Proxy?.Password &&
                Proxy?.UserName           == other.Proxy?.UserName &&
@@ -814,8 +758,7 @@ internal sealed partial class Config : ObservableObject, IConfig
                TimerInterval             == other.TimerInterval &&
                TopMostDisabled           == other.TopMostDisabled &&
                UserSelectRemindLater     == other.UserSelectRemindLater &&
-               WindowSize                == other.WindowSize &&
-               ZipExtractionPathOverride == other.ZipExtractionPathOverride;
+               WindowSize                == other.WindowSize;
 
 
         bool IsIconOverride()

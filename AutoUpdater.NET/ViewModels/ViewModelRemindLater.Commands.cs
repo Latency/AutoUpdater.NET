@@ -163,9 +163,7 @@ public partial class ViewModelRemindLater
 
         if (Config.OpenDownloadPage)
             Dependencies.WindowService.InitializeWindow<Window_DownloadUpdate, IViewModelDownloadUpdate>(((IViewModelRestricted)this).Owner).Show();
-
-        // Start automatic updates!
-        var vmModelDownloadUpdate = Dependencies.ServiceProvider.GetRequiredService<IViewModelDownloadUpdate>();
-        vmModelDownloadUpdate.DownloadUpdate(Config);
+        else
+            Dependencies.ServiceProvider.GetRequiredService<IViewModelDownloadUpdate>().Start(); // Start automatic updates!
     }
 }

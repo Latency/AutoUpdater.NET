@@ -15,7 +15,7 @@ namespace AutoUpdaterDotNET.Models;
 /// <summary>
 ///     Checksum class to fetch the serialization values for checksum.
 /// </summary>
-public record CheckSum
+public record CheckSum : Hash
 {
     private readonly int _hashCode;
 
@@ -23,23 +23,40 @@ public record CheckSum
     /// <summary>
     ///     Constructor Overload +1
     /// </summary>
-    public CheckSum(Stream stream)
+    #pragma warning disable SYSLIB0058
+    public CheckSum(Stream stream, HashAlgorithmType hat = HashAlgorithmType.Sha256)
+    #pragma warning restore SYSLIB0058
     {
-        HashData  = SHA256.HashData(stream);
-        HashValue = Convert.ToHexString(HashData).ToLowerInvariant();
-
-        var hash = new HashCode();
-        hash.AddBytes(HashData);
-        _hashCode = hash.ToHashCode();
+        HashingAlgorithm = hat;
+        _hashCode        = CalculateHash(stream);
     }
 
 
     /// <summary>
     ///     Constructor Overload +2
     /// </summary>
-    public CheckSum(string plainText)
+    #pragma warning disable SYSLIB0058
+    public CheckSum(string plainText, HashAlgorithmType hat = HashAlgorithmType.Sha256)
+        : this(Encoding.UTF8.GetBytes(plainText), hat)
+    #pragma warning restore SYSLIB0058
     {
-        var b = Encoding.UTF8.GetBytes(plainText);
+    }
+
+
+    /// <summary>
+    ///     Constructor Overload +3
+    /// </summary>
+    #pragma warning disable SYSLIB0058
+    public CheckSum(byte[] bytes, HashAlgorithmType hat = HashAlgorithmType.Sha256)
+    #pragma warning restore SYSLIB0058
+    {
+        HashingAlgorithm = hat;
+        _hashCode = CalculateHash(bytes);
+    }
+
+
+    private int CalculateHash(dynamic b)
+    {
         #pragma warning disable CS0618 // Type or member is obsolete
         HashData = HashingAlgorithm switch
         #pragma warning restore CS0618 // Type or member is obsolete
@@ -58,25 +75,14 @@ public record CheckSum
 
         var hash = new HashCode();
         hash.AddBytes(HashData);
-        _hashCode = hash.ToHashCode();
+        return hash.ToHashCode();
     }
-
-
-    #pragma warning disable SYSLIB0058
-    public HashAlgorithmType HashingAlgorithm { get; set; }
-    #pragma warning restore SYSLIB0058
-
-
-    /// <summary>
-    ///     Hash of the file.
-    /// </summary>
-    public string HashValue { get; init; }
 
 
     /// <summary>
     ///     Hash algorithm that generated the hash.
     /// </summary>
-    public byte[] HashData { get; init; }
+    public byte[] HashData { get; private set; } = null!;
 
 
     /// <summary>

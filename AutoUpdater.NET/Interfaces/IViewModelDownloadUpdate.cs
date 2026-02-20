@@ -12,14 +12,11 @@ namespace AutoUpdaterDotNET.Interfaces;
 
 public interface IViewModelDownloadUpdate : IViewModelRestricted
 {
-    Task DownloadUpdate(IConfig config);
+    Download            Download            { get; }
+    DownloadStatistics  DownloadStatistics  { get; set; }
+    Progress<double>?   ProgressHandler     { get; set; }
+    Action<double>?     ProgressBarCallback { get; set; }
+    Action<long, long>? ContentCallback     { get; set; }
 
-    DownloadStatistics DownloadStatistics { get; set; }
-
-    // ReSharper disable once InconsistentNaming
-    CancellationTokenSource? CTS          { get; }
-
-    Action<double> ProgressBarCallback  { get; set; }
-
-    Action<long, long> ContentCallback { get; set; }
+    Task Start();
 }

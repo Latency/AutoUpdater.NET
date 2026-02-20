@@ -37,10 +37,7 @@ public partial class ViewModelUpdate
 
         if (vm.Config.OpenDownloadPage)
             dlWin.Show();
-        else
-        {
-            if (dlWin.DataContext is IViewModelDownloadUpdate vmModelDownloadUpdate)
-                await vmModelDownloadUpdate.DownloadUpdate(vm.Config); // Start automatic updates!
-        }
+        else if (dlWin.DataContext is IViewModelDownloadUpdate vmModelDownloadUpdate)
+            await vmModelDownloadUpdate.Start(); // Start automatic updates!
     }
 }

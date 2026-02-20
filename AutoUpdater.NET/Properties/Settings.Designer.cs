@@ -122,5 +122,32 @@ namespace AutoUpdaterDotNET.Properties {
                 return ((string)(this["UnableToDetermineFilenameMessage"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("/AutoUpdater/")]
+        public string RemotePath {
+            get {
+                return ((string)(this["RemotePath"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("UpdateInfo.json")]
+        public string UpdateInfoFile {
+            get {
+                return ((string)(this["UpdateInfoFile"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("bio-hazard.us")]
+        public string Domain {
+            get {
+                return ((string)(this["Domain"]));
+            }
+        }
     }
 }

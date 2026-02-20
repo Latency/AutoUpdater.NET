@@ -78,25 +78,19 @@ public interface IConfig : IEquatable<IConfig?>
 
     bool TopMostDisabled { get; set; }
 
-    bool UseZipFile { get; set; }
+    CheckSum? CheckSum { get; set; }
 
     bool ClearAppDirectory { get; set; }
-
-    bool ExecutablePathOverride { get; set; }
-
-    string? ExecutablePath { get; set; }
-
-    bool ZipExtractionPathOverride { get; set; }
-
-    string? InstallationPath { get; set; }
-
-    ZipFile? ZipFile { get; set; }
 
     bool TimerEnabled { get; set; }
 
     ushort TimerInterval { get; set; }
 
     RemindLaterFormat TimerDurationTimeSpan { get; set; }
+
+    FilePath? ExecutablePathOverride { get; set; }
+
+    FilePath? InstallationPathOverride { get; set; }
 
     TimerEnabled? Timer { get; set; }
 
@@ -122,12 +116,11 @@ public interface IConfig : IEquatable<IConfig?>
 
     BitmapImage? TmpIcon { get; set; }
 
-    ObservableCollection<TreeViewItem> TimerNodeList { get; set; }
+    ObservableCollection<TreeViewItem>? TimerNodeList { get; set; }
 
-    ObservableCollection<TreeViewItem> UpdateCompleteNodeList  { get; set; }
+    ObservableCollection<TreeViewItem>? UpdateCompleteNodeList  { get; set; }
 
-    ObservableCollection<TreeViewItem> CheckForUpdatesNodeList { get; set; }
+    ObservableCollection<TreeViewItem>? BeforeCheckForUpdatesNodeList { get; set; }
 
-    event PropertyChangedEventHandler?  PropertyChanged;
-    event PropertyChangingEventHandler? PropertyChanging;
+    ObservableCollection<TreeViewItem>? AfterCheckForUpdatesNodeList { get; set; }
 }

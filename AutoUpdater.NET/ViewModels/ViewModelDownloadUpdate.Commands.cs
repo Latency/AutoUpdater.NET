@@ -6,9 +6,8 @@
 // ****************************************************************************
 
 using AutoUpdaterDotNET.Enums;
-using AutoUpdaterDotNET.Interfaces;
+using AutoUpdaterDotNET.Models;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -17,10 +16,10 @@ public partial class ViewModelDownloadUpdate
     [RelayCommand]
     private void Close()
     {
-        var vm = Dependencies.ServiceProvider.GetRequiredService<IViewModelConfig>();
-        if (vm.Config is not { IsMandatory: true, UpdateMode: Mode.ForcedDownload })
-            ViewModelConfig.HttpWebClient.CancelPendingRequests();
+        var dl = _singletonDownload.Value;
+        if (dl.Config is not { IsMandatory: true, UpdateMode: Mode.ForcedDownload })
+            Download.HttpWebClient.CancelPendingRequests();
 
-        CTS?.Cancel();
+        dl.CTS?.Cancel();
     }
 }

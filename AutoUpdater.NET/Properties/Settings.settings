@@ -35,5 +35,14 @@
     <Setting Name="UnableToDetermineFilenameMessage" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Unable to determine the filename of the update file!</Value>
     </Setting>
+    <Setting Name="RemotePath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">/AutoUpdater/</Value>
+    </Setting>
+    <Setting Name="UpdateInfoFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">UpdateInfo.json</Value>
+    </Setting>
+    <Setting Name="Domain" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">bio-hazard.us</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
