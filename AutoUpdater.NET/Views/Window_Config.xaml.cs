@@ -19,6 +19,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Xceed.Wpf.Toolkit;
+using Xceed.Wpf.Toolkit.PropertyGrid;
 using MessageBox = System.Windows.MessageBox;
 
 namespace AutoUpdaterDotNET.Views;

@@ -6,19 +6,17 @@
 // ****************************************************************************
 
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Models;
-using FluentFTP;
 
 namespace AutoUpdaterDotNET.Interfaces;
 
 public interface IConfig : IEquatable<IConfig?>
 {
-    FtpProfile? FtpProfile { get; set; }
+    FtpProfile2? FtpProfile { get; set; }
 
     bool WindowSizeOverride { get; set; }
 

@@ -774,13 +774,6 @@
                         >
                             <!-- Override the following properties in the PropertyGrid -->
                             <xctk:PropertyGrid.EditorDefinitions>
-                                <xctk:EditorTemplateDefinition TargetProperties="Domain">
-                                    <xctk:EditorTemplateDefinition.EditingTemplate>
-                                        <DataTemplate>
-                                            <TextBox />
-                                        </DataTemplate>
-                                    </xctk:EditorTemplateDefinition.EditingTemplate>
-                                </xctk:EditorTemplateDefinition>
                                 <xctk:EditorTemplateDefinition TargetProperties="Password">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
@@ -798,19 +791,12 @@
                                         </DataTemplate>
                                     </xctk:EditorTemplateDefinition.EditingTemplate>
                                 </xctk:EditorTemplateDefinition>
-                                <xctk:EditorTemplateDefinition TargetProperties="UserName">
-                                    <xctk:EditorTemplateDefinition.EditingTemplate>
-                                        <DataTemplate>
-                                            <TextBox />
-                                        </DataTemplate>
-                                    </xctk:EditorTemplateDefinition.EditingTemplate>
-                                </xctk:EditorTemplateDefinition>
                             </xctk:PropertyGrid.EditorDefinitions>
                             <xctk:PropertyGrid.PropertyDefinitions>
-                                <xctk:PropertyDefinition TargetProperties="Domain"             DisplayName="Domain" />
-                                <xctk:PropertyDefinition TargetProperties="Password"           DisplayName="Password" />
-                                <xctk:PropertyDefinition TargetProperties="SecurePassword"     DisplayName="Secure Password" />
-                                <xctk:PropertyDefinition TargetProperties="UserName"           DisplayName="User Name" />
+                                <xctk:PropertyDefinition TargetProperties="Domain" />
+                                <xctk:PropertyDefinition TargetProperties="Password" />
+                                <xctk:PropertyDefinition TargetProperties="SecurePassword" DisplayName="Secure Password" />
+                                <xctk:PropertyDefinition TargetProperties="UserName"       DisplayName="User Name" />
                             </xctk:PropertyGrid.PropertyDefinitions>
                         </xctk:PropertyGrid>
                     </Expander>
@@ -852,7 +838,7 @@
                         IsCategorized="False"
                         SelectedObject="{Binding Config.FtpProfile}"
                         ShowAdvancedOptions="False"
-                        ShowDescriptionByTooltip="False"
+                        ShowDescriptionByTooltip="True"
                         ShowPreview="False"
                         ShowSearchBox="False"
                         ShowSortOptions="False"
@@ -873,18 +859,10 @@
                                     </DataTemplate>
                                 </xctk:EditorTemplateDefinition.EditingTemplate>
                             </xctk:EditorTemplateDefinition>
-                            <xctk:EditorTemplateDefinition TargetProperties="RetryAttempts">
-                                <xctk:EditorTemplateDefinition.EditingTemplate>
-                                    <DataTemplate>
-                                        <xctk:IntegerUpDown Minimum="0" />
-                                    </DataTemplate>
-                                </xctk:EditorTemplateDefinition.EditingTemplate>
-                            </xctk:EditorTemplateDefinition>
                             <xctk:EditorTemplateDefinition TargetProperties="Encoding">
                                 <xctk:EditorTemplateDefinition.EditingTemplate>
                                     <DataTemplate>
                                         <ComboBox
-                                            Name="CbEncoding"
                                             SelectedIndex="0"
                                             ItemsSource="{Binding Source={StaticResource EncodingEnumValues}}"
                                             SelectionChanged="CbEncoding_OnSelectionChanged"
@@ -896,23 +874,7 @@
                             <xctk:EditorTemplateDefinition TargetProperties="Host">
                                 <xctk:EditorTemplateDefinition.EditingTemplate>
                                     <DataTemplate>
-                                        <xctk:WatermarkTextBox
-                                            Watermark="Enter the hostname"
-                                        />
-                                    </DataTemplate>
-                                </xctk:EditorTemplateDefinition.EditingTemplate>
-                            </xctk:EditorTemplateDefinition>
-                            <xctk:EditorTemplateDefinition TargetProperties="SocketPollInterval">
-                                <xctk:EditorTemplateDefinition.EditingTemplate>
-                                    <DataTemplate>
-                                        <xctk:IntegerUpDown Minimum="0" />
-                                    </DataTemplate>
-                                </xctk:EditorTemplateDefinition.EditingTemplate>
-                            </xctk:EditorTemplateDefinition>
-                            <xctk:EditorTemplateDefinition TargetProperties="Timeout">
-                                <xctk:EditorTemplateDefinition.EditingTemplate>
-                                    <DataTemplate>
-                                        <xctk:IntegerUpDown Minimum="0" />
+                                        <xctk:WatermarkTextBox Watermark="Enter the hostname" />
                                     </DataTemplate>
                                 </xctk:EditorTemplateDefinition.EditingTemplate>
                             </xctk:EditorTemplateDefinition>

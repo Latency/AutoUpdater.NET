@@ -54,7 +54,7 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial FtpProfile? FtpProfile { get; set; } = new()
+    public partial FtpProfile2? FtpProfile { get; set; } = new()
     {
         Credentials = new()
     };
