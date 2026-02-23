@@ -7,15 +7,17 @@
 
 using AutoUpdaterDotNET.Attributes;
 using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoUpdaterDotNET.Models;
 
-public record FilePath
+public partial class FilePath : ObservableObject
 {
     /// <summary>
     ///     File path location.
     /// </summary>
     [JsonComment("File path location")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? Path { get; set; }
+    [ObservableProperty]
+    public partial string? Path { get; set; }
 }

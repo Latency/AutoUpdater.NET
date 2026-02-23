@@ -11,6 +11,7 @@
     xmlns:views="clr-namespace:AutoUpdaterDotNET.Views"
     xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
+    xmlns:dataTemplateSelectors="clr-namespace:AutoUpdaterDotNET.DataTemplateSelectors"
     Width="400"
     Height="550"
     Title="Options"
@@ -24,23 +25,29 @@
         </behaviors:EventTrigger>
     </behaviors:Interaction.Triggers>
     <controls:Window_Restricted.Resources>
-        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <Style TargetType="xctk:WatermarkTextBox" x:Key="WatermarkTextBox">
+            <Setter Property="Watermark" Value="Enter Password here..." />
+            <Setter Property="MaxLength" Value="10" />
+            <Setter Property="KeepWatermarkOnGotFocus" Value="True" />
+        </Style>
         <DataTemplate x:Key="SecurePasswordBox">
             <xctk:WatermarkPasswordBox
                 Name="SecurePasswordBox"
-                Watermark="Enter Password here..."
-                WatermarkTemplate="{x:Null}"
-                MaxLength="10"
-                KeepWatermarkOnGotFocus="True"
+                Style="{StaticResource WatermarkTextBox}"
                 PasswordChanged="WatermarkPasswordBox_OnPasswordChanged"
             />
         </DataTemplate>
         <DataTemplate x:Key="UnsecuredPasswordBox">
             <xctk:WatermarkTextBox
                 Name="UnsecuredPasswordBox"
+                Style="{StaticResource WatermarkTextBox}"
                 TextChanged="WatermarkPasswordBox_OnPasswordChanged"
             />
         </DataTemplate>
+        <dataTemplateSelectors:PasswordBoxContentTemplate x:Key="PasswordBoxTemplateSelector"
+                                                          SecurePasswordTemplate="{StaticResource SecurePasswordBox}"
+                                                          UnsecuredPasswordTemplate="{StaticResource UnsecuredPasswordBox}" />
+
         <ObjectDataProvider
             x:Key="EncodingEnumValues"
             MethodName="GetValues"
@@ -422,9 +429,11 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="Username:"
-                           FontFamily="Courier New"
-                           Margin="10,0,0,0">
+                    <Label
+                        Content="Username:"
+                        FontFamily="Courier New"
+                        Margin="10,0,0,0"
+                    >
                         <Label.Style>
                             <Style TargetType="Label">
                                 <Style.Triggers>
@@ -775,12 +784,9 @@
                                 <xctk:EditorTemplateDefinition TargetProperties="Password">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
-                                            <ContentControl Loaded="PasswordTextBox_OnLoaded">
-                                                <ContentControl.Style>
-                                                    <Style TargetType="ContentControl">
-                                                        <Setter Property="ContentTemplate" Value="{StaticResource UnsecuredPasswordBox}"/>
-                                                    </Style>
-                                                </ContentControl.Style>
+                                            <ContentControl
+                                                ContentTemplateSelector="{StaticResource PasswordBoxTemplateSelector}"
+                                                Loaded="PasswordTextBox_OnLoaded">
                                             </ContentControl>
                                         </DataTemplate>
                                     </xctk:EditorTemplateDefinition.EditingTemplate>

@@ -184,54 +184,48 @@ public partial class Window_Config
 
     private void FtpNetworkCredentials_OnExpanded(object sender, RoutedEventArgs e)
     {
-        Task.Run(async () =>
+        Dispatcher?.BeginInvoke(async () =>
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(250)).ConfigureAwait(false);
-            Dispatcher?.Invoke(() =>
-            {
-                var cb = FtpCredentialsPropertyGrid?.FindVisualChild<CheckBox>();
-                if (cb is not null)
-                    SecurePassword_OnClick(cb, new RoutedEventArgs());
-            });
+            await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
+
+            var cb = FtpCredentialsPropertyGrid?.FindVisualChild<CheckBox>();
+            if (cb is not null)
+                SecurePassword_OnClick(cb, new RoutedEventArgs());
         });
     }
 
 
     private void SecurePassword_OnClick(object sender, RoutedEventArgs e)
     {
-        var cb     = sender as CheckBox;
-        var passwd = _config?.FtpProfile?.Credentials?.Password!;
-        _cc?.ContentTemplate = (TryFindResource(cb?.IsChecked == true ? "SecurePasswordBox" : "UnsecuredPasswordBox") as DataTemplate)!;
+        if (sender is not CheckBox cb)
+            return;
 
-        Task.Run(async () =>
+        _cc?.ContentTemplate = _cc.ContentTemplateSelector?.SelectTemplate(cb.IsChecked, FtpCredentialsPropertyGrid!)!;
+
+        Dispatcher?.BeginInvoke(async () =>
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(250)).ConfigureAwait(false);
-            Dispatcher?.Invoke(() =>
-            {
-                if (cb?.IsChecked == true)
-                    FtpCredentialsPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = passwd;
-                else
-                    FtpCredentialsPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = passwd;
-            });
+            await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
+
+            if (cb.IsChecked == true)
+                FtpCredentialsPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _config!.FtpProfile!.Credentials!.Password;
+            else
+                FtpCredentialsPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _config!.FtpProfile!.Credentials!.Password;
         });
     }
 
 
     private void CbWindowSizeOverride_OnChecked(object sender, RoutedEventArgs e)
     {
-        Task.Run(async () =>
+        Dispatcher?.BeginInvoke(async () =>
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(250)).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
 
-            Dispatcher?.Invoke(() =>
-            {
-                var size = _config?.WindowSize;
-                if (!size.HasValue)
-                    return;
+            var size = _config?.WindowSize;
+            if (!size.HasValue)
+                return;
 
-                WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeHeight")?.Value = (int)size.Value.Height;
-                WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeWidth")?.Value  = (int)size.Value.Width;
-            });
+            WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeHeight")?.Value = (int)size.Value.Height;
+            WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeWidth")?.Value  = (int)size.Value.Width;
         });
     }
 
