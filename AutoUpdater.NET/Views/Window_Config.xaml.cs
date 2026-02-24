@@ -6,12 +6,14 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using AutoUpdaterDotNET.DataTemplateSelectors;
 using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.ViewModels;
 using System.Reflection;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -29,9 +31,11 @@ public partial class Window_Config
     [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
     private static partial Regex UriRegex();
 
-    private          Config?                  _config;
-    private          ContentControl?          _cc;
-    private readonly IViewModelDownloadUpdate _vmDownloadUpdate;
+    private          Config?                     _config;
+    private          ContentControl?             _cc;
+    private          PasswordBoxContentTemplate? _pbct;
+    private          PropertyGrid                _credentialsPropertyGrid;
+    private readonly IViewModelDownloadUpdate    _vmDownloadUpdate;
 
 
     /// <summary>
@@ -153,31 +157,16 @@ public partial class Window_Config
     }
 
 
-    private void CbHasCredentials_OnChecked(object sender, RoutedEventArgs e) => FtpNetworkCredentials?.Visibility = Visibility.Visible;
-
-
-    private void CbHasCredentials_OnUnchecked(object sender, RoutedEventArgs e) => FtpNetworkCredentials?.Visibility = Visibility.Collapsed;
-
-
-    private void CbHasCredentials_OnLoaded(object sender, RoutedEventArgs e)
-    {
-        if (sender is CheckBox { IsChecked: true })
-            CbHasCredentials_OnChecked(sender, e);
-        else
-            CbHasCredentials_OnUnchecked(sender, e);
-    }
-
-
     private void WatermarkPasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
     {
         switch (sender)
         {
             case WatermarkPasswordBox box:
-                _config?.FtpProfile?.Credentials?.Password       = box.Password;
-                _config?.FtpProfile?.Credentials?.SecurePassword = box.SecurePassword;
+                _config?.FtpProfile?.Credentials.Password       = box.Password ?? string.Empty;
+                _config?.FtpProfile?.Credentials.SecurePassword = box.SecurePassword ?? new SecureString();
                 break;
             case WatermarkTextBox box:
-                _config?.FtpProfile?.Credentials?.Password = box.Text;
+                _config?.FtpProfile?.Credentials.Password = box.Text;
                 break;
         }
     }
@@ -185,32 +174,49 @@ public partial class Window_Config
 
     private void FtpNetworkCredentials_OnExpanded(object sender, RoutedEventArgs e)
     {
-        Dispatcher?.BeginInvoke(async () =>
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
+        if (sender is not PropertyGrid credentialsPropertyGrid)
+            return;
 
-            var cb = FtpCredentialsPropertyGrid?.FindVisualChild<CheckBox>();
-            if (cb is not null)
-                SecurePassword_OnClick(cb, new RoutedEventArgs());
-        });
+        credentialsPropertyGrid.SelectedObject = _config!.FtpProfile!.Credentials;
+        _credentialsPropertyGrid               = credentialsPropertyGrid;
+    }
+
+
+    private void CbSecurePassword_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not CheckBox cb)
+            return;
+
+        // Set the default content template.
+        SecurePassword_OnClick(cb, new RoutedEventArgs());
+    }
+
+
+    private void PasswordTextBox_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not ContentControl cc)
+            return;
+
+        _cc   = cc;
+        _pbct = FindResource("PasswordBoxTemplateSelector") as PasswordBoxContentTemplate;
     }
 
 
     private void SecurePassword_OnClick(object sender, RoutedEventArgs e)
     {
-        if (sender is not CheckBox cb)
+        if (sender is not CheckBox cb || _pbct is null || _cc is null)
             return;
 
-        _cc?.ContentTemplate = _cc.ContentTemplateSelector?.SelectTemplate(cb.IsChecked, FtpCredentialsPropertyGrid!)!;
+        _cc.ContentTemplate = cb.IsChecked is true ? _pbct.SecurePasswordTemplate : _pbct.UnsecuredPasswordTemplate;
 
         Dispatcher?.BeginInvoke(async () =>
         {
             await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
 
             if (cb.IsChecked == true)
-                FtpCredentialsPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _config!.FtpProfile!.Credentials!.Password;
+                _credentialsPropertyGrid.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _config!.FtpProfile!.Credentials.Password;
             else
-                FtpCredentialsPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _config!.FtpProfile!.Credentials!.Password;
+                _credentialsPropertyGrid.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _config!.FtpProfile!.Credentials.Password;
         });
     }
 
@@ -229,7 +235,4 @@ public partial class Window_Config
             WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeWidth")?.Value  = (int)size.Value.Width;
         });
     }
-
-
-    private void PasswordTextBox_OnLoaded(object sender, RoutedEventArgs e) => _cc = sender as ContentControl;
 }

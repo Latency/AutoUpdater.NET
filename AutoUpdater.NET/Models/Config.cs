@@ -18,7 +18,6 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Interfaces;
-using FluentFTP;
 
 namespace AutoUpdaterDotNET.Models;
 
@@ -53,11 +52,7 @@ internal sealed partial class Config : ObservableObject, IConfig
     #region FTP
 
     [JsonIgnore]
-    [ObservableProperty]
-    public partial FtpProfile2? FtpProfile { get; set; } = new()
-    {
-        Credentials = new()
-    };
+    public FtpProfile2? FtpProfile { get; set; } = new();
 
     #endregion FTP
 
@@ -294,7 +289,7 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public partial bool FtpProtocol { get; set; }
+    public partial bool FtpProtocol { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnFtpProtocolChanged(bool value) => _UpdateValidation();
 
