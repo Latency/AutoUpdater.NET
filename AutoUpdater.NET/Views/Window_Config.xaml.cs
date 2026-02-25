@@ -78,6 +78,17 @@ public partial class Window_Config
         tvBeforeCheckForUpdates!.ItemsSource = dl.BeforeCheckForUpdatesNodeList;
         tvUpdateComplete!.ItemsSource        = dl.UpdateCompleteNodeList;
         tvTimers!.ItemsSource                = dl.TimerNodeList;
+
+        Dispatcher?.BeginInvoke(() =>
+        {
+            if (SystemParameters.PrimaryScreenWidth < Width)
+            {
+                if (SystemParameters.PrimaryScreenHeight >= Height)
+                    SizeToContent = SizeToContent.Height;
+            }
+            else
+                SizeToContent = SystemParameters.PrimaryScreenHeight < Height ? SizeToContent.Width : SizeToContent.WidthAndHeight;
+        });
     }
 
 

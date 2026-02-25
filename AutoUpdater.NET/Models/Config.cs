@@ -57,6 +57,7 @@ internal sealed partial class Config : ObservableObject, IConfig
     #endregion FTP
 
     #region WindowSize
+    [JsonIgnore]
     [ObservableProperty]
     public partial bool WindowSizeOverride { get; set; }
 
@@ -64,7 +65,8 @@ internal sealed partial class Config : ObservableObject, IConfig
     ///     Resizes the update window.
     /// </summary>
     [ObservableProperty]
-    public partial Size? WindowSize { get; set; } = new() { Width = 1, Height = 1 };
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public partial Size? WindowSize { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnWindowSizeChanged(Size? value) => _UpdateValidation();
 
@@ -393,6 +395,7 @@ internal sealed partial class Config : ObservableObject, IConfig
     ///     Set this to true if you want to clear application directory before extracting the update.
     /// </summary>
     [ObservableProperty]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public partial bool ClearAppDirectory { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnClearAppDirectoryChanged(bool value) => _UpdateValidation();

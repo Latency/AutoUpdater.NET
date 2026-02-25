@@ -13,6 +13,7 @@ using AutoUpdaterDotNET.Modifiers;
 using AutoUpdaterDotNET.TypeResolvers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using WindowService.ViewModels;
 
 namespace AutoUpdaterDotNET.ViewModels;
@@ -57,7 +58,7 @@ public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
     {
         WriteIndented       = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
-        TypeInfoResolver    = new DependancyPropertyTypeResolver<Config>
+        TypeInfoResolver    = new DefaultJsonTypeInfoResolver
         {
             Modifiers = { Modifier.AlphabetizeProperties }
         }

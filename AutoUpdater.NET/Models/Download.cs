@@ -455,8 +455,6 @@ public sealed class Download : IDownload
     }
 
 
-
-
     /// <summary>
     ///     DownloadUpdate
     /// </summary>

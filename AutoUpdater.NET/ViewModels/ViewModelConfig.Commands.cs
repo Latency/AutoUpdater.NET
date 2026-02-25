@@ -87,7 +87,9 @@ public partial class ViewModelConfig
     [RelayCommand]
     private void LoadConfig()
     {
-        var file = $@"{Directory.GetCurrentDirectory()}\Properties\{Settings.Default!.ConfigFile}";
+        var directory = $@"{Directory.GetCurrentDirectory()}\Properties";
+        var file      = $@"{directory}\{Settings.Default!.ConfigFile}";
+
         if (!File.Exists(file))
             return;
 

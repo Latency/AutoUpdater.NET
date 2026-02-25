@@ -15,7 +15,7 @@ internal static class Delegates
     {
         public TreeViewItem Header(string name)
         {
-            item.Header = $"On{name.Replace("NodeList", string.Empty)} (Delegates)";
+            item.Header = $"On{name.Replace("NodeList", string.Empty)}";
             return item;
         }
     }
