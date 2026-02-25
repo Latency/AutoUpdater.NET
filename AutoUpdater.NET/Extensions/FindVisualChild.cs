@@ -8,6 +8,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Xceed.Wpf.Toolkit.PropertyGrid;
 
 namespace AutoUpdaterDotNET.Extensions;
 
@@ -38,4 +39,7 @@ public static class VisualExtensions
 
         return null;
     }
+
+
+    public static PropertyItem? FindProperty(this PropertyGrid propertygrid, string name) => propertygrid.Properties?.Cast<PropertyItem>().First(x => x.PropertyName == name);
 }

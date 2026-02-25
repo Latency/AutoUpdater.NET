@@ -55,11 +55,14 @@ public partial class NetworkCredential2 : ObservableObject
 
 
     [ObservableProperty]
+    [DisplayName("Show Password")]
     [Description("Show the secure password.")]
     public partial bool ShowPassword { get; set; }
 
 
     [ObservableProperty]
+    [Browsable(false)]
+    [DisplayName("Secure Password")]
     [Description("The secure password for the user name.")]
     public partial SecureString SecurePassword { get; set; } = new();
     partial void OnSecurePasswordChanged(SecureString value) => _networkCredential.SecurePassword = value;

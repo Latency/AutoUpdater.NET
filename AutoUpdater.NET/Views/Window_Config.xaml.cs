@@ -34,7 +34,8 @@ public partial class Window_Config
     private          Config?                     _config;
     private          ContentControl?             _cc;
     private          PasswordBoxContentTemplate? _pbct;
-    private          PropertyGrid                _credentialsPropertyGrid;
+    private          PropertyGrid?               _ftpPropertyGrid;
+    private          PropertyItem?               _ftpEncodingPropertyItem;
     private readonly IViewModelDownloadUpdate    _vmDownloadUpdate;
 
 
@@ -138,11 +139,10 @@ public partial class Window_Config
 
     private void CbEncoding_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_config?.FtpProfile is null)
+        if (_config?.FtpProfile is null || sender is not ComboBox cb)
             return;
 
-        var cb = (ComboBox)sender;
-        _config.FtpProfile.Encoding = cb.SelectedItem switch
+        var newValue = cb.SelectedItem switch
         {
             Encodings.Default          => Encoding.Default,
             Encodings.ASCII            => Encoding.ASCII,
@@ -153,7 +153,9 @@ public partial class Window_Config
             Encodings.Unicode          => Encoding.Unicode,
             _                          => throw new ArgumentOutOfRangeException(nameof(cb.SelectedItem), cb.SelectedItem, null)
         };
-        FtpEncodingPropertyGrid!.SelectedObject = _config.FtpProfile.Encoding;
+        _config.FtpProfile.Encoding = (Encoding2) newValue;
+
+        _ftpEncodingPropertyItem?.Value = _config.FtpProfile.Encoding;
     }
 
 
@@ -169,16 +171,6 @@ public partial class Window_Config
                 _config?.FtpProfile?.Credentials.Password = box.Text;
                 break;
         }
-    }
-
-
-    private void FtpNetworkCredentials_OnExpanded(object sender, RoutedEventArgs e)
-    {
-        if (sender is not PropertyGrid credentialsPropertyGrid)
-            return;
-
-        credentialsPropertyGrid.SelectedObject = _config!.FtpProfile!.Credentials;
-        _credentialsPropertyGrid               = credentialsPropertyGrid;
     }
 
 
@@ -214,14 +206,14 @@ public partial class Window_Config
             await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
 
             if (cb.IsChecked == true)
-                _credentialsPropertyGrid.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _config!.FtpProfile!.Credentials.Password;
+                _ftpPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _config!.FtpProfile!.Credentials.Password;
             else
-                _credentialsPropertyGrid.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _config!.FtpProfile!.Credentials.Password;
+                _ftpPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _config!.FtpProfile!.Credentials.Password;
         });
     }
 
 
-    private void CbWindowSizeOverride_OnChecked(object sender, RoutedEventArgs e)
+    private void WindowSizeOverride_OnChecked(object sender, RoutedEventArgs e)
     {
         Dispatcher?.BeginInvoke(async () =>
         {
@@ -234,5 +226,16 @@ public partial class Window_Config
             WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeHeight")?.Value = (int)size.Value.Height;
             WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeWidth")?.Value  = (int)size.Value.Width;
         });
+    }
+
+
+    private void FtpPropertyGrid_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not PropertyGrid ftpPropertyGrid)
+            return;
+
+        _ftpPropertyGrid                                        = ftpPropertyGrid;
+        _ftpEncodingPropertyItem                                = ftpPropertyGrid.FindProperty("Encoding");
+        ftpPropertyGrid.FindProperty("Credentials")?.IsExpanded = true;
     }
 }

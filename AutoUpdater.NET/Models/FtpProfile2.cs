@@ -10,6 +10,7 @@ using FluentFTP;
 using System.ComponentModel;
 using System.Security.Authentication;
 using System.Text;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace AutoUpdaterDotNET.Models;
 
@@ -36,7 +37,7 @@ public partial class FtpProfile2 : ObservableObject
         Encryption         = profile.Encryption;
         Protocols          = profile.Protocols;
         DataConnection     = profile.DataConnection;
-        Encoding           = profile.Encoding ?? new UTF8Encoding();
+        Encoding           = (Encoding2) (profile.Encoding ?? new UTF8Encoding());
         Timeout            = (uint) profile.Timeout;
         SocketPollInterval = (uint) profile.SocketPollInterval;
         RetryAttempts      = (uint) profile.RetryAttempts;
@@ -54,6 +55,7 @@ public partial class FtpProfile2 : ObservableObject
 
 
     [ObservableProperty]
+    [ExpandableObject]
     [Description("The FTP username and password used to login")]
     public partial NetworkCredential2 Credentials { get; set; } = new();
     partial void OnCredentialsChanged(NetworkCredential2 value) => _ftpProfile.Credentials = value;
@@ -79,9 +81,10 @@ public partial class FtpProfile2 : ObservableObject
 
 
     [ObservableProperty]
+    [ExpandableObject]
     [Description("A working Encoding setting found for this profile")]
-    public partial Encoding Encoding { get; set; } = new UTF8Encoding();
-    partial void OnEncodingChanged(Encoding value) => _ftpProfile.Encoding = value;
+    public partial Encoding2 Encoding { get; set; } = (Encoding2) new UTF8Encoding();
+    partial void OnEncodingChanged(Encoding2 value) => _ftpProfile.Encoding = value;
 
 
     [ObservableProperty]
@@ -105,6 +108,7 @@ public partial class FtpProfile2 : ObservableObject
 
 
     [ObservableProperty]
+    [Category("Encoding")]
     [DisplayName("Encoding Verified")]
     [Description("If the server surely supports the given encoding")]
     public partial bool EncodingVerified { get; set; }

@@ -12,6 +12,7 @@
     xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:controls="clr-namespace:AutoUpdaterDotNET.Controls"
     xmlns:dataTemplateSelectors="clr-namespace:AutoUpdaterDotNET.DataTemplateSelectors"
+    xmlns:converters="clr-namespace:AutoUpdaterDotNET.Converters"
     ResizeMode="CanResizeWithGrip"
     Width="400"
     Height="550"
@@ -26,14 +27,18 @@
         </behaviors:EventTrigger>
     </behaviors:Interaction.Triggers>
     <controls:Window_Restricted.Resources>
+        <converters:FilePathConverter x:Key="FilePathConverter" />
+
         <Style TargetType="xctk:WatermarkTextBox" x:Key="WatermarkTextBox">
             <Setter Property="Watermark" Value="Enter Password here..." />
             <Setter Property="MaxLength" Value="10" />
             <Setter Property="KeepWatermarkOnGotFocus" Value="True" />
         </Style>
         <Style TargetType="xctk:PropertyGrid" x:Key="CustomPropertyGridStyle">
-            <Setter Property="AutoGenerateProperties" Value="False" />
+            <Setter Property="AutoGenerateProperties" Value="True" />
+            <Setter Property="HideInheritedProperties" Value="False" />
             <Setter Property="IsCategorized" Value="False" />
+            <Setter Property="IsReadOnly" Value="False" />
             <Setter Property="ShowAdvancedOptions" Value="False" />
             <Setter Property="ShowDescriptionByTooltip" Value="True" />
             <Setter Property="ShowPreview" Value="False" />
@@ -770,77 +775,34 @@
                         </Style>
                     </StackPanel.Style>
 
-                    <Expander
-                        Header="Encoding"
-                        IsExpanded="False"
-                        ExpandDirection="Down"
-                    >
-                        <!-- ReSharper disable once Xaml.PossibleNullReferenceException -->
-                        <xctk:PropertyGrid
-                            Name="FtpEncodingPropertyGrid"
-                            SelectedObject="{Binding Config.FtpProfile.Encoding}"
-                            Style="{StaticResource CustomPropertyGridStyle}"
-                        >
-                            <xctk:PropertyGrid.PropertyDefinitions>
-                                <xctk:PropertyDefinition TargetProperties="BodyName" DisplayName="Name" />
-                                <xctk:PropertyDefinition TargetProperties="CodePage" />
-                                <xctk:PropertyDefinition TargetProperties="IsBrowserDisplay" />
-                                <xctk:PropertyDefinition TargetProperties="IsBrowserSave" />
-                                <xctk:PropertyDefinition TargetProperties="IsMailNewsDisplay" />
-                                <xctk:PropertyDefinition TargetProperties="IsMailNewsSave" />
-                                <xctk:PropertyDefinition TargetProperties="IsReadOnly" />
-                                <xctk:PropertyDefinition TargetProperties="IsSingleByte" />
-                                <xctk:PropertyDefinition TargetProperties="WindowsCodePage" />
-                            </xctk:PropertyGrid.PropertyDefinitions>
-                        </xctk:PropertyGrid>
-                    </Expander>
-
                     <xctk:PropertyGrid
                         Name="FtpPropertyGrid"
                         SelectedObject="{Binding Config.FtpProfile}"
                         Style="{StaticResource CustomPropertyGridStyle}"
+                        Loaded="FtpPropertyGrid_OnLoaded"
                     >
-                        <!-- Override the following properties in the PropertyGrid -->
                         <xctk:PropertyGrid.EditorDefinitions>
-                            <xctk:EditorTemplateDefinition TargetProperties="Credentials">
+                            <xctk:EditorTemplateDefinition TargetProperties="Password">
                                 <xctk:EditorTemplateDefinition.EditingTemplate>
                                     <DataTemplate>
-                                        <xctk:PropertyGrid
-                                            Style="{StaticResource CustomPropertyGridStyle}"
-                                            Loaded="FtpNetworkCredentials_OnExpanded"
-                                        >
-                                            <!-- Override the following properties in the PropertyGrid -->
-                                            <xctk:PropertyGrid.EditorDefinitions>
-                                                <xctk:EditorTemplateDefinition TargetProperties="Password">
-                                                    <xctk:EditorTemplateDefinition.EditingTemplate>
-                                                        <DataTemplate>
-                                                            <ContentControl
-                                                                Loaded="PasswordTextBox_OnLoaded"
-                                                            />
-                                                        </DataTemplate>
-                                                    </xctk:EditorTemplateDefinition.EditingTemplate>
-                                                </xctk:EditorTemplateDefinition>
-                                                <xctk:EditorTemplateDefinition TargetProperties="ShowPassword">
-                                                    <xctk:EditorTemplateDefinition.EditingTemplate>
-                                                        <DataTemplate>
-                                                            <CheckBox
-                                                                Loaded="CbSecurePassword_OnLoaded"
-                                                                Click="SecurePassword_OnClick"
-                                                            />
-                                                        </DataTemplate>
-                                                    </xctk:EditorTemplateDefinition.EditingTemplate>
-                                                </xctk:EditorTemplateDefinition>
-                                            </xctk:PropertyGrid.EditorDefinitions>
-                                            <xctk:PropertyGrid.PropertyDefinitions>
-                                                <xctk:PropertyDefinition TargetProperties="Domain" />
-                                                <xctk:PropertyDefinition TargetProperties="Password" />
-                                                <xctk:PropertyDefinition TargetProperties="ShowPassword"   DisplayName="Show Password" />
-                                                <xctk:PropertyDefinition TargetProperties="UserName"       DisplayName="User Name" />
-                                            </xctk:PropertyGrid.PropertyDefinitions>
-                                        </xctk:PropertyGrid>
+                                        <ContentControl
+                                            Loaded="PasswordTextBox_OnLoaded"
+                                        />
                                     </DataTemplate>
                                 </xctk:EditorTemplateDefinition.EditingTemplate>
                             </xctk:EditorTemplateDefinition>
+
+                            <xctk:EditorTemplateDefinition TargetProperties="ShowPassword">
+                                <xctk:EditorTemplateDefinition.EditingTemplate>
+                                    <DataTemplate>
+                                        <CheckBox
+                                            Loaded="CbSecurePassword_OnLoaded"
+                                            Click="SecurePassword_OnClick"
+                                        />
+                                    </DataTemplate>
+                                </xctk:EditorTemplateDefinition.EditingTemplate>
+                            </xctk:EditorTemplateDefinition>
+          
                             <xctk:EditorTemplateDefinition TargetProperties="Encoding">
                                 <xctk:EditorTemplateDefinition.EditingTemplate>
                                     <DataTemplate>
@@ -852,6 +814,7 @@
                                     </DataTemplate>
                                 </xctk:EditorTemplateDefinition.EditingTemplate>
                             </xctk:EditorTemplateDefinition>
+
                             <xctk:EditorTemplateDefinition TargetProperties="Host">
                                 <xctk:EditorTemplateDefinition.EditingTemplate>
                                     <DataTemplate>
@@ -860,18 +823,6 @@
                                 </xctk:EditorTemplateDefinition.EditingTemplate>
                             </xctk:EditorTemplateDefinition>
                         </xctk:PropertyGrid.EditorDefinitions>
-                        <xctk:PropertyGrid.PropertyDefinitions>
-                            <xctk:PropertyDefinition TargetProperties="Credentials"                                           />
-                            <xctk:PropertyDefinition TargetProperties="DataConnection"     DisplayName="Data Connection"      />
-                            <xctk:PropertyDefinition TargetProperties="Encoding"                                              />
-                            <xctk:PropertyDefinition TargetProperties="EncodingVerified"   DisplayName="Encoding Verified"    />
-                            <xctk:PropertyDefinition TargetProperties="Encryption"                                            />
-                            <xctk:PropertyDefinition TargetProperties="Host"                                                  />
-                            <xctk:PropertyDefinition TargetProperties="Protocols"                                             />
-                            <xctk:PropertyDefinition TargetProperties="RetryAttempts"      DisplayName="Retry Attempts"       />
-                            <xctk:PropertyDefinition TargetProperties="SocketPollInterval" DisplayName="Socket Poll Interval" />
-                            <xctk:PropertyDefinition TargetProperties="Timeout"                                               />
-                        </xctk:PropertyGrid.PropertyDefinitions>
                     </xctk:PropertyGrid>
 
                 </StackPanel>
@@ -920,7 +871,7 @@
                     <TextBox
                         Name="tbExecutablePathOverride"
                         ToolTip="Enter the customized executable path to be executed after the update."
-                        Text="{Binding Config.ExecutablePathOverride}"
+                        Text="{Binding Config.ExecutablePathOverride, Converter={StaticResource FilePathConverter}}"
                         Width="150"
                         Height="20"
                     >
@@ -980,7 +931,7 @@
                     <TextBox
                         Name="tbInstallationPath"
                         ToolTip="Enter the customized update zip extraction path."
-                        Text="{Binding Config.InstallationPathOverride}"
+                        Text="{Binding Config.InstallationPathOverride, Converter={StaticResource FilePathConverter}}"
                         Width="150"
                         Height="20"
                     >
@@ -1011,7 +962,7 @@
                     IsChecked="{Binding Config.WindowSizeOverride}"
                     ToolTip="Check this to override the window size."
                     Content="Window Size Override"
-                    Checked="CbWindowSizeOverride_OnChecked"
+                    Checked="WindowSizeOverride_OnChecked"
                 />
 
                 <StackPanel

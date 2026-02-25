@@ -16,7 +16,7 @@ AutoUpdater.NET is a class library that allows .NET developers to easily add aut
 </tr>
 <tr>
 <td>UPDATED:</td>
-<td>2/23/2026</td>
+<td>2/24/2026</td>
 </tr>
 <tr>
 <td>FRAMEWORK:</td>
