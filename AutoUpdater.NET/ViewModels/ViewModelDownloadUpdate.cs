@@ -12,7 +12,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using AutoUpdaterDotNET.Controls;
 using AutoUpdaterDotNET.Converters;
 using AutoUpdaterDotNET.Properties;
-using Microsoft.Extensions.DependencyInjection;
 using WindowService.ViewModels;
 
 namespace AutoUpdaterDotNET.ViewModels;
@@ -24,7 +23,7 @@ public partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDo
     /// </summary>
     public ViewModelDownloadUpdate(BaseServiceDependencies dependencies) : base(dependencies)
     {
-        _singletonDownload = new(() => new Download(dependencies.ServiceProvider.GetRequiredService<IViewModelConfig>().Config, Window as Window_Restricted));
+        _singletonDownload = new(() => new Download(Window as Window_Restricted));
 
         ((IViewModelDownloadUpdate)this).ProgressBarCallback += OnProgressBarChanged;
         ((IViewModelDownloadUpdate)this).ContentCallback     += OnContentChanged;

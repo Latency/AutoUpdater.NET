@@ -39,19 +39,9 @@ public sealed class Download : IDownload
     /// <summary>
     ///     Default Constructor
     /// </summary>
-    public Download(IConfig config, Window_Restricted? window = null)
+    public Download(Window_Restricted? window = null)
     {
         _window = window;
-        Config  = config;
-        _updateTimer.Interval = config.TimerDurationTimeSpan switch
-        {
-            RemindLaterFormat.Seconds => TimeSpan.FromSeconds(config.TimerInterval),
-            RemindLaterFormat.Minutes => TimeSpan.FromMinutes(config.TimerInterval),
-            RemindLaterFormat.Hours   => TimeSpan.FromHours(config.TimerInterval),
-            RemindLaterFormat.Days    => TimeSpan.FromDays(config.TimerInterval),
-            RemindLaterFormat.Weeks   => TimeSpan.FromDays(config.TimerInterval * 7),
-            _                         => throw new ArgumentOutOfRangeException(nameof(config.TimerInterval))
-        };
 
         TimerNodeList[0].Items.AddDelegate(null);
         UpdateCompleteNodeList[0].Items.AddDelegate(null);
@@ -233,6 +223,21 @@ public sealed class Download : IDownload
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
+
+
+    public void SetTimerInterval()
+    {
+        _updateTimer.Interval = Config.TimerDurationTimeSpan switch
+        {
+            RemindLaterFormat.Seconds => TimeSpan.FromSeconds(Config.TimerInterval),
+            RemindLaterFormat.Minutes => TimeSpan.FromMinutes(Config.TimerInterval),
+            RemindLaterFormat.Hours   => TimeSpan.FromHours(Config.TimerInterval),
+            RemindLaterFormat.Days    => TimeSpan.FromDays(Config.TimerInterval),
+            RemindLaterFormat.Weeks   => TimeSpan.FromDays(Config.TimerInterval * 7),
+            _                         => throw new ArgumentOutOfRangeException(nameof(Config.TimerInterval))
+        };
+
+    }
 
 
     /// <summary>
@@ -435,10 +440,10 @@ public sealed class Download : IDownload
                         dlWin.LabelTitle!.Content    = string.Format(dlWin.LabelTitle.Tag!.ToString()!, ui.Version);
                         dlWin.LabelDescription!.Text = string.Format(dlWin.LabelDescription.Tag!.ToString()!, _assembly.Version(), ui.Version);
 
-                        if (Config.WindowSize.HasValue)
+                        if (Config.WindowSize is not null)
                         {
-                            dlWin.Width  = Config.WindowSize.Value.Width;
-                            dlWin.Height = Config.WindowSize.Value.Height;
+                            dlWin.Width  = Config.WindowSize.Width;
+                            dlWin.Height = Config.WindowSize.Height;
                         }
 
                         dlWin.Show();
@@ -536,9 +541,7 @@ public sealed class Download : IDownload
             }
             catch (Win32Exception exception)
             {
-                if (exception.NativeErrorCode == 1223 /* ERROR_CANCELLED */)
-                    ;
-                else
+                if (exception.NativeErrorCode != 1223 /* ERROR_CANCELLED */)
                     throw;
             }
         }

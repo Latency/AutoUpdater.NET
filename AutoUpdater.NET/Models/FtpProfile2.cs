@@ -30,6 +30,25 @@ public partial class FtpProfile2 : ObservableObject
     ///     Copy Constructor
     /// </summary>
     /// <param name="profile"></param>
+    public FtpProfile2(FtpProfile2 profile) : this()
+    {
+        Host               = profile.Host ?? string.Empty;
+        Credentials        = profile.Credentials;
+        Encryption         = profile.Encryption;
+        Protocols          = profile.Protocols;
+        DataConnection     = profile.DataConnection;
+        Encoding           = profile.Encoding;
+        Timeout            = profile.Timeout;
+        SocketPollInterval = profile.SocketPollInterval;
+        RetryAttempts      = profile.RetryAttempts;
+        EncodingVerified   = profile.EncodingVerified;
+    }
+
+
+    /// <summary>
+    ///     Copy Constructor
+    /// </summary>
+    /// <param name="profile"></param>
     public FtpProfile2(FtpProfile profile) : this()
     {
         Host               = profile.Host ?? string.Empty;

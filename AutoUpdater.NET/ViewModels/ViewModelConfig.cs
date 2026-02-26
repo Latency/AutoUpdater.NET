@@ -10,7 +10,6 @@ using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.Modifiers;
-using AutoUpdaterDotNET.TypeResolvers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -22,8 +21,8 @@ public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    // Shadow copy
-    private readonly Config _config, _configOrig;
+    private Config _config     = new();
+    private Config _configOrig = null!; // Shadow copy
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
@@ -31,8 +30,8 @@ public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    public IConfig Config => _config;
-
+    public   IConfig         Config   => _config;
+    internal Action<Config>? Register { get; set; }
 
     [ObservableProperty]
     public partial IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues { get; set; } = Enum.GetValues<RemindLaterFormat>().Skip(1);
@@ -46,11 +45,6 @@ public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
     /// </summary>
     public ViewModelConfig(BaseServiceDependencies dependencies) : base(dependencies)
     {
-        _config = new()
-        {
-            EqualsPredicate = new Lazy<Func<bool>>(() => _configOrig?.Equals(_config) ?? true)
-        };
-        _configOrig = new(_config);
     }
 
 
@@ -60,7 +54,7 @@ public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
         ReadCommentHandling = JsonCommentHandling.Skip,
         TypeInfoResolver    = new DefaultJsonTypeInfoResolver
         {
-            Modifiers = { Modifier.AlphabetizeProperties }
+            Modifiers = { Modifier.AlphabetizeProperties /*, Modifier.SetOverrideProperties */ }
         }
     };
 }

@@ -31,7 +31,7 @@ public partial class Window_Config
     [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
     private static partial Regex UriRegex();
 
-    private          Config?                     _config;
+    private          IConfig?                    _config;
     private          ContentControl?             _cc;
     private          PasswordBoxContentTemplate? _pbct;
     private          PropertyGrid?               _ftpPropertyGrid;
@@ -66,12 +66,15 @@ public partial class Window_Config
         if (DataContext is not ViewModelConfig vm)
             return;
 
-        _config = (Config) vm.Config;
+        _config = vm.Config;
 
-        _config.UpdateIcon       += OnUpdateIcon;
-        _config.UpdateVersion    += OnUpdateVersion;
-        _config.UpdateValidation += OnUpdateValidation;
-        _config.UpdateTitle      += OnUpdateTitle;
+        vm.Register = config =>
+        {
+            config.UpdateIcon       += OnUpdateIcon;
+            config.UpdateVersion    += OnUpdateVersion;
+            config.UpdateValidation += OnUpdateValidation;
+            config.UpdateTitle      += OnUpdateTitle;
+        };
 
         var dl                               = _vmDownloadUpdate.Download;
         tvAfterCheckForUpdates!.ItemsSource  = dl.AfterCheckForUpdatesNodeList;
@@ -224,19 +227,10 @@ public partial class Window_Config
     }
 
 
-    private void WindowSizeOverride_OnChecked(object sender, RoutedEventArgs e)
+    private void VersionOverride_OnLoaded(object sender, RoutedEventArgs e)
     {
-        Dispatcher?.BeginInvoke(async () =>
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
-
-            var size = _config?.WindowSize;
-            if (!size.HasValue)
-                return;
-
-            WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeHeight")?.Value = (int)size.Value.Height;
-            WindowSizePropertyGrid?.FindVisualChild<IntegerUpDown>("WindowSizeWidth")?.Value  = (int)size.Value.Width;
-        });
+        if (_config is not null)
+            VersionPropertyGrid?.SelectedObject = _config.InstalledVersion!;
     }
 
 
@@ -248,5 +242,12 @@ public partial class Window_Config
         _ftpPropertyGrid                                        = ftpPropertyGrid;
         _ftpEncodingPropertyItem                                = ftpPropertyGrid.FindProperty("Encoding");
         ftpPropertyGrid.FindProperty("Credentials")?.IsExpanded = true;
+    }
+
+
+    private void WindowSizeOverride_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (_config is not null)
+            WindowSizePropertyGrid?.SelectedObject = _config.WindowSize!;
     }
 }

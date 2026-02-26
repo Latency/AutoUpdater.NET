@@ -6,7 +6,6 @@
 // ****************************************************************************
 
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using AutoUpdaterDotNET.Enums;
@@ -20,7 +19,7 @@ public interface IConfig : IEquatable<IConfig?>
 
     bool WindowSizeOverride { get; set; }
 
-    Size? WindowSize { get; set; }
+    WindowSize? WindowSize { get; set; }
 
     bool  IsAppTitle { get; set; }
 
@@ -103,14 +102,6 @@ public interface IConfig : IEquatable<IConfig?>
     Version2? InstalledVersion { get; set; }
 
     bool InstalledVersionOverride { get; set; }
-
-    ushort MajorVersion { get; set; }
-
-    ushort MinorVersion { get; set; }
-
-    ushort BuildVersion { get; set; }
-
-    ushort RevisionVersion { get; set; }
 
     BitmapImage? TmpIcon { get; set; }
 

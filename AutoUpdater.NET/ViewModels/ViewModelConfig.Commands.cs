@@ -6,6 +6,7 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using AssemblyLoader;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.Properties;
@@ -14,6 +15,7 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Windows;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -24,7 +26,7 @@ public partial class ViewModelConfig
 
 
     [RelayCommand]
-    private void Cancel() => _config.Copy(_configOrig);
+    private void Cancel() => _config = new(_configOrig);
 
 
     [RelayCommand]
@@ -35,9 +37,10 @@ public partial class ViewModelConfig
     }
 
 
-    private void _Update()
+    private void _Update(bool init=false)
     {
-        _configOrig.Copy(_config);
+        if (!init)
+            _configOrig = new(_config);
 
         _config._UpdateVersion();
         _config._UpdateTitle();
@@ -97,24 +100,55 @@ public partial class ViewModelConfig
 
         try
         {
-            var vmmc = JsonSerializer.Deserialize<Config>(json, _jso);
-            if (vmmc is null)
-                throw new NullReferenceException("Unable to deserialize json from 'Config'.");
+            var obj = JsonSerializer.Deserialize<Config>(json, _jso) ?? Error()!;
+            _config.Clone(obj);
 
             // Preserve Properties
-            vmmc.EqualsPredicate               = _config.EqualsPredicate;
-            vmmc.BeforeCheckForUpdatesNodeList = _config.BeforeCheckForUpdatesNodeList;
-            vmmc.AfterCheckForUpdatesNodeList  = _config.AfterCheckForUpdatesNodeList;
-            vmmc.TimerNodeList                 = _config.TimerNodeList;
-            vmmc.UpdateCompleteNodeList        = _config.UpdateCompleteNodeList;
 
-            _config.Copy(vmmc);
+            //vmmc.BeforeCheckForUpdatesNodeList = _config.BeforeCheckForUpdatesNodeList;
+            //vmmc.AfterCheckForUpdatesNodeList  = _config.AfterCheckForUpdatesNodeList;
+            //vmmc.TimerNodeList                 = _config.TimerNodeList;
+            //vmmc.UpdateCompleteNodeList        = _config.UpdateCompleteNodeList;
 
-            _Update();
+            _config.InstalledVersionOverride = obj.InstalledVersion != null;
+            _config.WindowSizeOverride       = obj.WindowSize       != null;
+            _config.EqualsPredicate          = () => _configOrig.Equals(_config);
+
+            try
+            {
+                _configOrig = new(_config)
+                {
+                    EqualsPredicate = null
+                };
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, ex.GetType().ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            _config.InstalledVersion     ??= new(GetType().Assembly.Version()!);
+            _configOrig.InstalledVersion ??= new(_config.InstalledVersion);
+
+            _config.WindowSize     ??= new();
+            _configOrig.WindowSize ??= new(_config.WindowSize);
+
+            // Event Invocator
+            Register?.Invoke(_config);
+
+            _Update(init: true);
         }
         catch (Exception ex)
         {
             Trace.WriteLine(ex.Message);
+        }
+
+        return;
+
+        static Config? Error()
+        {
+            MessageBox.Show("Unable to deserialize json from 'Config'.", "Configuration Load Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Application.Current!.Shutdown();
+            return null;
         }
     }
 

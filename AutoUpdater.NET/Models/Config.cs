@@ -9,23 +9,24 @@
 
 using AssemblyLoader;
 using AutoUpdaterDotNET.Enums;
+using AutoUpdaterDotNET.Extensions;
+using AutoUpdaterDotNET.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using AutoUpdaterDotNET.Extensions;
-using AutoUpdaterDotNET.Interfaces;
 
 namespace AutoUpdaterDotNET.Models;
 
-internal sealed partial class Config : ObservableObject, IConfig
+internal sealed partial class Config : ObservableObject, IConfig, ICloneable
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private readonly Version _defaultInstalledVersion;
+    private Version2 _defaultInstalledVersion;
 
     private string? _defaultAppTitle;
 
@@ -37,11 +38,13 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     private IsMandatory? _defaultIsMandatory;
 
+    private WindowSize? _defaultWindowSize;
+
     private IconOverride? _defaultIconOverride;
 
     private BasicAuth? _defaultBasicAuth;
 
-    internal Lazy<Func<bool>>? EqualsPredicate;
+    internal Func<bool>? EqualsPredicate;
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
@@ -57,20 +60,80 @@ internal sealed partial class Config : ObservableObject, IConfig
     #endregion FTP
 
     #region WindowSize
+
     [JsonIgnore]
     [ObservableProperty]
     public partial bool WindowSizeOverride { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnWindowSizeOverrideChanged(bool value)
+    {
+        if (value)
+        {
+            WindowSize                 ??= _defaultWindowSize;
+            WindowSize?.PropertyChanged +=  OnUpdateValidation;
+        }
+        else
+        {
+            if (WindowSize is not null)
+                _defaultWindowSize = WindowSize;
+
+            WindowSize?.PropertyChanged -= OnUpdateValidation;
+            WindowSize                  =  null;
+        }
+
+        return;
+
+        void OnUpdateValidation(object? sender, PropertyChangedEventArgs e) => _UpdateValidation();
+    }
 
     /// <summary>
     ///     Resizes the update window.
     /// </summary>
     [ObservableProperty]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public partial Size? WindowSize { get; set; }
+    public partial WindowSize? WindowSize { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnWindowSizeChanged(Size? value) => _UpdateValidation();
+    partial void OnWindowSizeChanged(WindowSize? value) => _UpdateValidation();
 
     #endregion WindowSize
+
+    #region Version
+
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial bool InstalledVersionOverride { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnInstalledVersionOverrideChanged(bool value)
+    {
+        if (value)
+        {
+            InstalledVersion                 ??= _defaultInstalledVersion;
+            InstalledVersion.PropertyChanged +=  OnUpdateValidation;
+        }
+        else
+        {
+            if (InstalledVersion is not null)
+                _defaultInstalledVersion = new(InstalledVersion);
+
+            InstalledVersion?.PropertyChanged -= OnUpdateValidation;
+            InstalledVersion                  =  null;
+        }
+
+        return;
+
+        void OnUpdateValidation(object? sender, PropertyChangedEventArgs e) => _UpdateValidation();
+    }
+
+    /// <summary>
+    ///     You can set this field to your current version if you don't want to determine the version from the assembly.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [ObservableProperty]
+    public partial Version2? InstalledVersion { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnInstalledVersionChanged(Version2? value) => _UpdateValidation();
+
+    #endregion Version
 
     #region AppTitle
     /// <summary>
@@ -276,7 +339,7 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [ObservableProperty]
-    public partial bool DoNotBindOwnerWindow { get; set; }
+    public partial bool DoNotBindOwnerWindow { get; set; } = true;
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnDoNotBindOwnerWindowChanged(bool value) => _UpdateValidation();
 
@@ -514,72 +577,11 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     #endregion UserSelectRemindLater
 
-    #region Version
-
-    /// <summary>
-    ///     You can set this field to your current version if you don't want to determine the version from the assembly.
-    /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [ObservableProperty]
-    public partial Version2? InstalledVersion { get; set; }
-    // ReSharper disable once UnusedParameterInPartialMethod
-    //partial void OnInstalledVersionChanged(Version2 value) => _UpdateValidation();
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial bool InstalledVersionOverride { get; set; }
-    // ReSharper disable once UnusedParameterInPartialMethod
-    //partial void OnInstalledVersionOverrideChanged(bool value) => _UpdateValidation();
-
-    partial void OnInstalledVersionOverrideChanged(bool value)
-    {
-        InstalledVersion = value ? new Version2 { Version = new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion) } : null;
-        _UpdateValidation();
-    }
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial ushort MajorVersion { get; set; } = (ushort) Assembly.GetEntryAssembly()!.Version()!.Major;
-    partial void OnMajorVersionChanged(ushort value)
-    {
-        var tmpVer = new Version(value, MinorVersion, BuildVersion, RevisionVersion);
-        SetInstalledVersion(tmpVer);
-    }
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial ushort MinorVersion { get; set; } = (ushort) Assembly.GetEntryAssembly()!.Version()!.Minor;
-    partial void OnMinorVersionChanged(ushort value)
-    {
-        var tmpVer = new Version(MajorVersion, value, BuildVersion, RevisionVersion);
-        SetInstalledVersion(tmpVer);
-    }
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial ushort BuildVersion { get; set; } = (ushort) Assembly.GetEntryAssembly()!.Version()!.Build;
-    partial void OnBuildVersionChanged(ushort value)
-    {
-        var tmpVer = new Version(MajorVersion, MinorVersion, value, RevisionVersion);
-        SetInstalledVersion(tmpVer);
-    }
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial ushort RevisionVersion { get; set; } = (ushort) Assembly.GetEntryAssembly()!.Version()!.Revision;
-    partial void OnRevisionVersionChanged(ushort value)
-    {
-        var tmpVer = new Version(MajorVersion, MinorVersion, BuildVersion, value);
-        SetInstalledVersion(tmpVer);
-    }
-
-    #endregion Version
-
     [JsonIgnore]
     [ObservableProperty]
     public partial BitmapImage? TmpIcon { get; set; } = null;
     // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnTmpIconChanged(BitmapImage? value) => _UpdateValidation();
+    //partial void OnTmpIconChanged(BitmapImage? value) => _UpdateValidation();
 
     [ObservableProperty]
     [JsonIgnore]
@@ -613,13 +615,13 @@ internal sealed partial class Config : ObservableObject, IConfig
 
     #region Event Invocators
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private  void _UpdateValidation() => _UpdateValidation(!EqualsPredicate?.Value.Invoke());
+    private  void _UpdateValidation() => _UpdateValidation(!EqualsPredicate?.Invoke());
 
     internal void _UpdateValidation(bool? value) => UpdateValidation?.Invoke(value);
 
     internal void _UpdateTitle() => UpdateTitle?.Invoke(AppTitle);
 
-    internal void _UpdateVersion() => UpdateVersion?.Invoke($"Loader Version: {InstalledVersion?.Version ?? _defaultInstalledVersion}");
+    internal void _UpdateVersion() => UpdateVersion?.Invoke($"Loader Version: {InstalledVersion ?? _defaultInstalledVersion}");
 
     internal void _UpdateIcon(BitmapImage? value)
     {
@@ -652,15 +654,15 @@ internal sealed partial class Config : ObservableObject, IConfig
         {
             Uri = string.IsNullOrEmpty(TmpIcon?.ToString()) ? null : new Uri(TmpIcon.ToString()!)
         };
-        _defaultInstalledVersion = Assembly.GetExecutingAssembly().Version()!;
+        _defaultInstalledVersion = (Version2) Assembly.GetExecutingAssembly().Version()!;
     }
 
 
     /// <summary>
     ///     Copy Constructor (Overload +2)
     /// </summary>
-    /// <param name="parent"></param>
-    internal Config(Config parent) : this() => Copy(parent);
+    /// <param name="other"></param>
+    internal Config(IConfig other) : this() => Clone(other);
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Constructors
@@ -669,55 +671,30 @@ internal sealed partial class Config : ObservableObject, IConfig
     #region Methods
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    private void SetInstalledVersion(Version tmpVer)
+    public object Clone() => new Config(this);
+
+    internal void Clone(IConfig other)
     {
-        if (_defaultInstalledVersion == tmpVer)
-            InstalledVersion = null;
-        else
+        foreach (var prop in other.GetType().GetProperties())
         {
-            InstalledVersion         ??= new Version2();
-            InstalledVersion.Version   = tmpVer;
+            if (prop.PropertyType.IsValueType || prop.PropertyType == typeof(BitmapImage))
+                GetType().GetProperty(prop.Name)?.SetValue(this, prop.GetValue(other));
+            else
+            {
+                var b = prop.GetValue(other);
+                if (b is not null)
+                    GetType().GetProperty(prop.Name)!.SetValue(this, Activator.CreateInstance(prop.PropertyType, b));
+            }
         }
 
-        _UpdateValidation();
-    }
-
-
-    internal Config? Copy(Config? other)
-    {
-        if (other is null)
-            return null;
-
-        foreach (var prop in other.GetType().GetProperties())
-            GetType().GetProperty(prop.Name)?.SetValue(this, prop.GetValue(other));
-
-        EqualsPredicate               = other.EqualsPredicate;
+        EqualsPredicate               = ((Config)other).EqualsPredicate;
         BeforeCheckForUpdatesNodeList = other.BeforeCheckForUpdatesNodeList;
         AfterCheckForUpdatesNodeList  = other.AfterCheckForUpdatesNodeList;
         TimerNodeList                 = other.TimerNodeList;
         UpdateCompleteNodeList        = other.UpdateCompleteNodeList;
-
-        TmpIcon                  = other.IconOverride?.Uri != null ? other.IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
-        InstalledVersionOverride = other.InstalledVersion != null;
-
-        if (other.InstalledVersion?.Version != null)
-        {
-            MajorVersion    = (ushort)other.InstalledVersion.Version.Major;
-            MinorVersion    = (ushort)other.InstalledVersion.Version.Minor;
-            BuildVersion    = (ushort)other.InstalledVersion.Version.Build;
-            RevisionVersion = (ushort)other.InstalledVersion.Version.Revision;
-        }
-        else
-        {
-            var defaultVersion = GetType().Assembly.Version()!;
-
-            MajorVersion    = (ushort)defaultVersion.Major;
-            MinorVersion    = (ushort)defaultVersion.Minor;
-            BuildVersion    = (ushort)defaultVersion.Build;
-            RevisionVersion = (ushort)defaultVersion.Revision;
-        }
-
-        return this;
+        TmpIcon                       = other.IconOverride?.Uri != null ? other.IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
+        InstalledVersionOverride      = other.InstalledVersion != null;
+        WindowSizeOverride            = other.WindowSize       != null;
     }
 
 
@@ -726,9 +703,10 @@ internal sealed partial class Config : ObservableObject, IConfig
         if (other == null)
             return false;
 
-        return IsVersionOverride() &&
-               IsMandatory()       &&
-               IsIconOverride()    &&
+        return IsVersionOverride()    &&
+               IsMandatory()          &&
+               IsIconOverride()       &&
+               IsWindowSizeOverride() &&
                AppTitle                  == other.AppTitle &&
                IsAppTitle                == other.IsAppTitle &&
                BasicAuthPassword         == other.BasicAuthPassword &&
@@ -755,8 +733,7 @@ internal sealed partial class Config : ObservableObject, IConfig
                TimerDurationTimeSpan     == other.TimerDurationTimeSpan &&
                TimerInterval             == other.TimerInterval &&
                TopMostDisabled           == other.TopMostDisabled &&
-               UserSelectRemindLater     == other.UserSelectRemindLater &&
-               WindowSize                == other.WindowSize;
+               UserSelectRemindLater     == other.UserSelectRemindLater;
 
 
         bool IsIconOverride()
@@ -767,15 +744,29 @@ internal sealed partial class Config : ObservableObject, IConfig
             return this.IsIconOverride == other.IsIconOverride;
         }
 
-        bool IsVersionOverride()
+        bool IsWindowSizeOverride()
         {
-            if (other.InstalledVersionOverride)
+            if (WindowSize is not null && other.WindowSize is not null)
             {
                 return
-                    MajorVersion    == other.MajorVersion &&
-                    MinorVersion    == other.MinorVersion &&
-                    BuildVersion    == other.BuildVersion &&
-                    RevisionVersion == other.RevisionVersion;
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
+                    WindowSize.Width  == other.WindowSize.Width &&
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
+                    WindowSize.Height == other.WindowSize.Height;
+            }
+
+            return WindowSizeOverride == other.WindowSizeOverride;
+        }
+
+        bool IsVersionOverride()
+        {
+            if (InstalledVersion is not null && other.InstalledVersion is not null)
+            {
+                return
+                    InstalledVersion.Major    == other.InstalledVersion.Major &&
+                    InstalledVersion.Minor    == other.InstalledVersion.Minor &&
+                    InstalledVersion.Build    == other.InstalledVersion.Build &&
+                    InstalledVersion.Revision == other.InstalledVersion.Revision;
             }
 
             return InstalledVersionOverride == other.InstalledVersionOverride;

@@ -1,6 +1,6 @@
 ﻿// ****************************************************************************
 // Project:  AutoUpdater.NET
-// File:     JsonComment.cs
+// File:     JsonCommentConverter.cs
 // Author:   Latency McLaughlin
 // Date:     08/10/2025
 // ****************************************************************************

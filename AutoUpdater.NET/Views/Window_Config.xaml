@@ -16,7 +16,7 @@
     ResizeMode="CanResizeWithGrip"
     Width="465"
     Height="400"
-    Title="Options"
+    Title="Configurations"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance viewModels:ViewModelConfig }"
     Loaded="Window_Main_OnLoaded"
@@ -28,7 +28,6 @@
     </behaviors:Interaction.Triggers>
     <controls:Window_Restricted.Resources>
         <converters:FilePathConverter x:Key="FilePathConverter" />
-
         <Style TargetType="xctk:WatermarkTextBox" x:Key="WatermarkTextBox">
             <Setter Property="Watermark" Value="Enter the password" />
             <Setter Property="MaxLength" Value="10" />
@@ -995,99 +994,66 @@
                             <!-- ReSharper disable once InconsistentNaming -->
                             <CheckBox
                                 Name="cbWindowSizeOverride"
-                                IsChecked="{Binding Config.WindowSizeOverride}"
+                                IsChecked="{Binding Config.WindowSizeOverride, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                 ToolTip="Check this to override the window size."
                                 Content="Window Size"
-                                Checked="WindowSizeOverride_OnChecked"
+                                Loaded="WindowSizeOverride_OnLoaded"
+                                Click="WindowSizeOverride_OnLoaded"
                             />
 
-                            <StackPanel
-                                Margin="15,0"
-                                Orientation="Horizontal">
-                                <Label Content="Size:">
-                                    <Label.Style>
-                                        <Style TargetType="Label">
-                                            <Style.Triggers>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="False" />
-                                                    </MultiDataTrigger.Conditions>
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </MultiDataTrigger>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="True" />
-                                                    </MultiDataTrigger.Conditions>
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </MultiDataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Label.Style>
-                                </Label>
-
-                                <!-- ReSharper disable once InconsistentNaming -->
-                                <xctk:PropertyGrid
-                                    Name="WindowSizePropertyGrid"
-                                    ToolTip="Enter the window size to be overriden."
-                                    AutoGenerateProperties="False"
-                                    IsCategorized="False"
-                                    SelectedObject="{Binding Config.WindowSize}"
-                                    ShowAdvancedOptions="False"
-                                    ShowDescriptionByTooltip="False"
-                                    ShowPreview="False"
-                                    ShowSearchBox="False"
-                                    ShowSortOptions="False"
-                                    ShowSummary="False"
-                                    ShowTitle="False"
-                                >
-                                    <xctk:PropertyGrid.Style>
-                                        <Style TargetType="xctk:PropertyGrid">
-                                            <Style.Triggers>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="False" />
-                                                    </MultiDataTrigger.Conditions>
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </MultiDataTrigger>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="True" />
-                                                    </MultiDataTrigger.Conditions>
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </MultiDataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </xctk:PropertyGrid.Style>
-                                    <xctk:PropertyGrid.EditorDefinitions>
-                                        <xctk:EditorTemplateDefinition TargetProperties="Height">
-                                            <xctk:EditorTemplateDefinition.EditingTemplate>
-                                                <DataTemplate>
-                                                    <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                                                    <xctk:IntegerUpDown 
-                                                        Name="WindowSizeHeight"
-                                                        Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                                        Minimum="1" />
-                                                </DataTemplate>
-                                            </xctk:EditorTemplateDefinition.EditingTemplate>
-                                        </xctk:EditorTemplateDefinition>
-                                        <xctk:EditorTemplateDefinition TargetProperties="Width">
-                                            <xctk:EditorTemplateDefinition.EditingTemplate>
-                                                <DataTemplate>
-                                                    <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                                                    <xctk:IntegerUpDown
-                                                        Name="WindowSizeWidth"
-                                                        Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                                        Minimum="1" />
-                                                </DataTemplate>
-                                            </xctk:EditorTemplateDefinition.EditingTemplate>
-                                        </xctk:EditorTemplateDefinition>
-                                    </xctk:PropertyGrid.EditorDefinitions>
-                                    <xctk:PropertyGrid.PropertyDefinitions>
-                                        <xctk:PropertyDefinition TargetProperties="Height" />
-                                        <xctk:PropertyDefinition TargetProperties="Width" />
-                                    </xctk:PropertyGrid.PropertyDefinitions>
-                                </xctk:PropertyGrid>
-                            </StackPanel>
+                            <!-- ReSharper disable once InconsistentNaming -->
+                            <xctk:PropertyGrid
+                                Name="WindowSizePropertyGrid"
+                                ToolTip="Enter the window size to be overriden."
+                            >
+                                <xctk:PropertyGrid.Style>
+                                    <Style TargetType="xctk:PropertyGrid" BasedOn="{StaticResource CustomPropertyGridStyle}">
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="False" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </MultiDataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsChecked, ElementName=cbWindowSizeOverride}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </xctk:PropertyGrid.Style>
+                                <xctk:PropertyGrid.EditorDefinitions>
+                                    <xctk:EditorTemplateDefinition TargetProperties="Height">
+                                        <xctk:EditorTemplateDefinition.EditingTemplate>
+                                            <DataTemplate>
+                                                <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                                <xctk:DoubleUpDown 
+                                                    Name="WindowSizeHeight"
+                                                    Value="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    Minimum="0"
+                                                />
+                                            </DataTemplate>
+                                        </xctk:EditorTemplateDefinition.EditingTemplate>
+                                    </xctk:EditorTemplateDefinition>
+                                    <xctk:EditorTemplateDefinition TargetProperties="Width">
+                                        <xctk:EditorTemplateDefinition.EditingTemplate>
+                                            <DataTemplate>
+                                                <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                                <xctk:DoubleUpDown
+                                                    Name="WindowSizeWidth"
+                                                    Value="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    Minimum="0"
+                                                />
+                                            </DataTemplate>
+                                        </xctk:EditorTemplateDefinition.EditingTemplate>
+                                    </xctk:EditorTemplateDefinition>
+                                </xctk:PropertyGrid.EditorDefinitions>
+                                <xctk:PropertyGrid.PropertyDefinitions>
+                                    <xctk:PropertyDefinition TargetProperties="IsEmpty" IsBrowsable="False" />
+                                </xctk:PropertyGrid.PropertyDefinitions>
+                            </xctk:PropertyGrid>
 
                             <!-- ReSharper disable once InconsistentNaming -->
                             <CheckBox
@@ -1095,167 +1061,75 @@
                                 IsChecked="{Binding Config.InstalledVersionOverride}"
                                 ToolTip="Check this to assign installed version manually and don't want to rely on the library to determine the installed version from the originating assembly."
                                 Content="Installed Version"
+                                Loaded="VersionOverride_OnLoaded"
+                                Click="VersionOverride_OnLoaded"
                             />
 
-                            <StackPanel
-                                Orientation="Horizontal"
-                                Margin="10,0,0,0">
-
-                                <!-- ReSharper disable once InconsistentNaming -->
-                                <xctk:IntegerUpDown
-                                    Name="iudMajorVersion"
-                                    Value="{Binding Config.MajorVersion}"
-                                    DefaultValue="1"
-                                    Minimum="0"
-                                    HorizontalAlignment="Left"
-                                    ToolTip="Modify this for the interval value."
-                                >
-                                    <xctk:IntegerUpDown.Style>
-                                        <Style TargetType="xctk:IntegerUpDown">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </xctk:IntegerUpDown.Style>
-                                </xctk:IntegerUpDown>
-
-                                <Label Content="."
-                                       FontWeight="Heavy"
-                                       VerticalAlignment="Bottom">
-                                    <Label.Style>
-                                        <Style TargetType="Label">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Label.Style>
-                                </Label>
-
-                                <!-- ReSharper disable once InconsistentNaming -->
-                                <xctk:IntegerUpDown
-                                    Name="iudMinorVersion"
-                                    Value="{Binding Config.MinorVersion}"
-                                    DefaultValue="0"
-                                    Minimum="0"
-                                    ToolTip="Modify this for the minor version's value."
-                                >
-                                    <xctk:IntegerUpDown.Style>
-                                        <Style TargetType="xctk:IntegerUpDown">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </xctk:IntegerUpDown.Style>
-                                </xctk:IntegerUpDown>
-
-                                <Label Content="."
-                                       FontWeight="Heavy"
-                                       VerticalAlignment="Bottom">
-                                    <Label.Style>
-                                        <Style TargetType="Label">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Label.Style>
-                                </Label>
-
-                                <!-- ReSharper disable once InconsistentNaming -->
-                                <xctk:IntegerUpDown
-                                    Name="iudBuildVersion"
-                                    Value="{Binding Config.BuildVersion}"
-                                    DefaultValue="0"
-                                    Minimum="0"
-                                    ToolTip="Modify this for the build version's value."
-                                >
-                                    <xctk:IntegerUpDown.Style>
-                                        <Style TargetType="xctk:IntegerUpDown">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </xctk:IntegerUpDown.Style>
-                                </xctk:IntegerUpDown>
-
-                                <Label Content="."
-                                       FontWeight="Heavy"
-                                       VerticalAlignment="Bottom">
-                                    <Label.Style>
-                                        <Style TargetType="Label">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Label.Style>
-                                </Label>
-
-                                <!-- ReSharper disable once InconsistentNaming -->
-                                <xctk:IntegerUpDown
-                                    Name="iudRevisionVersion"
-                                    Value="{Binding Config.RevisionVersion}"
-                                    DefaultValue="0"
-                                    Minimum="0"
-                                    ToolTip="Modify this for the sub-patch version's value."
-                                >
-                                    <xctk:IntegerUpDown.Style>
-                                        <Style TargetType="xctk:IntegerUpDown">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </xctk:IntegerUpDown.Style>
-                                </xctk:IntegerUpDown>
-
-                            </StackPanel>
+                            <xctk:PropertyGrid
+                                Name="VersionPropertyGrid"
+                                ToolTip="Modify the version to be overriden."
+                            >
+                                <xctk:PropertyGrid.Style>
+                                    <Style TargetType="xctk:PropertyGrid" BasedOn="{StaticResource CustomPropertyGridStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
+                                                         Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsChecked, ElementName=cbInstalledVersionOverride}"
+                                                         Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </xctk:PropertyGrid.Style>
+                                <xctk:PropertyGrid.EditorDefinitions>
+                                    <xctk:EditorTemplateDefinition TargetProperties="Major">
+                                        <xctk:EditorTemplateDefinition.EditingTemplate>
+                                            <DataTemplate>
+                                                <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                                <xctk:UIntegerUpDown 
+                                                    Name="MajorVersion"
+                                                    Value="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                />
+                                            </DataTemplate>
+                                        </xctk:EditorTemplateDefinition.EditingTemplate>
+                                    </xctk:EditorTemplateDefinition>
+                                    <xctk:EditorTemplateDefinition TargetProperties="Minor">
+                                        <xctk:EditorTemplateDefinition.EditingTemplate>
+                                            <DataTemplate>
+                                                <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                                <xctk:UIntegerUpDown
+                                                    Name="MinorVersion"
+                                                    Value="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                />
+                                            </DataTemplate>
+                                        </xctk:EditorTemplateDefinition.EditingTemplate>
+                                    </xctk:EditorTemplateDefinition>
+                                    <xctk:EditorTemplateDefinition TargetProperties="Build">
+                                        <xctk:EditorTemplateDefinition.EditingTemplate>
+                                            <DataTemplate>
+                                                <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                                <xctk:UIntegerUpDown 
+                                                    Name="BuildVersion"
+                                                    Value="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                />
+                                            </DataTemplate>
+                                        </xctk:EditorTemplateDefinition.EditingTemplate>
+                                    </xctk:EditorTemplateDefinition>
+                                    <xctk:EditorTemplateDefinition TargetProperties="Revision">
+                                        <xctk:EditorTemplateDefinition.EditingTemplate>
+                                            <DataTemplate>
+                                                <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                                <xctk:UIntegerUpDown
+                                                    Name="RevisionVersion"
+                                                    Value="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                />
+                                            </DataTemplate>
+                                        </xctk:EditorTemplateDefinition.EditingTemplate>
+                                    </xctk:EditorTemplateDefinition>
+                                </xctk:PropertyGrid.EditorDefinitions>
+                            </xctk:PropertyGrid>
 
                             <!-- ReSharper disable once InconsistentNaming -->
                             <CheckBox
