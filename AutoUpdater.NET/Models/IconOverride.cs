@@ -13,6 +13,23 @@ namespace AutoUpdaterDotNET.Models;
 public record IconOverride
 {
     /// <summary>
+    ///     Default Constructor
+    /// </summary>
+    public IconOverride()
+    { }
+
+
+    /// <summary>
+    ///     Copy Constructor (Overload +1)
+    /// </summary>
+    /// <param name="io"></param>
+    public IconOverride(IconOverride io)
+    {
+        Uri = io.Uri;
+    }
+
+
+    /// <summary>
     ///     File path location for the image to override.
     /// </summary>
     public Uri? Uri { get; set; }

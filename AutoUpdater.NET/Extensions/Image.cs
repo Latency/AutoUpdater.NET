@@ -32,6 +32,35 @@ public static class ImageExtensions
     }
 
 
+    extension(BitmapImage? image1)
+    {
+        public bool IsEqual(BitmapImage? image2) => image1 != null && image2 != null && image1.ToBytes().SequenceEqual(image2.ToBytes());
+
+        public byte[] ToBytes()
+        {
+            byte[] data = [];
+            if (image1 == null)
+                return data;
+
+            try
+            {
+                var encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(image1));
+                using var ms = new MemoryStream();
+                encoder.Save(ms);
+                data = ms.ToArray();
+                return data;
+            }
+            catch (Exception)
+            {
+                // Handled
+            }
+
+            return data;
+        }
+    }
+
+
     private static BitmapImage CreateNewBitmapImage(Action<BitmapImage> callback)
     {
         var image = new BitmapImage();

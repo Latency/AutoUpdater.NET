@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -131,6 +132,9 @@ public partial class ViewModelConfig
 
             _config.WindowSize     ??= new();
             _configOrig.WindowSize ??= new(_config.WindowSize);
+
+            _config.TmpIcon     ??= _config.IconOverride?.Uri != null ? _config.IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
+            _configOrig.TmpIcon ??= _config.TmpIcon!.Clone();
 
             // Event Invocator
             Register?.Invoke(_config);

@@ -581,7 +581,7 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
     [ObservableProperty]
     public partial BitmapImage? TmpIcon { get; set; } = null;
     // ReSharper disable once UnusedParameterInPartialMethod
-    //partial void OnTmpIconChanged(BitmapImage? value) => _UpdateValidation();
+    partial void OnTmpIconChanged(BitmapImage? value) => _UpdateValidation();
 
     [ObservableProperty]
     [JsonIgnore]
@@ -692,7 +692,6 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
         AfterCheckForUpdatesNodeList  = other.AfterCheckForUpdatesNodeList;
         TimerNodeList                 = other.TimerNodeList;
         UpdateCompleteNodeList        = other.UpdateCompleteNodeList;
-        TmpIcon                       = other.IconOverride?.Uri != null ? other.IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
         InstalledVersionOverride      = other.InstalledVersion != null;
         WindowSizeOverride            = other.WindowSize       != null;
     }
@@ -736,13 +735,7 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
                UserSelectRemindLater     == other.UserSelectRemindLater;
 
 
-        bool IsIconOverride()
-        {
-            if (other.IsIconOverride)
-                return TmpIcon?.UriSource?.OriginalString == other.TmpIcon?.UriSource?.OriginalString;
-
-            return this.IsIconOverride == other.IsIconOverride;
-        }
+        bool IsIconOverride() => TmpIcon is not null && other.TmpIcon is not null ? TmpIcon.IsEqual(other.TmpIcon) : this.IsIconOverride == other.IsIconOverride;
 
         bool IsWindowSizeOverride()
         {
