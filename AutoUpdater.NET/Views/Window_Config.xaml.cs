@@ -234,6 +234,13 @@ public partial class Window_Config
     }
 
 
+    private void WindowSizeOverride_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (_config is not null)
+            WindowSizePropertyGrid?.SelectedObject = _config.WindowSize!;
+    }
+
+
     private void FtpPropertyGrid_OnLoaded(object sender, RoutedEventArgs e)
     {
         if (sender is not PropertyGrid ftpPropertyGrid)
@@ -242,12 +249,5 @@ public partial class Window_Config
         _ftpPropertyGrid                                        = ftpPropertyGrid;
         _ftpEncodingPropertyItem                                = ftpPropertyGrid.FindProperty("Encoding");
         ftpPropertyGrid.FindProperty("Credentials")?.IsExpanded = true;
-    }
-
-
-    private void WindowSizeOverride_OnLoaded(object sender, RoutedEventArgs e)
-    {
-        if (_config is not null)
-            WindowSizePropertyGrid?.SelectedObject = _config.WindowSize!;
     }
 }

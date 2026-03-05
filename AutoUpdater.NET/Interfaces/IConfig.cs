@@ -91,13 +91,7 @@ public interface IConfig : IEquatable<IConfig?>
 
     TimerEnabled? Timer { get; set; }
 
-    bool UserSelectRemindLater { get; set; }
-
-    ushort RemindLaterAt { get; set; }
-
-    RemindLaterFormat RemindLaterTimeSpan { get; set; }
-
-    TimerEnabled? RemmindLaterTimer { get; set; }
+    TimerEnabled? RemindLaterTimer { get; set; }
 
     Version2? InstalledVersion { get; set; }
 

@@ -22,27 +22,27 @@ public partial class ViewModelRemindLater
     [RelayCommand]
     private void RemindLaterTimeSpanChanged()
     {
-        RemindLater(Config.RemindLaterAt, Config.RemindLaterTimeSpan);
+        RemindLater(Config.RemindLaterTimer.Interval, Config.RemindLaterTimer.TimeSpan);
 
-        if (Config.RemindLaterAt != ComboBoxSelectedItem.Key)
-            Config.RemindLaterAt = ComboBoxSelectedItem.Key;
-        if (Config.RemindLaterTimeSpan != ComboBoxSelectedItem.Value)
-            Config.RemindLaterTimeSpan = ComboBoxSelectedItem.Value;
+        if (Config.RemindLaterTimer.Interval != ComboBoxSelectedItem.Key)
+            Config.RemindLaterTimer.Interval = ComboBoxSelectedItem.Key;
+        if (Config.RemindLaterTimer.TimeSpan != ComboBoxSelectedItem.Value)
+            Config.RemindLaterTimer.TimeSpan = ComboBoxSelectedItem.Value;
     }
 
 
     [RelayCommand]
     private void RemindLaterAtChanged(object? parameter)
     {
-        var    timeVal        = (ushort) ((IntegerUpDown)parameter!).Value!;
+        var    timeVal        = (ushort) ((UShortUpDown)parameter!).Value!;
         var    remindTimeSpan = ComboBoxSelectedItem.Value;
 
         RemindLater(timeVal, remindTimeSpan);
 
-        if (Config.RemindLaterAt != ComboBoxSelectedItem.Key)
-            Config.RemindLaterAt = ComboBoxSelectedItem.Key;
-        if (Config.RemindLaterTimeSpan != ComboBoxSelectedItem.Value)
-            Config.RemindLaterTimeSpan = ComboBoxSelectedItem.Value;
+        if (Config.RemindLaterTimer.Interval != ComboBoxSelectedItem.Key)
+            Config.RemindLaterTimer.Interval = ComboBoxSelectedItem.Key;
+        if (Config.RemindLaterTimer.TimeSpan != ComboBoxSelectedItem.Value)
+            Config.RemindLaterTimer.TimeSpan = ComboBoxSelectedItem.Value;
     }
 
     private void RemindLater(ushort timeVal, RemindLaterFormat remindTimeSpan)

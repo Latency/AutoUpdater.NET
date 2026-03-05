@@ -207,69 +207,6 @@
 
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
-                        Name="cbUserSelectRemindLater"
-                        IsChecked="{Binding Config.UserSelectRemindLater}"
-                        ToolTip="Check this if you want to show the 'Remind Later' or 'Time' options within the AutoUpdater notification window."
-                        Content="User Select Remind Later"
-                    />
-
-                    <StackPanel Orientation="Horizontal">
-
-                        <!-- ReSharper disable once InconsistentNaming -->
-                        <xctk:IntegerUpDown
-                            Name="iudRemindLaterAt"
-                            Value="{Binding Config.RemindLaterAt}"
-                            Minimum="1"
-                            ToolTip="Set the duration time."
-                            HorizontalAlignment="Left"
-                            Margin="10,0,0,0"
-                        >
-                            <xctk:IntegerUpDown.Style>
-                                <Style TargetType="xctk:IntegerUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbUserSelectRemindLater}"
-                                                     Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbUserSelectRemindLater}"
-                                                     Value="True">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </xctk:IntegerUpDown.Style>
-                        </xctk:IntegerUpDown>
-
-                        <!-- ReSharper disable once InconsistentNaming -->
-                        <ComboBox
-                            Name="cbRemindLaterTimeSpan"
-                            ToolTip="Select the duration type."
-                            ItemsSource="{Binding RemindLaterFormatEnumValues}"
-                            SelectedValue="{Binding Config.RemindLaterTimeSpan}"
-                            IsSynchronizedWithCurrentItem="True"
-                            HorizontalAlignment="Left"
-                            Margin="10,0,0,0"
-                        >
-                            <ComboBox.Style>
-                                <Style TargetType="ComboBox">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbUserSelectRemindLater}"
-                                                     Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbUserSelectRemindLater}"
-                                                     Value="True">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ComboBox.Style>
-                        </ComboBox>
-
-                    </StackPanel>
-
-                    <!-- ReSharper disable once InconsistentNaming -->
-                    <CheckBox
                         Name="cbIsManditory"
                         IsChecked="{Binding Config.IsMandatory}"
                         ToolTip="Check this if you want to show the 'ShowSkipButton' or 'ShowRemindLaterButton'."
@@ -319,6 +256,68 @@
                             </Style>
                         </CheckBox.Style>
                     </CheckBox>
+
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Margin="10,0,0,0"
+                    >
+
+                        <!-- ReSharper disable once Xaml.PossibleNullReferenceException -->
+                        <xctk:UShortUpDown
+                            Name="UiudRemindLaterAt"
+                            Minimum="1"
+                            ToolTip="Set the duration time."
+                            HorizontalAlignment="Left"
+                            Margin="10,0,0,0"
+                            Value="{Binding Config.RemindLaterTimer.Interval}"
+                        >
+                            <xctk:UShortUpDown.Style>
+                                <Style TargetType="xctk:UShortUpDown">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbShowRemindLaterButton}"
+                                                     Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbShowRemindLaterButton}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </xctk:UShortUpDown.Style>
+                        </xctk:UShortUpDown>
+
+                        <!-- ReSharper disable once Xaml.PossibleNullReferenceException -->
+                        <ComboBox
+                            Name="CbRemindLaterTimeSpan"
+                            ToolTip="Select the duration type."
+                            ItemsSource="{Binding RemindLaterFormatEnumValues}"
+                            SelectedValue="{Binding Config.RemindLaterTimer.TimeSpan}"
+                            IsSynchronizedWithCurrentItem="True"
+                            HorizontalAlignment="Left"
+                            Margin="10,0,0,0"
+                        >
+                            <ComboBox.Style>
+                                <Style TargetType="ComboBox">
+                                    <Style.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsChecked, ElementName=cbShowRemindLaterButton}"
+                                            Value="False"
+                                        >
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsChecked, ElementName=cbShowRemindLaterButton}"
+                                            Value="True"
+                                        >
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ComboBox.Style>
+                        </ComboBox>
+
+                    </StackPanel>
 
                     <!-- ReSharper disable once InconsistentNaming -->
                     <ComboBox

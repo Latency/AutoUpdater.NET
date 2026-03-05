@@ -111,8 +111,9 @@ public partial class ViewModelConfig
             //vmmc.TimerNodeList                 = _config.TimerNodeList;
             //vmmc.UpdateCompleteNodeList        = _config.UpdateCompleteNodeList;
 
-            _config.InstalledVersionOverride = obj.InstalledVersion != null;
-            _config.WindowSizeOverride       = obj.WindowSize       != null;
+            _config.InstalledVersionOverride = obj.InstalledVersion  != null;
+            _config.WindowSizeOverride       = obj.WindowSize        != null;
+            _config.ShowRemindLaterButton    = obj.RemindLaterTimer != null;
             _config.EqualsPredicate          = () => _configOrig.Equals(_config);
 
             try

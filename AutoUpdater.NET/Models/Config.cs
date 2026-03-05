@@ -209,14 +209,24 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
         _UpdateValidation();
     }
 
+    #region UserSelectRemindLater
+
     /// <summary>
     ///     If this is true users can see the Remind Later button.
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonIgnore]
     [ObservableProperty]
-    public partial bool ShowRemindLaterButton { get; set; } = true;
+    public partial bool ShowRemindLaterButton { get; set; }
     partial void OnShowRemindLaterButtonChanged(bool value)
     {
+        if (value)
+            RemindLaterTimer ??= _defaultRemindLaterTimer;
+        else
+        {
+            _defaultRemindLaterTimer = RemindLaterTimer;
+            RemindLaterTimer         = null;
+        }
+
         _defaultMandatory[1] = value;
 
         if (!(value | ShowSkipButton))
@@ -225,13 +235,38 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
         _UpdateValidation();
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [ObservableProperty]
+    public partial TimerEnabled? RemindLaterTimer { get; set; }
+    partial void OnRemindLaterTimerChanged(TimerEnabled? value)
+    {
+        if (value is not null)
+        {
+            RemindLaterTimer                  ??= _defaultRemindLaterTimer;
+            RemindLaterTimer?.PropertyChanged +=  OnUpdateValidation;
+        }
+        else
+        {
+            if (RemindLaterTimer is not null)
+                _defaultRemindLaterTimer = new(RemindLaterTimer);
+
+            RemindLaterTimer?.PropertyChanged -= OnUpdateValidation;
+            RemindLaterTimer                  =  null;
+        }
+
+        return;
+
+        void OnUpdateValidation(object? sender, PropertyChangedEventArgs e) => _UpdateValidation();
+    }
+
+    #endregion UserSelectRemindLater
+
     /// <summary>
     ///     Set this to any of the available modes to change behaviour of the Mandatory flag.
     /// </summary>
     [JsonIgnore]
     [ObservableProperty]
     public partial Mode UpdateMode { get; set; } = Mode.Normal;
-    // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnUpdateModeChanged(Mode value)
     {
         Mandatory?.UpdateMode = value;
@@ -520,63 +555,6 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
     //partial void OnTimerChanged(TimerEnabled value) => _UpdateValidation();
     #endregion TimerEnabled
 
-    #region UserSelectRemindLater
-
-    /// <summary>
-    ///     If this is true users see dialog where they can set remind later interval otherwise it will take the interval from
-    ///     RemindLaterAt and RemindLaterTimeSpan fields.
-    /// </summary>
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial bool UserSelectRemindLater { get; set; } = true;
-    partial void OnUserSelectRemindLaterChanged(bool value)
-    {
-        RemmindLaterTimer = value ? _defaultRemindLaterTimer ??= new TimerEnabled() : null;
-
-        _UpdateValidation();
-    }
-
-    /// <summary>
-    ///     Remind Later interval after user should be reminded of update.
-    /// </summary>
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial ushort RemindLaterAt { get; set; } = 1;
-    partial void OnRemindLaterAtChanged(ushort value)
-    {
-        RemmindLaterTimer?.Interval = value;
-
-        if (_defaultRemindLaterTimer == Timer)
-            _defaultRemindLaterTimer = null;
-
-        _UpdateValidation();
-    }
-
-    /// <summary>
-    ///     Set if RemindLaterAt interval should be in Minutes, Hours or Days.
-    /// </summary>
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial RemindLaterFormat RemindLaterTimeSpan { get; set; } = RemindLaterFormat.Minutes;
-    partial void OnRemindLaterTimeSpanChanged(RemindLaterFormat value)
-    {
-        RemmindLaterTimer?.TimeSpan = value;
-
-        if (_defaultRemindLaterTimer == Timer)
-            _defaultRemindLaterTimer = null;
-
-        _UpdateValidation();
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("UserSelectRemmindLater")]
-    [ObservableProperty]
-    public partial TimerEnabled? RemmindLaterTimer { get; set; }
-    // ReSharper disable once UnusedParameterInPartialMethod
-    //partial void OnRemmindLaterTimerChanged(TimerEnabled value) => _UpdateValidation();
-
-    #endregion UserSelectRemindLater
-
     [JsonIgnore]
     [ObservableProperty]
     public partial BitmapImage? TmpIcon { get; set; } = null;
@@ -692,8 +670,9 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
         AfterCheckForUpdatesNodeList  = other.AfterCheckForUpdatesNodeList;
         TimerNodeList                 = other.TimerNodeList;
         UpdateCompleteNodeList        = other.UpdateCompleteNodeList;
-        InstalledVersionOverride      = other.InstalledVersion != null;
-        WindowSizeOverride            = other.WindowSize       != null;
+        InstalledVersionOverride      = other.InstalledVersion  != null;
+        WindowSizeOverride            = other.WindowSize        != null;
+        ShowRemindLaterButton         = other.RemindLaterTimer  != null;
     }
 
 
@@ -706,6 +685,7 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
                IsMandatory()          &&
                IsIconOverride()       &&
                IsWindowSizeOverride() &&
+               IsRemindLater()        &&
                AppTitle                  == other.AppTitle &&
                IsAppTitle                == other.IsAppTitle &&
                BasicAuthPassword         == other.BasicAuthPassword &&
@@ -725,17 +705,26 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
                FtpProtocol               == other.FtpProtocol &&
                OpenDownloadPage          == other.OpenDownloadPage &&
                ProxyEnabled              == other.ProxyEnabled &&
-               RemindLaterAt             == other.RemindLaterAt &&
-               RemindLaterTimeSpan       == other.RemindLaterTimeSpan &&
                ReportErrors              == other.ReportErrors &&
                RunUpdateAsAdmin          == other.RunUpdateAsAdmin &&
                TimerDurationTimeSpan     == other.TimerDurationTimeSpan &&
                TimerInterval             == other.TimerInterval &&
-               TopMostDisabled           == other.TopMostDisabled &&
-               UserSelectRemindLater     == other.UserSelectRemindLater;
+               TopMostDisabled           == other.TopMostDisabled;
 
 
         bool IsIconOverride() => TmpIcon is not null && other.TmpIcon is not null ? TmpIcon.IsEqual(other.TmpIcon) : this.IsIconOverride == other.IsIconOverride;
+
+        bool IsRemindLater()
+        {
+            if (RemindLaterTimer is not null && other.RemindLaterTimer is not null)
+            {
+                return
+                    RemindLaterTimer.Interval == other.RemindLaterTimer.Interval &&
+                    RemindLaterTimer.TimeSpan == other.RemindLaterTimer.TimeSpan;
+            }
+
+            return ShowRemindLaterButton == other.ShowRemindLaterButton;
+        }
 
         bool IsWindowSizeOverride()
         {
