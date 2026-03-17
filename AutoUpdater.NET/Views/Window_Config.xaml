@@ -76,15 +76,6 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
         <ObjectDataProvider
-            x:Key="TimerDurationFormatEnumValues"
-            MethodName="GetValues"
-            ObjectType="{x:Type sys:Enum}"
-        >
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="enums:RemindLaterFormat" />
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <ObjectDataProvider
             x:Key="UpdateModeEnumValues"
             MethodName="GetValues"
             ObjectType="{x:Type sys:Enum}"
@@ -168,7 +159,7 @@
         >
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="190" />
+                    <ColumnDefinition />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -180,6 +171,7 @@
                 <StackPanel
                     Grid.Column="0"
                     Grid.Row="0"
+                    Margin="0,0,5,0"
                 >
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
@@ -541,71 +533,6 @@
 
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
-                        Name="cbTimerEnabled"
-                        IsChecked="{Binding Config.TimerEnabled}"
-                        ToolTip="Check this if periodically check for updates."
-                        Content="Enable Timer"
-                    />
-
-                    <StackPanel
-                        Orientation="Horizontal">
-
-                        <!-- ReSharper disable once InconsistentNaming -->
-                        <xctk:IntegerUpDown
-                            Name="iudTimers"
-                            Value="{Binding Config.TimerInterval}"
-                            Minimum="1"
-                            HorizontalAlignment="Left"
-                            ToolTip="Modify this for the interval value."
-                            Margin="10,0,0,0"
-                            Height="22"
-                        >
-                            <xctk:IntegerUpDown.Style>
-                                <Style TargetType="xctk:IntegerUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}"
-                                                     Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </xctk:IntegerUpDown.Style>
-                        </xctk:IntegerUpDown>
-
-                        <!-- ReSharper disable once InconsistentNaming -->
-                        <ComboBox
-                            Name="cbTimerDuration"
-                            ToolTip="Select the interval duration within the combo-box."
-                            ItemsSource="{Binding Source={StaticResource TimerDurationFormatEnumValues}}"
-                            SelectedValue="{Binding Config.TimerDurationTimeSpan}"
-                            IsSynchronizedWithCurrentItem="True"
-                            HorizontalAlignment="Left"
-                            Margin="10,0,0,0"
-                            Height="22"
-                        >
-                            <ComboBox.Style>
-                                <Style TargetType="ComboBox">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}"
-                                                     Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbTimerEnabled}"
-                                                     Value="True">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ComboBox.Style>
-                        </ComboBox>
-
-                    </StackPanel>
-
-                    <!-- ReSharper disable once InconsistentNaming -->
-                    <CheckBox
                         Name="cbBasicAuth"
                         IsChecked="{Binding Config.IsBasicAuth}"
                         ToolTip="Check this to set basic authentication on credentials."
@@ -795,7 +722,7 @@
                             Name="FtpPropertyGrid"
                             SelectedObject="{Binding Config.FtpProfile}"
                             Style="{StaticResource CustomPropertyGridStyle}"
-                            NameColumnWidth="123"
+                            NameColumnWidth="180"
                             Loaded="FtpPropertyGrid_OnLoaded"
                         >
                             <xctk:PropertyGrid.EditorDefinitions>
@@ -860,6 +787,55 @@
 
                     </StackPanel>
 
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbFTPProtocol}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbFTPProtocol}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <xctk:PropertyGrid
+                            Name="HttpClientPropertyGrid"
+                            SelectedObject="{Binding Config.HttpClient2}"
+                            Style="{StaticResource CustomPropertyGridStyle}"
+                            NameColumnWidth="250"
+                            Loaded="HttpPropertyGrid_OnLoaded"
+                        >
+                            <xctk:PropertyGrid.EditorDefinitions>
+                                <xctk:EditorTemplateDefinition TargetProperties="Timeout">
+                                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                                        <DataTemplate>
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                            <xctk:TimeSpanUpDown
+                                                Minimum="1"
+                                                Value="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                            />
+                                        </DataTemplate>
+                                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                                </xctk:EditorTemplateDefinition>
+
+                                <xctk:EditorTemplateDefinition TargetProperties="MaxResponseContentBufferSize">
+                                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                                        <DataTemplate>
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                            <xctk:ULongUpDown
+                                                Minimum="1"
+                                                Value="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                            />
+                                        </DataTemplate>
+                                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                                </xctk:EditorTemplateDefinition>
+                            </xctk:PropertyGrid.EditorDefinitions>
+                        </xctk:PropertyGrid>
+
+                    </StackPanel>
                 </StackPanel>
 
                 <StackPanel

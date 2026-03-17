@@ -6,7 +6,6 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
-using AssemblyLoader;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.Properties;
@@ -16,7 +15,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -103,39 +101,7 @@ public partial class ViewModelConfig
         {
             var obj = JsonSerializer.Deserialize<Config>(json, _jso) ?? Error()!;
             _config.Clone(obj);
-
-            // Preserve Properties
-
-            //vmmc.BeforeCheckForUpdatesNodeList = _config.BeforeCheckForUpdatesNodeList;
-            //vmmc.AfterCheckForUpdatesNodeList  = _config.AfterCheckForUpdatesNodeList;
-            //vmmc.TimerNodeList                 = _config.TimerNodeList;
-            //vmmc.UpdateCompleteNodeList        = _config.UpdateCompleteNodeList;
-
-            _config.InstalledVersionOverride = obj.InstalledVersion  != null;
-            _config.WindowSizeOverride       = obj.WindowSize        != null;
-            _config.ShowRemindLaterButton    = obj.RemindLaterTimer != null;
-            _config.EqualsPredicate          = () => _configOrig.Equals(_config);
-
-            try
-            {
-                _configOrig = new(_config)
-                {
-                    EqualsPredicate = null
-                };
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, ex.GetType().ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            _config.InstalledVersion     ??= new(GetType().Assembly.Version()!);
-            _configOrig.InstalledVersion ??= new(_config.InstalledVersion);
-
-            _config.WindowSize     ??= new();
-            _configOrig.WindowSize ??= new(_config.WindowSize);
-
-            _config.TmpIcon     ??= _config.IconOverride?.Uri != null ? _config.IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
-            _configOrig.TmpIcon ??= _config.TmpIcon!.Clone();
+            _configOrig = new(_config);
 
             // Event Invocator
             Register?.Invoke(_config);
@@ -144,7 +110,7 @@ public partial class ViewModelConfig
         }
         catch (Exception ex)
         {
-            Trace.WriteLine(ex.Message);
+            MessageBox.Show(ex.Message, ex.GetType().ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         return;

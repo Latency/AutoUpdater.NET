@@ -6,6 +6,7 @@
 // ****************************************************************************
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace AutoUpdaterDotNET.Models;
 
@@ -20,8 +21,11 @@ public partial class Version2 : ObservableObject
     ///     Copy Constructor (Overload +1)
     /// </summary>
     /// <param name="obj"></param>
-    public Version2(Version2 obj)
+    public Version2(Version2? obj)
     {
+        if (obj is null)
+            return;
+
         Major    = obj.Major;
         Minor    = obj.Minor;
         Build    = obj.Build;
@@ -32,7 +36,7 @@ public partial class Version2 : ObservableObject
     ///     Copy Constructor (Overload +2)
     /// </summary>
     /// <param name="v"></param>
-    public Version2(Version v) : this((uint) v.Major, (uint) v.Minor, (uint) v.Build, (uint) v.Revision) { }
+    public Version2(Version v) : this(v.Major >= 0 ? (uint) v.Major : 0, v.Minor >= 0 ? (uint) v.Minor : 0, v.Build >= 0 ? (uint) v.Build : 0, v.Revision >= 0 ? (uint) v.Revision : 0) { }
 
     /// <summary>
     ///     Copy Constructor (Overload +3)
@@ -75,21 +79,24 @@ public partial class Version2 : ObservableObject
     public static implicit operator Version(Version2 v) => new((int) v.Major, (int) v.Minor, (int) v.Build, (int) v.Revision);
 
 
-
+    [PropertyOrder(1)]
     [ObservableProperty]
     public partial uint Major { get; set; }
 
 
+    [PropertyOrder(2)]
     [ObservableProperty]
     public partial uint Minor { get; set; }
 
 
-    [ObservableProperty]
-    public partial uint Build { get; set; }
-
-
+    [PropertyOrder(3)]
     [ObservableProperty]
     public partial uint Revision { get; set; }
+
+
+    [PropertyOrder(4)]
+    [ObservableProperty]
+    public partial uint Build { get; set; }
 
 
     public override string ToString() => $"{Major}.{Minor}.{Build}.{Revision}";

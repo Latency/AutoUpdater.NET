@@ -41,5 +41,12 @@ public static class VisualExtensions
     }
 
 
-    public static PropertyItem? FindProperty(this PropertyGrid propertygrid, string name) => propertygrid.Properties?.Cast<PropertyItem>().First(x => x.PropertyName == name);
+    public static PropertyItem? FindProperty(this PropertyGrid propertygrid, string name)
+    {
+        var props = propertygrid.Properties;
+        if (props is null || props.Count == 0)
+            return null;
+
+        return props.Cast<PropertyItem>().First(x => x.PropertyName == name);
+    }
 }

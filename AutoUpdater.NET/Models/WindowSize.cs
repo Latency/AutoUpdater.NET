@@ -23,8 +23,11 @@ public partial class WindowSize : ObservableObject
     ///     Copy Constructor (Overload +1)
     /// </summary>
     /// <returns></returns>
-    public WindowSize(WindowSize size) : this()
+    public WindowSize(WindowSize? size) : this()
     {
+        if (size is null)
+            return;
+
         Height = size.Height;
         Width  = size.Width;
     }

@@ -225,21 +225,6 @@ public sealed class Download : IDownload
     #endregion Properties
 
 
-    public void SetTimerInterval()
-    {
-        _updateTimer.Interval = Config.TimerDurationTimeSpan switch
-        {
-            RemindLaterFormat.Seconds => TimeSpan.FromSeconds(Config.TimerInterval),
-            RemindLaterFormat.Minutes => TimeSpan.FromMinutes(Config.TimerInterval),
-            RemindLaterFormat.Hours   => TimeSpan.FromHours(Config.TimerInterval),
-            RemindLaterFormat.Days    => TimeSpan.FromDays(Config.TimerInterval),
-            RemindLaterFormat.Weeks   => TimeSpan.FromDays(Config.TimerInterval * 7),
-            _                         => throw new ArgumentOutOfRangeException(nameof(Config.TimerInterval))
-        };
-
-    }
-
-
     /// <summary>
     ///     Start checking for new version of application and display a dialog to the user if update is available.
     /// </summary>

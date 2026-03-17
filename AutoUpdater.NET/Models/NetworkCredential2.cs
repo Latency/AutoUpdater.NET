@@ -12,7 +12,7 @@ using System.Security;
 
 namespace AutoUpdaterDotNET.Models;
 
-public partial class NetworkCredential2 : ObservableObject
+public partial class NetworkCredential2 : ObservableObject, IEquatable<NetworkCredential2>
 {
     private readonly NetworkCredential _networkCredential = new();
 
@@ -72,4 +72,29 @@ public partial class NetworkCredential2 : ObservableObject
     [Description("The machine name that verifies the credentials. Usually this is the host machine.")]
     public partial string Domain { get; set; } = string.Empty;
     partial void OnDomainChanged(string value) => _networkCredential.Domain = value;
+
+
+    public bool Equals(NetworkCredential2? other)
+    {
+        return
+            other is not null &&
+            Domain       == other.Domain &&
+            ShowPassword == other.ShowPassword &&
+            UserName     == other.UserName &&
+            IsSecurePassword();
+
+        bool IsSecurePassword()
+        {
+            if (ShowPassword)
+                return Password == other.Password;
+
+            return SecurePassword.Length == other.SecurePassword.Length;
+        }
+    }
+
+
+    public override bool Equals(object? obj) => Equals(obj as NetworkCredential2);
+
+
+    public override int GetHashCode() => HashCode.Combine(Domain, ShowPassword, UserName);
 }

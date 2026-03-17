@@ -26,7 +26,11 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
 {
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private Version2 _defaultInstalledVersion;
+    private Version2? _defaultInstalledVersion;
+
+    private HttpClient2? _defaultHttpClient;
+
+    private FtpProfile2? _defaultFtpProfile;
 
     private string? _defaultAppTitle;
 
@@ -34,7 +38,7 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
 
     private ProxyEnabled? _defaultProxy;
 
-    private TimerEnabled? _defaultTimer, _defaultRemindLaterTimer;
+    private TimerEnabled? _defaultRemindLaterTimer;
 
     private IsMandatory? _defaultIsMandatory;
 
@@ -52,10 +56,75 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
     #region Properties
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+    #region HttpClient2
+
+    /// <summary>
+    ///     Container for FTP configurations and object instance.
+    /// </summary>
+    [ObservableProperty]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public partial HttpClient2? HttpClient2 { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnHttpClient2Changed(HttpClient2? value) => _UpdateValidation();
+
+    #endregion HttpClient2
+
     #region FTP
 
     [JsonIgnore]
-    public FtpProfile2? FtpProfile { get; set; } = new();
+    [ObservableProperty]
+    public partial bool FtpProtocol { get; set; } = true;
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnFtpProtocolChanged(bool value)
+    {
+        if (value)
+        {
+            _defaultFtpProfile          ??= new();
+            FtpProfile                  ??= _defaultFtpProfile;
+            FtpProfile?.PropertyChanged +=  OnUpdateValidation;
+
+            // -----------------------
+
+            if (HttpClient2 is not null)
+                _defaultHttpClient = HttpClient2;
+
+            if (HttpClient2 is not null)
+            {
+                HttpClient2.PropertyChanged -= OnUpdateValidation;
+                HttpClient2                 =  null;
+            }
+        }
+        else
+        {
+            _defaultHttpClient           ??= new();
+            HttpClient2                  ??= _defaultHttpClient;
+            HttpClient2?.PropertyChanged +=  OnUpdateValidation;
+
+            // -----------------------
+
+            if (FtpProfile is not null)
+                _defaultFtpProfile = FtpProfile;
+
+            if (FtpProfile is not null)
+            {
+                FtpProfile.PropertyChanged -= OnUpdateValidation;
+                FtpProfile                 =  null;
+            }
+        }
+
+        return;
+
+        void OnUpdateValidation(object? sender, PropertyChangedEventArgs e) => _UpdateValidation();
+    }
+
+    /// <summary>
+    ///     Container for FTP configurations and object instance.
+    /// </summary>
+    [ObservableProperty]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public partial FtpProfile2? FtpProfile { get; set; }
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnFtpProfileChanged(FtpProfile2? value) => _UpdateValidation();
 
     #endregion FTP
 
@@ -69,7 +138,8 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
     {
         if (value)
         {
-            WindowSize                 ??= _defaultWindowSize;
+            _defaultWindowSize          ??= new();
+            WindowSize                  ??= _defaultWindowSize;
             WindowSize?.PropertyChanged +=  OnUpdateValidation;
         }
         else
@@ -107,6 +177,7 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
     {
         if (value)
         {
+            _defaultInstalledVersion         ??= new();
             InstalledVersion                 ??= _defaultInstalledVersion;
             InstalledVersion.PropertyChanged +=  OnUpdateValidation;
         }
@@ -387,12 +458,6 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnCheckSynchronouslyChanged(bool value) => _UpdateValidation();
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [ObservableProperty]
-    public partial bool FtpProtocol { get; set; } = true;
-    // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnFtpProtocolChanged(bool value) => _UpdateValidation();
-
     #region Icon Override
     [JsonIgnore]
     [ObservableProperty]
@@ -509,51 +574,6 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
     public partial FilePath? InstallationPathOverride { get; set; }
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnInstallationPathOverrideChanged(FilePath? value) => _UpdateValidation();
-
-    #region TimerEnabled
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial bool TimerEnabled { get; set; }
-    partial void OnTimerEnabledChanged(bool value)
-    {
-        Timer = value ? _defaultTimer ??= new TimerEnabled() : null;
-
-        _UpdateValidation();
-    }
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial ushort TimerInterval { get; set; } = 1;
-    partial void OnTimerIntervalChanged(ushort value)
-    {
-        Timer?.Interval = value;
-
-        if (_defaultTimer == Timer)
-            _defaultTimer = null;
-
-        _UpdateValidation();
-    }
-
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial RemindLaterFormat TimerDurationTimeSpan { get; set; } = RemindLaterFormat.Seconds;
-    partial void OnTimerDurationTimeSpanChanged(RemindLaterFormat value)
-    {
-        Timer?.TimeSpan = value;
-
-        if (_defaultTimer == Timer)
-            _defaultTimer = null;
-
-        _UpdateValidation();
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [ObservableProperty]
-    public partial TimerEnabled? Timer { get; set; }
-    // ReSharper disable once UnusedParameterInPartialMethod
-    //partial void OnTimerChanged(TimerEnabled value) => _UpdateValidation();
-    #endregion TimerEnabled
 
     [JsonIgnore]
     [ObservableProperty]
@@ -673,6 +693,9 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
         InstalledVersionOverride      = other.InstalledVersion  != null;
         WindowSizeOverride            = other.WindowSize        != null;
         ShowRemindLaterButton         = other.RemindLaterTimer  != null;
+        FtpProtocol                   = other.FtpProfile        != null;
+
+        TmpIcon ??= IconOverride?.Uri != null ? IconOverride.Uri.ConvertToBitmapImage() : Application.Current!.FindResource("project") as BitmapImage;
     }
 
 
@@ -681,35 +704,34 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
         if (other == null)
             return false;
 
-        return IsVersionOverride()    &&
-               IsMandatory()          &&
-               IsIconOverride()       &&
-               IsWindowSizeOverride() &&
-               IsRemindLater()        &&
-               AppTitle                  == other.AppTitle &&
-               IsAppTitle                == other.IsAppTitle &&
-               BasicAuthPassword         == other.BasicAuthPassword &&
-               BasicAuthUserName         == other.BasicAuthUserName &&
-               CheckSum                  == other.CheckSum &&
-               ExecutablePathOverride    == other.ExecutablePathOverride &&
-               InstallationPathOverride  == other.InstallationPathOverride &&
-               Proxy?.Uri                == other.Proxy?.Uri &&
-               Proxy?.Password           == other.Proxy?.Password &&
-               Proxy?.UserName           == other.Proxy?.UserName &&
-               BasicAuth                 == other.BasicAuth &&
-               BasicAuthChangeLog        == other.BasicAuthChangeLog &&
-               BasicAuthDownload         == other.BasicAuthDownload &&
-               CheckSynchronously        == other.CheckSynchronously &&
-               ClearAppDirectory         == other.ClearAppDirectory &&
-               DoNotBindOwnerWindow      == other.DoNotBindOwnerWindow &&
-               FtpProtocol               == other.FtpProtocol &&
-               OpenDownloadPage          == other.OpenDownloadPage &&
-               ProxyEnabled              == other.ProxyEnabled &&
-               ReportErrors              == other.ReportErrors &&
-               RunUpdateAsAdmin          == other.RunUpdateAsAdmin &&
-               TimerDurationTimeSpan     == other.TimerDurationTimeSpan &&
-               TimerInterval             == other.TimerInterval &&
-               TopMostDisabled           == other.TopMostDisabled;
+        return IsVersionOverride()                                        &&
+               IsMandatory()                                              &&
+               IsIconOverride()                                           &&
+               IsWindowSizeOverride()                                     &&
+               IsRemindLater()                                            &&
+               IsFtpProtocol()                                            &&
+               IsHTTPClient()                                             &&
+               AppTitle                 == other.AppTitle                 &&
+               IsAppTitle               == other.IsAppTitle               &&
+               BasicAuthPassword        == other.BasicAuthPassword        &&
+               BasicAuthUserName        == other.BasicAuthUserName        &&
+               CheckSum                 == other.CheckSum                 &&
+               ExecutablePathOverride   == other.ExecutablePathOverride   &&
+               InstallationPathOverride == other.InstallationPathOverride &&
+               Proxy?.Uri               == other.Proxy?.Uri               &&
+               Proxy?.Password          == other.Proxy?.Password          &&
+               Proxy?.UserName          == other.Proxy?.UserName          &&
+               BasicAuth                == other.BasicAuth                &&
+               BasicAuthChangeLog       == other.BasicAuthChangeLog       &&
+               BasicAuthDownload        == other.BasicAuthDownload        &&
+               CheckSynchronously       == other.CheckSynchronously       &&
+               ClearAppDirectory        == other.ClearAppDirectory        &&
+               DoNotBindOwnerWindow     == other.DoNotBindOwnerWindow     &&
+               OpenDownloadPage         == other.OpenDownloadPage         &&
+               ProxyEnabled             == other.ProxyEnabled             &&
+               ReportErrors             == other.ReportErrors             &&
+               RunUpdateAsAdmin         == other.RunUpdateAsAdmin         &&
+               TopMostDisabled          == other.TopMostDisabled;
 
 
         bool IsIconOverride() => TmpIcon is not null && other.TmpIcon is not null ? TmpIcon.IsEqual(other.TmpIcon) : this.IsIconOverride == other.IsIconOverride;
@@ -724,6 +746,42 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
             }
 
             return ShowRemindLaterButton == other.ShowRemindLaterButton;
+        }
+
+        bool IsHTTPClient()
+        {
+            if (HttpClient2 is not null && other.HttpClient2 is not null)
+            {
+                return
+                    HttpClient2.MaxResponseContentBufferSize == other.HttpClient2.MaxResponseContentBufferSize &&
+                    HttpClient2.Timeout                      == other.HttpClient2.Timeout                      &&
+                    HttpClient2.BaseAddress                  == other.HttpClient2.BaseAddress                  &&
+                    HttpClient2.DefaultRequestHeaders        == other.HttpClient2.DefaultRequestHeaders        &&
+                    HttpClient2.DefaultRequestVersion        == other.HttpClient2.DefaultRequestVersion        &&
+                    HttpClient2.DefaultVersionPolicy         == other.HttpClient2.DefaultVersionPolicy;
+            }
+
+            return !FtpProtocol && !other.FtpProtocol;
+        }
+
+        bool IsFtpProtocol()
+        {
+            if (FtpProfile is not null && other.FtpProfile is not null)
+            {
+                return
+                    FtpProfile.RetryAttempts      == other.FtpProfile.RetryAttempts      &&
+                    FtpProfile.DataConnection     == other.FtpProfile.DataConnection     &&
+                    FtpProfile.EncodingVerified   == other.FtpProfile.EncodingVerified   &&
+                    FtpProfile.Encoding           == other.FtpProfile.Encoding           &&
+                    FtpProfile.Host               == other.FtpProfile.Host               &&
+                    FtpProfile.Protocols          == other.FtpProfile.Protocols          &&
+                    FtpProfile.SocketPollInterval == other.FtpProfile.SocketPollInterval &&
+                    FtpProfile.Timeout            == other.FtpProfile.Timeout            &&
+                    FtpProfile.Encryption.Equals(other.FtpProfile.Encryption)            &&
+                    FtpProfile.Credentials.Equals(other.FtpProfile.Credentials);
+            }
+
+            return FtpProtocol && other.FtpProtocol;
         }
 
         bool IsWindowSizeOverride()

@@ -30,8 +30,11 @@ public partial class FtpProfile2 : ObservableObject
     ///     Copy Constructor
     /// </summary>
     /// <param name="profile"></param>
-    public FtpProfile2(FtpProfile2 profile) : this()
+    public FtpProfile2(FtpProfile2? profile) : this()
     {
+        if (profile is null)
+            return;
+
         Host               = profile.Host ?? string.Empty;
         Credentials        = profile.Credentials;
         Encryption         = profile.Encryption;

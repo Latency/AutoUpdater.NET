@@ -34,7 +34,7 @@ public partial class Window_Config
     private          IConfig?                    _config;
     private          ContentControl?             _cc;
     private          PasswordBoxContentTemplate? _pbct;
-    private          PropertyGrid?               _ftpPropertyGrid;
+    private          PropertyGrid?               _ftpPropertyGrid, _httpPropertyGrid;
     private          PropertyItem?               _ftpEncodingPropertyItem;
     private readonly IViewModelDownloadUpdate    _vmDownloadUpdate;
 
@@ -249,5 +249,14 @@ public partial class Window_Config
         _ftpPropertyGrid                                        = ftpPropertyGrid;
         _ftpEncodingPropertyItem                                = ftpPropertyGrid.FindProperty("Encoding");
         ftpPropertyGrid.FindProperty("Credentials")?.IsExpanded = true;
+    }
+
+
+    private void HttpPropertyGrid_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not PropertyGrid httpPropertyGrid)
+            return;
+
+        _httpPropertyGrid = httpPropertyGrid;
     }
 }

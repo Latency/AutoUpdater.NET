@@ -15,7 +15,9 @@ namespace AutoUpdaterDotNET.Interfaces;
 
 public interface IConfig : IEquatable<IConfig?>
 {
-    FtpProfile2? FtpProfile { get; set; }
+    HttpClient2? HttpClient2 { get; set; }
+
+    FtpProfile2? FtpProfile  { get; set; }
 
     bool WindowSizeOverride { get; set; }
 
@@ -79,17 +81,9 @@ public interface IConfig : IEquatable<IConfig?>
 
     bool ClearAppDirectory { get; set; }
 
-    bool TimerEnabled { get; set; }
-
-    ushort TimerInterval { get; set; }
-
-    RemindLaterFormat TimerDurationTimeSpan { get; set; }
-
     FilePath? ExecutablePathOverride { get; set; }
 
     FilePath? InstallationPathOverride { get; set; }
-
-    TimerEnabled? Timer { get; set; }
 
     TimerEnabled? RemindLaterTimer { get; set; }
 
