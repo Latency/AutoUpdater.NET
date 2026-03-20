@@ -54,7 +54,7 @@ public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
         ReadCommentHandling = JsonCommentHandling.Skip,
         TypeInfoResolver    = new DefaultJsonTypeInfoResolver
         {
-            Modifiers = { Modifier.AlphabetizeProperties /*, Modifier.SetOverrideProperties */ }
+            Modifiers = { Modifier.AlphabetizeProperties }
         }
     };
 }

@@ -5,18 +5,19 @@
 // Date:     02/24/2026
 // ****************************************************************************
 
+using AutoUpdaterDotNET.Attributes;
+using AutoUpdaterDotNET.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 using System.Text;
 using System.Text.Json.Serialization;
-using AutoUpdaterDotNET.Attributes;
 
 namespace AutoUpdaterDotNET.Models;
 
 public partial class Encoding2 : ObservableObject, IEquatable<Encoding2>
 {
-    private readonly Encoding _encoding = new UTF8Encoding();
-
+    #region Constructors
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     /// <summary>
     ///     Default Constructor
@@ -26,13 +27,11 @@ public partial class Encoding2 : ObservableObject, IEquatable<Encoding2>
 
 
     /// <summary>
-    ///     Copy Constructor
+    ///     Copy Constructor (Overload +1)
     /// </summary>
     /// <param name="encoding"></param>
     public Encoding2(Encoding encoding) : this()
     {
-        _encoding = encoding;
-
         BodyName          = encoding.BodyName;
         CodePage          = encoding.CodePage;
         DecoderFallback   = encoding.DecoderFallback;
@@ -49,9 +48,31 @@ public partial class Encoding2 : ObservableObject, IEquatable<Encoding2>
         WindowsCodePage   = encoding.WindowsCodePage;
     }
 
-    public static explicit operator Encoding2(Encoding encoder) => new(encoder);
-    public static implicit operator Encoding(Encoding2 encoder) => encoder._encoding;
 
+    /// <summary>
+    ///     Copy Constructor (Overload +2)
+    /// </summary>
+    /// <param name="encodings"></param>
+    public Encoding2(Encodings encodings) : this(ToEncoding(encodings))
+    { }
+
+
+    /// <summary>
+    ///     Copy Constructor (Overload +3)
+    /// </summary>
+    /// <param name="name"></param>
+    public Encoding2(string name) : this(ToEncoding(name))
+    { }
+
+
+    public static explicit operator Encoding2(Encoding encoder) => new(encoder);
+    public static implicit operator Encoding(Encoding2 encoder) => ToEncoding(encoder.BodyName!);
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Constructors
+
+    #region Properties
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     [ObservableProperty]
     [Category("Encoding")]
@@ -179,6 +200,12 @@ public partial class Encoding2 : ObservableObject, IEquatable<Encoding2>
     [JsonIgnore]
     public partial DecoderFallback? DecoderFallback { get; set; }
 
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Properties
+
+
+    #region Methods
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     public bool Equals(Encoding2? other)
     {
@@ -200,4 +227,44 @@ public partial class Encoding2 : ObservableObject, IEquatable<Encoding2>
 
 
     public override int GetHashCode() => HashCode.Combine(BodyName, CodePage, EncodingName, HeaderName, WebName, WindowsCodePage);
+
+    public override bool Equals(object? obj) => Equals(obj as Encoding2);
+
+    public static Encoding ToEncoding(Encodings encodings) => encodings switch
+    {
+        Encodings.ASCII            => Encoding.ASCII,
+        Encodings.BigEndianUnicode => Encoding.BigEndianUnicode,
+        Encodings.Latin1           => Encoding.Latin1,
+        Encodings.UTF32            => Encoding.UTF32,
+        Encodings.UTF8             => Encoding.UTF8,
+        Encodings.Unicode          => Encoding.Unicode,
+        _                          => Encoding.Default
+    };
+
+    public static Encoding ToEncoding(string name) => name switch
+    {
+        "us-ascii"   => Encoding.ASCII,
+        "utf-16BE"   => Encoding.BigEndianUnicode,
+        "iso-8859-1" => Encoding.Latin1,
+        "utf-32"     => Encoding.UTF32,
+        "utf-8"      => Encoding.UTF8,
+        "utf-16"     => Encoding.Unicode,
+        _            => Encoding.Default
+    };
+
+    public static Encodings ToEncodings(string name) => name switch
+    {
+        "us-ascii"   => Encodings.ASCII,
+        "utf-16BE"   => Encodings.BigEndianUnicode,
+        "iso-8859-1" => Encodings.Latin1,
+        "utf-8"      => Encodings.UTF8,
+        "utf-16"     => Encodings.Unicode,
+        "utf-32"     => Encodings.UTF32,
+        _            => Encodings.Default
+    };
+
+    public int ToIndex() => (int) ToEncodings(BodyName!);
+
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #endregion Methods
 }

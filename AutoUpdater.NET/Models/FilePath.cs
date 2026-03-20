@@ -14,6 +14,26 @@ namespace AutoUpdaterDotNET.Models;
 public partial class FilePath : ObservableObject
 {
     /// <summary>
+    ///     Default Constructor
+    /// </summary>
+    public FilePath()
+    { }
+
+
+    /// <summary>
+    ///     Copy Constructor (Overload +1)
+    /// </summary>
+    /// <param name="obj"></param>
+    public FilePath(FilePath? obj)
+    {
+        if (obj is null)
+            return;
+
+        Path = obj.Path;
+    }
+
+
+    /// <summary>
     ///     File path location.
     /// </summary>
     [JsonComment("File path location")]

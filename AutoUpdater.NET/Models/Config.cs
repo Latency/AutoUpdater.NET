@@ -81,6 +81,7 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
         {
             _defaultFtpProfile          ??= new();
             FtpProfile                  ??= _defaultFtpProfile;
+            FtpProfile.Credentials      ??= new();
             FtpProfile?.PropertyChanged +=  OnUpdateValidation;
 
             // -----------------------
@@ -103,7 +104,12 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
             // -----------------------
 
             if (FtpProfile is not null)
+            {
+                if (FtpProfile.Credentials is not null && FtpProfile.Credentials.IsDefault())
+                    FtpProfile.Credentials = null;
+
                 _defaultFtpProfile = FtpProfile;
+            }
 
             if (FtpProfile is not null)
             {
@@ -675,13 +681,15 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
     {
         foreach (var prop in other.GetType().GetProperties())
         {
-            if (prop.PropertyType.IsValueType || prop.PropertyType == typeof(BitmapImage))
+            if (prop.PropertyType.IsValueType || prop.PropertyType == typeof(string) || prop.PropertyType == typeof(BitmapImage) || prop.PropertyType == typeof(ObservableCollection<TreeViewItem>))
                 GetType().GetProperty(prop.Name)?.SetValue(this, prop.GetValue(other));
             else
             {
-                var b = prop.GetValue(other);
-                if (b is not null)
-                    GetType().GetProperty(prop.Name)!.SetValue(this, Activator.CreateInstance(prop.PropertyType, b));
+                var ctor = prop.PropertyType.GetConstructor(BindingFlags.Instance | BindingFlags.Public, null, [prop.PropertyType], null);
+                if (ctor is null)
+                    throw new NullReferenceException(prop.PropertyType.ToString());
+                var instance = ctor.Invoke([prop.GetValue(other)]);
+                GetType().GetProperty(prop.Name)?.SetValue(this, instance);
             }
         }
 
@@ -778,10 +786,30 @@ internal sealed partial class Config : ObservableObject, IConfig, ICloneable
                     FtpProfile.SocketPollInterval == other.FtpProfile.SocketPollInterval &&
                     FtpProfile.Timeout            == other.FtpProfile.Timeout            &&
                     FtpProfile.Encryption.Equals(other.FtpProfile.Encryption)            &&
-                    FtpProfile.Credentials.Equals(other.FtpProfile.Credentials);
+                    CheckCredentials(FtpProfile.Credentials, other.FtpProfile.Credentials);
+
+                bool CheckCredentials(NetworkCredential2? v, NetworkCredential2? o)
+                {
+                    if (v is null && o is null)
+                        return true;
+
+                    if ((v is null && o is not null) || (v is not null && o is null))
+                        return false;
+
+                    var t = typeof(NetworkCredential2);
+                    return (from prop in t.GetProperties()
+                                  where prop.Name != "SecurePassword"
+                                  let o1 = t.GetProperty(prop.Name)!.GetValue(other.FtpProfile.Credentials)
+                                  let v1 = prop.GetValue(FtpProfile!.Credentials)
+                                  select v1 switch
+                                  {
+                                      null => o1 == null,
+                                      _    => v1.Equals(o1)
+                                  }).Aggregate(true, (current, r1) => current & r1);
+                }
             }
 
-            return FtpProtocol && other.FtpProtocol;
+            return FtpProfile is null && other.FtpProfile is null;
         }
 
         bool IsWindowSizeOverride()

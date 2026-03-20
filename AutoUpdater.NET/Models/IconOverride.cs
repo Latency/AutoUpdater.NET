@@ -5,12 +5,14 @@
 // Date:     08/04/2025
 // ****************************************************************************
 
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace AutoUpdaterDotNET.Models;
 
 /// <summary>
 ///     Mandatory class to fetch the XML values related to Mandatory field.
 /// </summary>
-public record IconOverride
+public partial class IconOverride : ObservableObject
 {
     /// <summary>
     ///     Default Constructor
@@ -22,17 +24,21 @@ public record IconOverride
     /// <summary>
     ///     Copy Constructor (Overload +1)
     /// </summary>
-    /// <param name="io"></param>
-    public IconOverride(IconOverride io)
+    /// <param name="obj"></param>
+    public IconOverride(IconOverride? obj)
     {
-        Uri = io.Uri;
+        if (obj is null)
+            return;
+
+        Uri = obj.Uri;
     }
 
 
     /// <summary>
     ///     File path location for the image to override.
     /// </summary>
-    public Uri? Uri { get; set; }
+    [ObservableProperty]
+    public partial Uri? Uri { get; set; }
 
     public override string? ToString() => Uri?.ToString();
 }

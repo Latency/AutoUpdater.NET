@@ -11,6 +11,26 @@ namespace AutoUpdaterDotNET.Models;
 
 public record ProxyEnabled : UsernamePassword
 {
+    /// <summary>
+    ///     Default Constructor
+    /// </summary>
+    public ProxyEnabled()
+    { }
+
+
+    /// <summary>
+    ///     Copy Constructor (Overload +1)
+    /// </summary>
+    /// <param name="obj"></param>
+    public ProxyEnabled(ProxyEnabled? obj) : base(obj)
+    {
+        if (obj is null)
+            return;
+
+        Uri = obj.Uri;
+    }
+
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? Uri { get; set; }
 

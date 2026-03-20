@@ -702,6 +702,7 @@
                         IsChecked="{Binding Config.FtpProtocol}"
                         ToolTip="Check this if the protocol used is only able to be accessed via FTP."
                         Content="FTP instead of HTTP"
+                        Checked="CbFTPProtocol_OnChecked"
                     />
 
                     <StackPanel>
@@ -767,9 +768,9 @@
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
                                             <ComboBox
-                                                SelectedIndex="0"
                                                 ItemsSource="{Binding Source={StaticResource EncodingEnumValues}}"
                                                 SelectionChanged="CbEncoding_OnSelectionChanged"
+                                                Loaded="CbEncoding_OnLoaded"
                                             />
                                         </DataTemplate>
                                     </xctk:EditorTemplateDefinition.EditingTemplate>

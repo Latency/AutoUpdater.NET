@@ -76,7 +76,16 @@ public partial class ViewModelConfig
         {
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            var json = JsonSerializer.Serialize(_config, _jso);
+
+            string json;
+            if (_config.FtpProfile?.Credentials != null && _config.FtpProfile.Credentials.IsDefault())
+            {
+                var obj = (Config) _config.Clone();
+                obj.FtpProfile!.Credentials = null;
+                json = JsonSerializer.Serialize(obj, _jso);
+            } else
+                json = JsonSerializer.Serialize(_config, _jso);
+
             File.WriteAllTextAsync(file, json);
         }
         catch (Exception ex)
@@ -100,8 +109,16 @@ public partial class ViewModelConfig
         try
         {
             var obj = JsonSerializer.Deserialize<Config>(json, _jso) ?? Error()!;
+
+            // Special handling for loading Encoding
+            if (obj.FtpProfile?.Encoding is not null)
+                obj.FtpProfile.Encoding = new Encoding2(obj.FtpProfile.Encoding);
+
             _config.Clone(obj);
-            _configOrig = new(_config);
+            _config.FtpProfile?.Credentials ??= new();
+            _configOrig                     =   new(_config);
+
+            _config.EqualsPredicate = () => _configOrig.Equals(_config);
 
             // Event Invocator
             Register?.Invoke(_config);

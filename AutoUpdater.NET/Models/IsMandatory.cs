@@ -17,6 +17,26 @@ namespace AutoUpdaterDotNET.Models;
 public partial class IsMandatory : ObservableObject
 {
     /// <summary>
+    ///     Default Constructor
+    /// </summary>
+    public IsMandatory()
+    { }
+
+
+    /// <summary>
+    ///     Copy Constructor (Overload +1)
+    /// </summary>
+    /// <param name="obj"></param>
+    public IsMandatory(IsMandatory? obj) : this()
+    {
+        if (obj is null)
+            return;
+
+        UpdateMode = obj.UpdateMode;
+    }
+
+
+    /// <summary>
     ///     Mode that should be used for this update.
     /// </summary>
     [JsonComment("Normal         - Ignores 'Remind Later' and 'Skip' values set previously and will hide both buttons.\n" +

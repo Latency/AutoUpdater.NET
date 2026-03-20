@@ -14,7 +14,6 @@ using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.ViewModels;
 using System.Reflection;
 using System.Security;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,11 +30,21 @@ public partial class Window_Config
     [GeneratedRegex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")]
     private static partial Regex UriRegex();
 
+    private readonly Action<PropertyItem?> SetExpanded = item =>
+    {
+        if (_credentialsExpanded)
+            return;
+        item?.IsExpanded     = true;
+        _credentialsExpanded = true;
+    };
+
+    private static   bool                        _credentialsExpanded;
+    private          bool                        _isLoading = true;
     private          IConfig?                    _config;
     private          ContentControl?             _cc;
     private          PasswordBoxContentTemplate? _pbct;
-    private          PropertyGrid?               _ftpPropertyGrid, _httpPropertyGrid;
-    private          PropertyItem?               _ftpEncodingPropertyItem;
+    private          PropertyGrid?               _ftpPropertyGrid,         _httpPropertyGrid;
+    private          PropertyItem?               _ftpEncodingPropertyItem, _ftpCredentialsPropertyItem;
     private readonly IViewModelDownloadUpdate    _vmDownloadUpdate;
 
 
@@ -156,20 +165,10 @@ public partial class Window_Config
         if (_config?.FtpProfile is null || sender is not ComboBox cb)
             return;
 
-        var newValue = cb.SelectedItem switch
-        {
-            Encodings.Default          => Encoding.Default,
-            Encodings.ASCII            => Encoding.ASCII,
-            Encodings.BigEndianUnicode => Encoding.BigEndianUnicode,
-            Encodings.Latin1           => Encoding.Latin1,
-            Encodings.UTF32            => Encoding.UTF32,
-            Encodings.UTF8             => Encoding.UTF8,
-            Encodings.Unicode          => Encoding.Unicode,
-            _                          => throw new ArgumentOutOfRangeException(nameof(cb.SelectedItem), cb.SelectedItem, null)
-        };
-        _config.FtpProfile.Encoding = (Encoding2) newValue;
-
-        _ftpEncodingPropertyItem?.Value = _config.FtpProfile.Encoding;
+        if (!_isLoading)
+            _config.FtpProfile.Encoding = new Encoding2((Encodings)cb.SelectedItem);
+        else
+            _isLoading = false;
     }
 
 
@@ -178,11 +177,11 @@ public partial class Window_Config
         switch (sender)
         {
             case WatermarkPasswordBox box:
-                _config?.FtpProfile?.Credentials.Password       = box.Password ?? string.Empty;
-                _config?.FtpProfile?.Credentials.SecurePassword = box.SecurePassword ?? new SecureString();
+                _config?.FtpProfile?.Credentials?.Password       = box.Password ?? string.Empty;
+                _config?.FtpProfile?.Credentials?.SecurePassword = box.SecurePassword ?? new SecureString();
                 break;
             case WatermarkTextBox box:
-                _config?.FtpProfile?.Credentials.Password = box.Text;
+                _config?.FtpProfile?.Credentials?.Password = box.Text;
                 break;
         }
     }
@@ -194,7 +193,7 @@ public partial class Window_Config
             return;
 
         // Set the default content template.
-        SecurePassword_OnClick(cb, new RoutedEventArgs());
+        SecurePassword_OnClick(cb, e);
     }
 
 
@@ -215,14 +214,17 @@ public partial class Window_Config
 
         _cc.ContentTemplate = cb.IsChecked is true ? _pbct.SecurePasswordTemplate : _pbct.UnsecuredPasswordTemplate;
 
+        if (_config?.FtpProfile?.Credentials is null)
+            return;
+
         Dispatcher?.BeginInvoke(async () =>
         {
             await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
 
             if (cb.IsChecked == true)
-                _ftpPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _config!.FtpProfile!.Credentials.Password;
+                _ftpPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _config.FtpProfile.Credentials.Password ?? string.Empty;
             else
-                _ftpPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _config!.FtpProfile!.Credentials.Password;
+                _ftpPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _config.FtpProfile.Credentials.Password ?? string.Empty;
         });
     }
 
@@ -246,9 +248,9 @@ public partial class Window_Config
         if (sender is not PropertyGrid ftpPropertyGrid)
             return;
 
-        _ftpPropertyGrid                                        = ftpPropertyGrid;
-        _ftpEncodingPropertyItem                                = ftpPropertyGrid.FindProperty("Encoding");
-        ftpPropertyGrid.FindProperty("Credentials")?.IsExpanded = true;
+        _ftpPropertyGrid = ftpPropertyGrid;
+
+        CbFTPProtocol_OnChecked(sender, e);
     }
 
 
@@ -258,5 +260,27 @@ public partial class Window_Config
             return;
 
         _httpPropertyGrid = httpPropertyGrid;
+    }
+
+
+    private void CbEncoding_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not ComboBox cb)
+            return;
+
+        if (_config?.FtpProfile?.Encoding is not null)
+            cb.SelectedIndex = _config.FtpProfile.Encoding.ToIndex();
+    }
+
+
+    private void CbFTPProtocol_OnChecked(object sender, RoutedEventArgs e)
+    {
+        if (_ftpPropertyGrid is null)
+            return;
+
+        _ftpEncodingPropertyItem    ??= _ftpPropertyGrid.FindProperty("Encoding");
+        _ftpCredentialsPropertyItem ??= _ftpPropertyGrid.FindProperty("Credentials");
+
+        SetExpanded.Invoke(_ftpCredentialsPropertyItem);
     }
 }

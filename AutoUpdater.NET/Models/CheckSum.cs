@@ -15,16 +15,32 @@ namespace AutoUpdaterDotNET.Models;
 /// <summary>
 ///     Checksum class to fetch the serialization values for checksum.
 /// </summary>
-public record CheckSum : Hash
+public class CheckSum : Hash
 {
     private readonly int _hashCode;
+
+
+    /// <summary>
+    ///     Default Constructor
+    /// </summary>
+    public CheckSum() : this(null)
+    { }
+
+
+    public CheckSum(CheckSum? obj) : base(obj)
+    {
+        if (obj is null)
+            return;
+
+        HashData = obj.HashData;
+    }
 
 
     /// <summary>
     ///     Constructor Overload +1
     /// </summary>
     #pragma warning disable SYSLIB0058
-    public CheckSum(Stream stream, HashAlgorithmType hat = HashAlgorithmType.Sha256)
+    public CheckSum(Stream stream, HashAlgorithmType hat = HashAlgorithmType.Sha256) : this()
     #pragma warning restore SYSLIB0058
     {
         HashingAlgorithm = hat;
@@ -36,8 +52,7 @@ public record CheckSum : Hash
     ///     Constructor Overload +2
     /// </summary>
     #pragma warning disable SYSLIB0058
-    public CheckSum(string plainText, HashAlgorithmType hat = HashAlgorithmType.Sha256)
-        : this(Encoding.UTF8.GetBytes(plainText), hat)
+    public CheckSum(string plainText, HashAlgorithmType hat = HashAlgorithmType.Sha256) : this(Encoding.UTF8.GetBytes(plainText), hat)
     #pragma warning restore SYSLIB0058
     {
     }
@@ -47,7 +62,7 @@ public record CheckSum : Hash
     ///     Constructor Overload +3
     /// </summary>
     #pragma warning disable SYSLIB0058
-    public CheckSum(byte[] bytes, HashAlgorithmType hat = HashAlgorithmType.Sha256)
+    public CheckSum(byte[] bytes, HashAlgorithmType hat = HashAlgorithmType.Sha256) : this()
     #pragma warning restore SYSLIB0058
     {
         HashingAlgorithm = hat;
@@ -82,7 +97,7 @@ public record CheckSum : Hash
     /// <summary>
     ///     Hash algorithm that generated the hash.
     /// </summary>
-    public byte[] HashData { get; private set; } = null!;
+    public byte[] HashData { get; private set; } = [];
 
 
     /// <summary>

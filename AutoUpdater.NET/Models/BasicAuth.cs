@@ -11,6 +11,21 @@ namespace AutoUpdaterDotNET.Models;
 
 public record BasicAuth : UsernamePassword
 {
+    /// <summary>
+    ///     Default Constructor
+    /// </summary>
+    public BasicAuth()
+    { }
+
+
+    /// <summary>
+    ///     Copy Constructor (Overload +1)
+    /// </summary>
+    /// <param name="obj"></param>
+    public BasicAuth(BasicAuth? obj) : base(obj)
+    { }
+
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool ChangeLog{ get; set; }
 
