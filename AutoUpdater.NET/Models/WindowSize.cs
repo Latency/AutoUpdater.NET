@@ -61,4 +61,7 @@ public partial class WindowSize : ObservableObject
     public partial double Width { get; set; }
 
     public override string ToString() => $"Width={Width}, Height={Height}";
+
+
+    public bool IsDefault() => Height == 0 && Width == 0;
 }

@@ -59,7 +59,7 @@ public partial class NetworkCredential2 : ObservableObject, IEquatable<NetworkCr
 
     [ObservableProperty]
     [DisplayName("Show Password")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [DefaultValue(true)]
     [Description("Show the secure password.")]
     public partial bool ShowPassword { get; set; }
 

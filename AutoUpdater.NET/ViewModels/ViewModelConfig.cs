@@ -10,7 +10,6 @@ using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.Modifiers;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using WindowService.ViewModels;
@@ -22,7 +21,7 @@ public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     private Config _config     = new();
-    private Config _configOrig = null!; // Shadow copy
+    private Config _configOrig = new(); // Shadow copy
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
@@ -33,8 +32,7 @@ public partial class ViewModelConfig : ViewModelRestricted, IViewModelConfig
     public   IConfig         Config   => _config;
     internal Action<Config>? Register { get; set; }
 
-    [ObservableProperty]
-    public partial IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues { get; set; } = Enum.GetValues<RemindLaterFormat>().Skip(1);
+    public static IEnumerable<RemindLaterFormat> RemindLaterFormatEnumValues => Enum.GetValues<RemindLaterFormat>().Skip(1);
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties

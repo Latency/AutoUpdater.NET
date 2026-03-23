@@ -82,8 +82,13 @@ public partial class FtpProfile2 : ObservableObject
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [ExpandableObject]
     [Description("The FTP username and password used to login")]
-    public partial NetworkCredential2? Credentials { get; set; }
-    partial void OnCredentialsChanged(NetworkCredential2? value) => _ftpProfile.Credentials = value ?? new();
+    public partial NetworkCredential2? Credentials { get; set; } = new();
+    partial void OnCredentialsChanged(NetworkCredential2? value)
+    {
+        if (value is null)
+            return;
+        _ftpProfile.Credentials = value;
+    }
 
 
     [ObservableProperty]
@@ -113,8 +118,13 @@ public partial class FtpProfile2 : ObservableObject
     [ExpandableObject]
     [DefaultValue(typeof(Encoding2), "utf-8")]
     [Description("A working Encoding setting found for this profile")]
-    public partial Encoding2? Encoding { get; set; }
-    partial void OnEncodingChanged(Encoding2? value) => _ftpProfile.Encoding = value ?? (Encoding2) new UTF8Encoding();
+    public partial Encoding2? Encoding { get; set; } = new();
+    partial void OnEncodingChanged(Encoding2? value)
+    {
+        if (value is null)
+            return;
+        _ftpProfile.Encoding = value;
+    }
 
 
     [ObservableProperty]

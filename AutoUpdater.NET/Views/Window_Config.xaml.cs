@@ -212,7 +212,7 @@ public partial class Window_Config
         if (sender is not CheckBox cb || _pbct is null || _cc is null)
             return;
 
-        _cc.ContentTemplate = cb.IsChecked is true ? _pbct.SecurePasswordTemplate : _pbct.UnsecuredPasswordTemplate;
+        _cc.ContentTemplate = cb.IsChecked is false ? _pbct.SecurePasswordTemplate : _pbct.UnsecuredPasswordTemplate;
 
         if (_config?.FtpProfile?.Credentials is null)
             return;
@@ -221,7 +221,7 @@ public partial class Window_Config
         {
             await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
 
-            if (cb.IsChecked == true)
+            if (cb.IsChecked == false)
                 _ftpPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _config.FtpProfile.Credentials.Password ?? string.Empty;
             else
                 _ftpPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _config.FtpProfile.Credentials.Password ?? string.Empty;

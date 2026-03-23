@@ -41,18 +41,6 @@ public interface IConfig : IEquatable<IConfig?>
 
     bool OpenDownloadPage { get; set; }
 
-    BasicAuth? BasicAuth { get; set; }
-
-    bool IsBasicAuth { get; set; }
-
-    bool BasicAuthChangeLog { get; set; }
-
-    bool BasicAuthDownload { get; set; }
-
-    string? BasicAuthUserName { get; set; }
-
-    string? BasicAuthPassword { get; set; }
-
     bool DoNotBindOwnerWindow { get; set; }
 
     bool CheckSynchronously { get; set; }

@@ -176,7 +176,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbRunUpdateAsAdmin"
-                        IsChecked="{Binding Config.RunUpdateAsAdmin}"
+                        IsChecked="{Binding Config.RunUpdateAsAdmin, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this to run update process without admin privileges."
                         Content="Run Update As Admin"
                     />
@@ -184,7 +184,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbClearAppDirectory"
-                        IsChecked="{Binding Config.ClearAppDirectory}"
+                        IsChecked="{Binding Config.ClearAppDirectory, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this to clear application directory before update zip is extracted.&#x0a;This only works when using a zip file as an update file."
                         Content="Clear Application Directory"
                     />
@@ -192,7 +192,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbOpenDownloadPage"
-                        IsChecked="{Binding Config.OpenDownloadPage}"
+                        IsChecked="{Binding Config.OpenDownloadPage, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this to open the download page instead of downloading the update file when the user clicks on the download button."
                         Content="Open Download Page"
                     />
@@ -200,7 +200,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbIsManditory"
-                        IsChecked="{Binding Config.IsMandatory}"
+                        IsChecked="{Binding Config.IsMandatory, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this if you want to show the 'ShowSkipButton' or 'ShowRemindLaterButton'."
                         Content="Is Mandatory"
                     />
@@ -208,7 +208,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbShowSkipButton"
-                        IsChecked="{Binding Config.ShowSkipButton}"
+                        IsChecked="{Binding Config.ShowSkipButton, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this if you want to show the 'Skip' button."
                         Margin="10,0,0,0"
                         Content="Skip Button"
@@ -230,7 +230,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbShowRemindLaterButton"
-                        IsChecked="{Binding Config.ShowRemindLaterButton}"
+                        IsChecked="{Binding Config.ShowRemindLaterButton, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this if you want to show the 'Remind Later' button."
                         Margin="10,0,0,0"
                         Content="Remind Later Button"
@@ -261,7 +261,7 @@
                             ToolTip="Set the duration time."
                             HorizontalAlignment="Left"
                             Margin="10,0,0,0"
-                            Value="{Binding Config.RemindLaterTimer.Interval}"
+                            Value="{Binding Config.RemindLaterTimer.Interval, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         >
                             <xctk:UShortUpDown.Style>
                                 <Style TargetType="xctk:UShortUpDown">
@@ -284,7 +284,7 @@
                             Name="CbRemindLaterTimeSpan"
                             ToolTip="Select the duration type."
                             ItemsSource="{Binding RemindLaterFormatEnumValues}"
-                            SelectedValue="{Binding Config.RemindLaterTimer.TimeSpan}"
+                            SelectedValue="{Binding Config.RemindLaterTimer.TimeSpan, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                             IsSynchronizedWithCurrentItem="True"
                             HorizontalAlignment="Left"
                             Margin="10,0,0,0"
@@ -316,7 +316,7 @@
                         Name="cbUpdateMode"
                         ToolTip="Normal                - Ignores 'Remind Later' and 'Skip' values set previously and will hide both buttons.&#x0a;Forced                 - Same as Normal mode, minus showing the close box.&#x0a;ForcedDownload - Will start downloading and applying update without showing standard update dialog in addition to Forced mode behaviour."
                         ItemsSource="{Binding Source={StaticResource UpdateModeEnumValues}}"
-                        SelectedValue="{Binding Config.UpdateMode}"
+                        SelectedValue="{Binding Config.UpdateMode, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         IsSynchronizedWithCurrentItem="True"
                         HorizontalAlignment="Left"
                         Width="150"
@@ -342,7 +342,7 @@
                         Name="cbAppTitle"
                         ToolTip="Check this if you want to show a custom application title in AutoUpdater notification window."
                         Content="App Title"
-                        IsChecked="{Binding Config.IsAppTitle}"
+                        IsChecked="{Binding Config.IsAppTitle, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                     />
 
                     <StackPanel Orientation="Horizontal">
@@ -367,7 +367,7 @@
                         <!-- ReSharper disable once InconsistentNaming -->
                         <TextBox
                             Name="tbAppTitle"
-                            Text="{Binding Config.AppTitle}"
+                            Text="{Binding Config.AppTitle, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                             VerticalAlignment="Center"
                             Width="150"
                             ToolTip="Modify this to show a custom application title in AutoUpdater notification window."
@@ -392,7 +392,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbReportErrors"
-                        IsChecked="{Binding Config.ReportErrors}"
+                        IsChecked="{Binding Config.ReportErrors, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this if you want to show any errors."
                         Content="Report Errors"
                     />
@@ -400,7 +400,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbProxy"
-                        IsChecked="{Binding Config.ProxyEnabled}"
+                        IsChecked="{Binding Config.ProxyEnabled, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this to configure web proxy credentials."
                         Content="Enable Proxy"
                     />
@@ -427,7 +427,7 @@
                         <TextBox
                             Name="tbProxyUri"
                             ToolTip="Check this to update file served only through Proxy."
-                            Text="{Binding Config.ProxyUri}"
+                            Text="{Binding Config.ProxyUri, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                             Width="150"
                             VerticalAlignment="Center"
                             PreviewTextInput="TbProxyUri_OnPreviewTextInput"
@@ -471,7 +471,7 @@
                         <TextBox
                             Name="tbProxyUsername"
                             ToolTip="Enter the username for the remote Proxy."
-                            Text="{Binding Config.ProxyUserName}"
+                            Text="{Binding Config.ProxyUserName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                             Width="150"
                             VerticalAlignment="Center"
                         >
@@ -512,7 +512,7 @@
                         <TextBox
                             Name="tbProxyPassword"
                             ToolTip="Enter the password for the remote Proxy, if applicable."
-                            Text="{Binding Config.ProxyPassword}"
+                            Text="{Binding Config.ProxyPassword, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                             Width="150"
                             VerticalAlignment="Center"
                         >
@@ -533,142 +533,8 @@
 
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
-                        Name="cbBasicAuth"
-                        IsChecked="{Binding Config.IsBasicAuth}"
-                        ToolTip="Check this to set basic authentication on credentials."
-                        Content="Basic Authentication"
-                    />
-
-                    <!-- ReSharper disable once InconsistentNaming -->
-                    <CheckBox
-                        Name="cbBasicAuthChangeLog"
-                        Margin="10,0,0,0"
-                        IsChecked="{Binding Config.BasicAuthChangeLog}"
-                        ToolTip="Check this to set provide basic authentication change log credentials needed to access update resources."
-                        Content="Change Log"
-                    >
-                        <CheckBox.Style>
-                            <Style TargetType="CheckBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </CheckBox.Style>
-                    </CheckBox>
-
-                    <!-- ReSharper disable once InconsistentNaming -->
-                    <CheckBox
-                        Name="cbBasicAuthDownload"
-                        Margin="10,0,0,0"
-                        IsChecked="{Binding Config.BasicAuthDownload}"
-                        ToolTip="Check this to set provide basic authentication download credentials needed to access update resources."
-                        Content="Download"
-                    >
-                        <CheckBox.Style>
-                            <Style TargetType="CheckBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </CheckBox.Style>
-                    </CheckBox>
-
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Username:"
-                               FontFamily="Courier New"
-                               Margin="10,0,0,0">
-                            <Label.Style>
-                                <Style TargetType="Label">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Label.Style>
-                        </Label>
-
-                        <!-- ReSharper disable once InconsistentNaming -->
-                        <TextBox
-                            Name="tbBasicAuthUserName"
-                            ToolTip="Enter the username for the basic authentication."
-                            Text="{Binding Config.BasicAuthUserName}"
-                            Width="150"
-                            VerticalAlignment="Center"
-                        >
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Password:"
-                               FontFamily="Courier New"
-                               Margin="10,0,0,0">
-                            <Label.Style>
-                                <Style TargetType="Label">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Label.Style>
-                        </Label>
-
-                        <!-- ReSharper disable once InconsistentNaming -->
-                        <TextBox
-                            Name="tbBasicAuthPassword"
-                            ToolTip="Enter the password for the basic authentication, if applicable."
-                            Text="{Binding Config.BasicAuthPassword}"
-                            Width="150"
-                            VerticalAlignment="Center"
-                        >
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsChecked, ElementName=cbBasicAuth}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
-                    </StackPanel>
-
-                    <!-- ReSharper disable once InconsistentNaming -->
-                    <CheckBox
                         Name="cbCheckSynchronously"
-                        IsChecked="{Binding Config.CheckSynchronously}"
+                        IsChecked="{Binding Config.CheckSynchronously, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this to update synchronously."
                         Content="Check Synchronously"
                     />
@@ -676,7 +542,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbDisableTopMost"
-                        IsChecked="{Binding Config.TopMostDisabled}"
+                        IsChecked="{Binding Config.TopMostDisabled, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this to not set window as 'TopMost'.&#x0a;It is not standard to do this if TopMost is set 'false' in other windows."
                         Content="Top Most Disabled"
                     />
@@ -684,7 +550,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbDoNoBindOwnerWindow"
-                        IsChecked="{Binding Config.DoNotBindOwnerWindow}"
+                        IsChecked="{Binding Config.DoNotBindOwnerWindow, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this to not bind dialog windows to parent owner."
                         Content="Do Not Bind To Owner Window"
                     />
@@ -699,7 +565,7 @@
                     <!-- ReSharper disable once InconsistentNaming -->
                     <CheckBox
                         Name="cbFTPProtocol"
-                        IsChecked="{Binding Config.FtpProtocol}"
+                        IsChecked="{Binding Config.FtpProtocol, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         ToolTip="Check this if the protocol used is only able to be accessed via FTP."
                         Content="FTP instead of HTTP"
                         Checked="CbFTPProtocol_OnChecked"
@@ -721,7 +587,7 @@
 
                         <xctk:PropertyGrid
                             Name="FtpPropertyGrid"
-                            SelectedObject="{Binding Config.FtpProfile}"
+                            SelectedObject="{Binding Config.FtpProfile, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                             Style="{StaticResource CustomPropertyGridStyle}"
                             NameColumnWidth="180"
                             Loaded="FtpPropertyGrid_OnLoaded"
@@ -748,7 +614,9 @@
                                 <xctk:EditorTemplateDefinition TargetProperties="ShowPassword">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
                                             <CheckBox
+                                                IsChecked="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                 Loaded="CbSecurePassword_OnLoaded"
                                                 Click="SecurePassword_OnClick"
                                             />
@@ -767,6 +635,7 @@
                                 <xctk:EditorTemplateDefinition TargetProperties="Encoding">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
                                             <ComboBox
                                                 ItemsSource="{Binding Source={StaticResource EncodingEnumValues}}"
                                                 SelectionChanged="CbEncoding_OnSelectionChanged"
@@ -804,7 +673,7 @@
 
                         <xctk:PropertyGrid
                             Name="HttpClientPropertyGrid"
-                            SelectedObject="{Binding Config.HttpClient2}"
+                            SelectedObject="{Binding Config.HttpClient2, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                             Style="{StaticResource CustomPropertyGridStyle}"
                             NameColumnWidth="250"
                             Loaded="HttpPropertyGrid_OnLoaded"
@@ -882,7 +751,7 @@
                                 <TextBox
                                     Name="tbExecutablePathOverride"
                                     ToolTip="Enter the customized executable path to be executed after the update."
-                                    Text="{Binding Config.ExecutablePathOverride, Converter={StaticResource FilePathConverter}}"
+                                    Text="{Binding Config.ExecutablePathOverride, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource FilePathConverter}}"
                                     Width="150"
                                     Height="20"
                                 >
@@ -942,7 +811,7 @@
                                 <TextBox
                                     Name="tbInstallationPath"
                                     ToolTip="Enter the customized update zip extraction path."
-                                    Text="{Binding Config.InstallationPathOverride, Converter={StaticResource FilePathConverter}}"
+                                    Text="{Binding Config.InstallationPathOverride, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource FilePathConverter}}"
                                     Width="150"
                                     Height="20"
                                 >
@@ -980,6 +849,7 @@
                             <!-- ReSharper disable once InconsistentNaming -->
                             <xctk:PropertyGrid
                                 Name="WindowSizePropertyGrid"
+                                SelectedObject="{Binding Config.WindowSize, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                 ToolTip="Enter the window size to be overriden."
                             >
                                 <xctk:PropertyGrid.Style>
@@ -1034,7 +904,7 @@
                             <!-- ReSharper disable once InconsistentNaming -->
                             <CheckBox
                                 Name="cbInstalledVersionOverride"
-                                IsChecked="{Binding Config.InstalledVersionOverride}"
+                                IsChecked="{Binding Config.InstalledVersionOverride, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                 ToolTip="Check this to assign installed version manually and don't want to rely on the library to determine the installed version from the originating assembly."
                                 Content="Installed Version"
                                 Loaded="VersionOverride_OnLoaded"
@@ -1043,6 +913,7 @@
 
                             <xctk:PropertyGrid
                                 Name="VersionPropertyGrid"
+                                SelectedObject="{Binding Config.InstalledVersion, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                 ToolTip="Modify the version to be overriden."
                             >
                                 <xctk:PropertyGrid.Style>
@@ -1110,7 +981,7 @@
                             <!-- ReSharper disable once InconsistentNaming -->
                             <CheckBox
                                 Name="cbIsIconOverride"
-                                IsChecked="{Binding Config.IsIconOverride}"
+                                IsChecked="{Binding Config.IsIconOverride, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                 ToolTip="Check this to change the Icon shown on the updater dialog."
                                 Content="Icon"
                             />

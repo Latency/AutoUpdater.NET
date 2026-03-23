@@ -6,6 +6,7 @@
 // ****************************************************************************
 // ReSharper disable InconsistentNaming
 
+using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Models;
 using AutoUpdaterDotNET.Properties;
@@ -13,8 +14,10 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text.Json;
 using System.Windows;
+using AssemblyLoader;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
@@ -34,7 +37,6 @@ public partial class ViewModelConfig
         SaveConfig();
         _Update();
     }
-
 
     private void _Update(bool init=false)
     {
@@ -67,9 +69,10 @@ public partial class ViewModelConfig
         //if (Equals())
         //{
 
-        //    if (File.Exists(file) && File.OpenRead(file).Length == 0)
+        //    if (File.Exists(file) && File.OpenRead(file).Length == 0)Z
         //        File.Delete(file);
         //    return;
+
         //}
 
         try
@@ -77,15 +80,23 @@ public partial class ViewModelConfig
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
-            string json;
-            if (_config.FtpProfile?.Credentials != null && _config.FtpProfile.Credentials.IsDefault())
-            {
-                var obj = (Config) _config.Clone();
-                obj.FtpProfile!.Credentials = null;
-                json = JsonSerializer.Serialize(obj, _jso);
-            } else
-                json = JsonSerializer.Serialize(_config, _jso);
+            var obj = (Config)_config.Clone();
 
+            if (obj.FtpProfile is not null && (obj.FtpProfile.Credentials is not null || obj.FtpProfile.Encoding is not null))
+            {
+                if (obj.FtpProfile.Credentials is not null && obj.FtpProfile.Credentials.IsDefault())
+                    obj.FtpProfile.Credentials = null;
+                if (obj.FtpProfile.Encoding is not null && obj.FtpProfile.Encoding.IsDefault())
+                    obj.FtpProfile.Encoding = null;
+            }
+
+            if (obj.InstallationPathOverride is not null && string.IsNullOrEmpty(obj.InstallationPathOverride.Path))
+                obj.InstallationPathOverride = null;
+
+            if (obj.WindowSize is not null && obj.WindowSize.IsDefault())
+                obj.WindowSize = null;
+
+            var json = JsonSerializer.Serialize(obj, _jso);
             File.WriteAllTextAsync(file, json);
         }
         catch (Exception ex)
@@ -110,14 +121,16 @@ public partial class ViewModelConfig
         {
             var obj = JsonSerializer.Deserialize<Config>(json, _jso) ?? Error()!;
 
+            // Seconds is not allowed as a TimeSpan
+            if (obj.RemindLaterTimer is not null && obj.RemindLaterTimer.TimeSpan == RemindLaterFormat.Seconds)
+                obj.RemindLaterTimer.TimeSpan = RemindLaterFormat.Minutes;
+
             // Special handling for loading Encoding
             if (obj.FtpProfile?.Encoding is not null)
                 obj.FtpProfile.Encoding = new Encoding2(obj.FtpProfile.Encoding);
 
             _config.Clone(obj);
-            _config.FtpProfile?.Credentials ??= new();
-            _configOrig                     =   new(_config);
-
+            _configOrig = new(_config);
             _config.EqualsPredicate = () => _configOrig.Equals(_config);
 
             // Event Invocator
