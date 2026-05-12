@@ -23,7 +23,10 @@ public partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDo
     /// </summary>
     public ViewModelDownloadUpdate(BaseServiceDependencies dependencies) : base(dependencies)
     {
-        _singletonDownload = new(() => new Download(Window as Window_Restricted));
+        _singletonDownload = new(() => new Download(Window as Window_Restricted)
+        {
+            Config = new Config()
+        });
 
         ((IViewModelDownloadUpdate)this).ProgressBarCallback += OnProgressBarChanged;
         ((IViewModelDownloadUpdate)this).ContentCallback     += OnContentChanged;

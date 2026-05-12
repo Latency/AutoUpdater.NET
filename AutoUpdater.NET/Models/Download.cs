@@ -464,7 +464,8 @@ public sealed class Download : IDownload
             if (Config.CheckSum is null)
                 throw new Exception(Settings.Default!.FileIntegrityCheckFailedMessage);
 
-            if (new CheckSum(stream).HashValue.Equals(Config.CheckSum.HashValue, StringComparison.OrdinalIgnoreCase))
+            var hash = new CheckSum(stream).HashValue;
+            if (hash != null && hash.Equals(Config.CheckSum.HashValue, StringComparison.OrdinalIgnoreCase))
                 return;
 
             var tempPath = Path.Combine(Path.GetTempPath(), tempFile);

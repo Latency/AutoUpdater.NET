@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFramework>net10.0-windows</TargetFramework>
-		<Description>AutoUpdater.NET is a class library that allows .NET developers to easily add auto update functionality to their WinForms or WPF application projects.</Description>
+		<TargetFrameworks>net11.0-windows</TargetFrameworks>
+		<Description>AutoUpdater.NET is a class library that incorporates auto update functionality into a project.</Description>
 		<PackageTags>autoupdate updater c# wpf</PackageTags>
 		<Product>AutoUpdater.NET</Product>
 		<RootNamespace>AutoUpdaterDotNET</RootNamespace>
@@ -13,8 +13,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
-		<PackageReference Include="FluentFTP" Version="53.0.2" />
-		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+		<PackageReference Include="FluentFTP" Version="54.1.2" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.142" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -14,10 +14,8 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Text.Json;
 using System.Windows;
-using AssemblyLoader;
 
 namespace AutoUpdaterDotNET.ViewModels;
 
