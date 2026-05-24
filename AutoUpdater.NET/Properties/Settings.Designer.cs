@@ -12,7 +12,7 @@ namespace AutoUpdaterDotNET.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "18.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "18.6.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -25,7 +25,7 @@ namespace AutoUpdaterDotNET.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("AutoUpdate.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Ig4PBwgGKA8HDk8LEg4P")]
         public string ConfigFile {
             get {
                 return ((string)(this["ConfigFile"]));
@@ -125,7 +125,7 @@ namespace AutoUpdaterDotNET.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("/AutoUpdater/")]
+        [global::System.Configuration.DefaultSettingValueAttribute("IBQFCAANEg==")]
         public string RemotePath {
             get {
                 return ((string)(this["RemotePath"]));
@@ -134,7 +134,7 @@ namespace AutoUpdaterDotNET.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("UpdateInfo.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute("NBEFABUEKA8HDk8LEg4P")]
         public string UpdateInfoFile {
             get {
                 return ((string)(this["UpdateInfoFile"]));
@@ -143,10 +143,19 @@ namespace AutoUpdaterDotNET.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("bio-hazard.us")]
+        [global::System.Configuration.DefaultSettingValueAttribute("CRUVERJbTk4DCA5MCQAbABMFTxQS")]
         public string Domain {
             get {
                 return ((string)(this["Domain"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("a")]
+        public string CipherKey {
+            get {
+                return ((string)(this["CipherKey"]));
             }
         }
     }

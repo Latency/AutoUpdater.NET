@@ -11,13 +11,11 @@ namespace AutoUpdaterDotNET.Models;
 
 public record UpdateInfo
 {
-    public required string Domain { get; init; }
-
     /// <summary>
     ///     BaseUri
     /// </summary>
     [JsonIgnore]
-    public Uri BaseUri => new(Domain);
+    public Uri? BaseAddress { get; set; }
 
     /// <summary>
     ///     Download URL of the update file.
@@ -26,14 +24,20 @@ public record UpdateInfo
     // ReSharper disable once InconsistentNaming
     public string? DownloadURL
     {
-        get => GetURL(BaseUri, field);
+        get => GetURL(BaseAddress, field);
         set;
     }
 
     /// <summary>
+    ///     Command line arguments used by Installer.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? InstallerArgs { get; set; }
+
+    /// <summary>
     ///     File of the application to be updated.
     /// </summary>
-    public required string FileName { get; set; }
+    public required string FileName { get; init; }
 
     /// <summary>
     ///     Version of the new assembly.
@@ -44,15 +48,9 @@ public record UpdateInfo
     public required Version Version { get; init;  }
 
     /// <summary>
-    ///     Command line arguments used by Installer.
-    /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? InstallerArgs { get; set; }
-
-    /// <summary>
     ///     Hash information of the update file.
     /// </summary>
-    public required Hash Hash { get; init; }
+    public required CheckSum CheckSum { get; init; }
 
     // ReSharper disable once InconsistentNaming
     private static string? GetURL(Uri? baseUri, string? url)

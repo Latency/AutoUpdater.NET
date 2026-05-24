@@ -11,6 +11,7 @@ using AutoUpdaterDotNET.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using AutoUpdaterDotNET.Controls;
 using AutoUpdaterDotNET.Converters;
+using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Properties;
 using WindowService.ViewModels;
 
@@ -25,7 +26,8 @@ public partial class ViewModelDownloadUpdate : ViewModelRestricted, IViewModelDo
     {
         _singletonDownload = new(() => new Download(Window as Window_Restricted)
         {
-            Config = new Config()
+            BaseAddress = new(Settings.Default!.Domain!.Decrypt(Settings.Default.CipherKey!)),
+            Config      = new Config()
         });
 
         ((IViewModelDownloadUpdate)this).ProgressBarCallback += OnProgressBarChanged;

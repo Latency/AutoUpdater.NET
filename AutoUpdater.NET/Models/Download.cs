@@ -49,31 +49,19 @@ public sealed class Download : IDownload
         AfterCheckForUpdatesNodeList[0].Items.AddDelegate(null);
     }
 
-
-    #region Static Properties
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    public static HttpClient     HttpWebClient => SingletonHttpClient.Value;
-    public static AsyncFtpClient FtpClient     => SingletonFtpClient.Value;
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Static Properties
-
-
-    #region Static Fields
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private static Lazy<HttpClient>     SingletonHttpClient = null!;
-    private static Lazy<AsyncFtpClient> SingletonFtpClient  = null!;
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    #endregion Static Fields
-
-
     #region Fields
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    private          Timer?                   _remindLaterTimer;
-    private readonly DispatcherTimer          _updateTimer = new();
-    private readonly Assembly                 _assembly    = Assembly.GetExecutingAssembly();
-    private          CancellationTokenSource? _ftpCTS;
-    private readonly Progress<FtpProgress>    _ftpProgress = new();
-    private readonly Window_Restricted?       _window;
+    private                 Timer?                   _remindLaterTimer;
+    private readonly        DispatcherTimer          _updateTimer = new();
+    private readonly        Assembly                 _assembly    = Assembly.GetExecutingAssembly();
+    private                 CancellationTokenSource? _ftpCTS;
+    private readonly        Progress<FtpProgress>    _ftpProgress = new();
+    private readonly        Window_Restricted?       _window;
+
+    private static readonly JsonSerializerOptions _options = new()
+    {
+        ReadCommentHandling = JsonCommentHandling.Skip
+    };
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
 
@@ -177,49 +165,52 @@ public sealed class Download : IDownload
     public AuthenticationHeaderValue? BasicAuthHeaderValue { get; set; }
 
 
-    private Uri _baseUri
-    {
-        get;
-        // ReSharper disable once UnusedMember.Local
-        init
-        {
-            field = value;
+    internal Uri BaseAddress { get; init; }
 
+    internal AsyncFtpClient AsyncFtpClient
+    {
+        get
+        {
+            if (Config.FtpProfile is null || string.IsNullOrEmpty(Config.FtpProfile.Host) || Config.FtpProfile.Credentials is null)
+                throw new NullReferenceException();
+
+            var client = new AsyncFtpClient(Config.FtpProfile.Host, Config.FtpProfile.Credentials.UserName, Config.FtpProfile.Credentials.Password);
+
+            // Recommended: Auto-detect encryption and accept any server certificate for simplicity
+            client.Config!.EncryptionMode         = FtpEncryptionMode.Auto;
+            client.Config!.ValidateAnyCertificate = true;
+
+            return client;
+        }
+    }
+
+    internal HttpClient HttpWebClient
+    {
+        get
+        {
             var httpClientHandler = new HttpClientHandler
             {
-                Credentials = CredentialCache.DefaultCredentials as NetworkCredential,
-                PreAuthenticate = true,
-                AllowAutoRedirect = true,
+                Credentials             = CredentialCache.DefaultCredentials as NetworkCredential,
+                PreAuthenticate         = true,
+                AllowAutoRedirect       = true,
                 MaxConnectionsPerServer = 1,
-                UseCookies = false,
-                AutomaticDecompression = DecompressionMethods.GZip,
-                UseDefaultCredentials = true,
-                UseProxy = Config.ProxyEnabled,
-                Proxy = Config.ProxyEnabled ? new WebProxy { Address = new Uri(Config.ProxyUri ?? throw new NullReferenceException(nameof(Config.ProxyUri))) } : null,
+                UseCookies              = false,
+                AutomaticDecompression  = DecompressionMethods.GZip,
+                UseDefaultCredentials   = true,
+                UseProxy                = Config.ProxyEnabled,
+                Proxy                   = Config.ProxyEnabled ? new WebProxy { Address = new Uri(Config.ProxyUri ?? throw new NullReferenceException(nameof(Config.ProxyUri))) } : null,
                 DefaultProxyCredentials = Config.ProxyEnabled ? new NetworkCredential(Config.ProxyUserName, Config.ProxyPassword) : new CredentialCache()
             };
-            SingletonHttpClient = new(() => new(httpClientHandler)
+            return new(httpClientHandler)
             {
-                BaseAddress = value,
-                DefaultRequestHeaders = {
+                BaseAddress = BaseAddress,
+                DefaultRequestHeaders =
+                {
                     Authorization = BasicAuthHeaderValue
                 }
-            });
-            SingletonFtpClient = new(() =>
-            {
-                if (Config.FtpProfile is null || string.IsNullOrEmpty(Config.FtpProfile.Host) || Config.FtpProfile.Credentials is null)
-                    throw new NullReferenceException();
-
-                var client = new AsyncFtpClient(Config.FtpProfile.Host, Config.FtpProfile.Credentials.UserName, Config.FtpProfile.Credentials.Password);
-
-                // Recommended: Auto-detect encryption and accept any server certificate for simplicity
-                client.Config!.EncryptionMode = FtpEncryptionMode.Auto;
-                client.Config!.ValidateAnyCertificate = true;
-
-                return client;
-            });
+            };
         }
-    } = null!;
+    }
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Properties
@@ -289,28 +280,28 @@ public sealed class Download : IDownload
 
         var json = string.Empty;
 
-        if (_baseUri.Scheme.Equals(Uri.UriSchemeFtp))
+        if (BaseAddress.Scheme.Equals(Uri.UriSchemeFtp))
         {
             _ftpCTS = new CancellationTokenSource();
 
             try
             {
-                await FtpClient.Connect(Config.FtpProfile!, _ftpCTS.Token)!;
+                await AsyncFtpClient.Connect(Config.FtpProfile!, _ftpCTS.Token);
 
                 #if DEBUG
                 // Example operation: get a list of files
-                foreach (var item in await FtpClient.GetListing("/")!.ConfigureAwait(false))
+                foreach (var item in await AsyncFtpClient.GetListing("/")!.ConfigureAwait(false))
                 {
                     Console.WriteLine($"{item.Type}: {item.Name}");
                 }
                 #endif
 
-                var localFile     = Path.Combine(!string.IsNullOrEmpty(Config.ExecutablePathOverride?.Path) ? Config.ExecutablePathOverride.Path : Assembly.GetExecutingAssembly().Location, Settings.Default!.UpdateInfoFile!);
-                var remoteFile    = Path.Combine(Settings.Default.RemotePath!, Settings.Default.UpdateInfoFile!);
-                var compareResult = await FtpClient.CompareFile(localFile, remoteFile, FtpCompareOption.Auto, _ftpCTS.Token)!;
+                var localFile     = Path.Combine(!string.IsNullOrEmpty(Config.ExecutablePathOverride?.Path) ? Config.ExecutablePathOverride.Path : Assembly.GetExecutingAssembly().Location, Settings.Default!.UpdateInfoFile!.Decrypt(Settings.Default.CipherKey!));
+                var remoteFile    = Path.Combine(Settings.Default!.RemotePath!.Decrypt(Settings.Default.CipherKey!),                                                                         Settings.Default!.UpdateInfoFile!.Decrypt(Settings.Default.CipherKey!));
+                var compareResult = await AsyncFtpClient.CompareFile(localFile, remoteFile, FtpCompareOption.Auto, _ftpCTS.Token);
                 if (compareResult is FtpCompareResult.FileNotExisting or FtpCompareResult.NotEqual)
                 {
-                    var status = await FtpClient.DownloadFile(localFile, remoteFile, FtpLocalExists.Overwrite, FtpVerify.Retry, _ftpProgress, _ftpCTS.Token)!;
+                    var status = await AsyncFtpClient.DownloadFile(localFile, remoteFile, FtpLocalExists.Overwrite, FtpVerify.Retry, _ftpProgress, _ftpCTS.Token);
                     switch (status)
                     {
                         case FtpStatus.Failed:
@@ -332,7 +323,7 @@ public sealed class Download : IDownload
             }
             finally
             {
-                await FtpClient.Disconnect(_ftpCTS.Token)!;
+                await AsyncFtpClient.Disconnect(_ftpCTS.Token);
 
                 if (_ftpCTS is not null)
                 {
@@ -343,7 +334,7 @@ public sealed class Download : IDownload
         }
         else
         {
-            using var response = await HttpWebClient.GetAsync(_baseUri);
+            using var response = await HttpWebClient.GetAsync($"{BaseAddress}{Settings.Default!.RemotePath!.Decrypt(Settings.Default.CipherKey!)}/{Settings.Default.UpdateInfoFile!.Decrypt(Settings.Default.CipherKey!)}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -352,8 +343,6 @@ public sealed class Download : IDownload
             }
 
             json = await response.Content.ReadAsStringAsync();
-            if (string.IsNullOrEmpty(json))
-                throw new Exception("The JSON is required to handle the ParseUpdateInfoEvent when url is not specified.");
         }
 
         // Check if the JSON file was read properly.
@@ -363,11 +352,12 @@ public sealed class Download : IDownload
             return null;
         }
 
-        var args = JsonSerializer.Deserialize<UpdateInfo>(json);
+        var args = JsonSerializer.Deserialize<UpdateInfo>(json, _options);
         if (args is null)
             return null;
 
-        args.DownloadURL = Settings.Default!.RemotePath + Settings.Default.UpdateInfoFile;
+        args.BaseAddress = BaseAddress;
+        args.DownloadURL = $"{BaseAddress}{Settings.Default!.RemotePath!.Decrypt(Settings.Default.CipherKey!)}/{Settings.Default.ConfigFile!.Decrypt(Settings.Default.CipherKey!)}";
 
         // Invoke Invocator
         _afterCheckForUpdates?.Invoke(args);
@@ -410,8 +400,8 @@ public sealed class Download : IDownload
                     throw new NullReferenceException();
 
                 // Calculate
-                var checkSum = new CheckSum(_assembly.GetFile(_assembly.FullName!)!, ui.Hash.HashingAlgorithm);
-                if (checkSum.HashValue != ui.Hash.HashValue)
+                var checkSum = new CheckSum(_assembly.GetFile(_assembly.FullName!)!, ui.CheckSum.HashingAlgorithm);
+                if (checkSum.HashValue != ui.CheckSum.HashValue)
                 {
                     if (Config is { IsMandatory: true, UpdateMode: Mode.ForcedDownload })
                     {

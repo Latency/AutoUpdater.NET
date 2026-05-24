@@ -18,7 +18,7 @@ AutoUpdater.NET is a class library that incorporates auto update functionality i
 </tr>
 <tr>
 <td>UPDATED:</td>
-<td>5/12/2026</td>
+<td>5/24/2026</td>
 </tr>
 <tr>
 <td>FRAMEWORK:</td>
