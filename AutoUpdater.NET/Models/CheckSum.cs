@@ -25,14 +25,19 @@ public class CheckSum
     ///     Default Constructor
     /// </summary>
     public CheckSum()
-    { }
-
-
-    public CheckSum(CheckSum obj)
     {
+    }
+
+
+    public CheckSum(CheckSum? obj) : this()
+    {
+        if (obj is null)
+            return;
+
+        Algorithm        = obj.HashingAlgorithm.ToString();
         HashingAlgorithm = obj.HashingAlgorithm;
-        HashValue = obj.HashValue;
-        HashData = obj.HashData;
+        HashValue        = obj.HashValue;
+        HashData         = obj.HashData;
     }
 
 
@@ -43,7 +48,7 @@ public class CheckSum
     public CheckSum(Stream stream, HashAlgorithmType hat = HashAlgorithmType.Sha256)
     #pragma warning restore SYSLIB0058
     {
-        HashingAlgorithm = hat;
+        Algorithm = hat.ToString();
         CalculateHash(stream);
         HashValue = Convert.ToHexString(HashData!).ToLowerInvariant();
     }
@@ -66,7 +71,7 @@ public class CheckSum
     public CheckSum(byte[] bytes, HashAlgorithmType hat = HashAlgorithmType.Sha256)
     #pragma warning restore SYSLIB0058
     {
-        HashingAlgorithm = hat;
+        Algorithm        = hat.ToString();
         CalculateHash(bytes);
         HashValue = Convert.ToHexString(HashData!).ToLowerInvariant();
     }
@@ -113,16 +118,16 @@ public class CheckSum
     /// Gets or sets the hash algorithm used to compute message digests.
     /// </summary>
     [JsonPropertyName("HashingAlgorithm")]
-    public string Algorithm
+    public string? Algorithm
     {
         get;
         init
         {
-            field = value;
-            HashingAlgorithm = value.ToUpper().Replace("-", string.Empty) switch
+            field = value ?? "None";
+            HashingAlgorithm = field.ToUpper().Replace("-", string.Empty) switch
             {
                 #pragma warning disable SYSLIB0058
-                "None"   => HashAlgorithmType.None,
+                "NONE"   => HashAlgorithmType.None,
                 "MD5"    => HashAlgorithmType.Md5,
                 "SHA1"   => HashAlgorithmType.Sha1,
                 "SHA256" => HashAlgorithmType.Sha256,
@@ -156,7 +161,7 @@ public class CheckSum
         {
             field = value;
 
-            if (HashData is null or { Length: 0 })
+            if (field is not null)
                 CalculateHash(Encoding.UTF8.GetBytes(field));
         }
     }

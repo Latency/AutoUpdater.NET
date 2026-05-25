@@ -14,6 +14,7 @@ using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Properties;
 using AutoUpdaterDotNET.Views;
 using FluentFTP;
+using Microsoft.ExceptionMessageBox.MessageBox;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -25,8 +26,11 @@ using System.Reflection;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Threading;
+using AutoUpdaterDotNET.Converters;
 using WindowService.ViewModels;
+using MessageBox = System.Windows.MessageBox;
 using Timer = System.Timers.Timer;
 
 namespace AutoUpdaterDotNET.Models;
@@ -60,7 +64,10 @@ public sealed class Download : IDownload
 
     private static readonly JsonSerializerOptions _options = new()
     {
-        ReadCommentHandling = JsonCommentHandling.Skip
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        Converters = {
+            new ConfigInitializationConverter()
+        }
     };
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Fields
@@ -148,7 +155,7 @@ public sealed class Download : IDownload
     public ObservableCollection<TreeViewItem> AfterCheckForUpdatesNodeList { get; init; } = [new TreeViewItem().Header(nameof(AfterCheckForUpdates))];
 
 
-    public IConfig Config { get; init; }
+    public IConfig Config { get; set; }
 
 
     // ReSharper disable once InconsistentNaming
@@ -262,7 +269,8 @@ public sealed class Download : IDownload
         }
         catch (Exception exception)
         {
-            ShowError(exception);
+            var win = new ExceptionMessageBox(exception);
+            win.Show(_window!.Handle, exception.Message, "Exception in Start");
         }
         finally
         {
@@ -278,7 +286,9 @@ public sealed class Download : IDownload
         if (string.IsNullOrEmpty(Config.AppTitle))
             Config.AppTitle = _assembly.Title() ?? _assembly.GetName().Name!;
 
-        var json = string.Empty;
+        var configFile = $@"{Directory.GetCurrentDirectory()}\Properties\{Settings.Default!.ConfigFile!.Decrypt(Settings.Default.CipherKey!)}";
+        var json = await File.ReadAllTextAsync(configFile);
+        Config = JsonSerializer.Deserialize<Config>(json, _options)!;
 
         if (BaseAddress.Scheme.Equals(Uri.UriSchemeFtp))
         {
@@ -286,36 +296,25 @@ public sealed class Download : IDownload
 
             try
             {
-                await AsyncFtpClient.Connect(Config.FtpProfile!, _ftpCTS.Token);
+                using var client = new FtpClient(Config.FtpProfile!.Host!, Config.FtpProfile!.Credentials!.UserName, Config.FtpProfile.Credentials.Password);
+                client.Connect();
 
-                #if DEBUG
-                // Example operation: get a list of files
-                foreach (var item in await AsyncFtpClient.GetListing("/")!.ConfigureAwait(false))
+                var workingDirectory = $"/public_html/{Settings.Default.RemotePath!.Decrypt(Settings.Default.CipherKey!)}";
+                client.SetWorkingDirectory(workingDirectory);
+                // Download the file into a memory stream
+                using var ms = new MemoryStream();
+                if (client.DownloadStream(ms, Settings.Default.UpdateInfoFile!.Decrypt(Settings.Default.CipherKey!)))
                 {
-                    Console.WriteLine($"{item.Type}: {item.Name}");
+                    // Reset stream position and read as string
+                    ms.Position = 0;
+                    using var reader = new StreamReader(ms);
+                    json = await reader.ReadToEndAsync();
+                    var o = JsonSerializer.Deserialize<UpdateInfo>(json, _options);
+                    if (o is null)
+                        throw new Exception("Failed to deserialize update information from FTP server.");
+                    o.BaseAddress = BaseAddress;
+                    o.DownloadURL = $"{BaseAddress.OriginalString}{workingDirectory}/{Settings.Default.UpdateInfoFile!.Decrypt(Settings.Default.CipherKey!)}";
                 }
-                #endif
-
-                var localFile     = Path.Combine(!string.IsNullOrEmpty(Config.ExecutablePathOverride?.Path) ? Config.ExecutablePathOverride.Path : Assembly.GetExecutingAssembly().Location, Settings.Default!.UpdateInfoFile!.Decrypt(Settings.Default.CipherKey!));
-                var remoteFile    = Path.Combine(Settings.Default!.RemotePath!.Decrypt(Settings.Default.CipherKey!),                                                                         Settings.Default!.UpdateInfoFile!.Decrypt(Settings.Default.CipherKey!));
-                var compareResult = await AsyncFtpClient.CompareFile(localFile, remoteFile, FtpCompareOption.Auto, _ftpCTS.Token);
-                if (compareResult is FtpCompareResult.FileNotExisting or FtpCompareResult.NotEqual)
-                {
-                    var status = await AsyncFtpClient.DownloadFile(localFile, remoteFile, FtpLocalExists.Overwrite, FtpVerify.Retry, _ftpProgress, _ftpCTS.Token);
-                    switch (status)
-                    {
-                        case FtpStatus.Failed:
-                            break;
-                        case FtpStatus.Success:
-                            break;
-                        case FtpStatus.Skipped:
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-
-                json = await File.ReadAllTextAsync(localFile);
             }
             catch (TaskCanceledException)
             {

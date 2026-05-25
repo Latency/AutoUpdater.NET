@@ -46,14 +46,14 @@ public partial class NetworkCredential2 : ObservableObject, IEquatable<NetworkCr
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [DisplayName("User Name")]
     [Description("The user name associated with this credential.")]
-    public partial string? UserName { get; set; }
+    public partial string UserName { get; set; }
     partial void OnUserNameChanged(string? value) => _networkCredential.UserName = value;
 
 
     [ObservableProperty]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [Description("The password for the user name.")]
-    public partial string? Password { get; set; }
+    public partial string Password { get; set; }
     partial void OnPasswordChanged(string? value) => _networkCredential.Password = value;
 
 

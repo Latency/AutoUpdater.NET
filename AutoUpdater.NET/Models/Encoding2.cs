@@ -207,23 +207,19 @@ public partial class Encoding2 : ObservableObject, IEquatable<Encoding2>
     #region Methods
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    public bool Equals(Encoding2? other)
-    {
-        return
-            other is not null                             &&
-            BodyName          == other.BodyName           &&
-            CodePage          == other.CodePage           &&
-            EncodingName      == other.EncodingName       &&
-            HeaderName        == other.HeaderName         &&
-            WebName           == other.WebName            &&
-            WindowsCodePage   == other.WindowsCodePage    &&
-            IsBrowserDisplay  == other.IsBrowserDisplay   &&
-            IsBrowserSave     == other.IsBrowserSave      &&
-            IsMailNewsDisplay == other.IsMailNewsDisplay  &&
-            IsMailNewsSave    == other.IsMailNewsSave     &&
-            IsSingleByte      == other.IsSingleByte       &&
-            IsReadOnly        == other.IsReadOnly;
-    }
+    public bool Equals(Encoding2? other) => other is not null                            &&
+                                            BodyName          == other.BodyName          &&
+                                            CodePage          == other.CodePage          &&
+                                            EncodingName      == other.EncodingName      &&
+                                            HeaderName        == other.HeaderName        &&
+                                            WebName           == other.WebName           &&
+                                            WindowsCodePage   == other.WindowsCodePage   &&
+                                            IsBrowserDisplay  == other.IsBrowserDisplay  &&
+                                            IsBrowserSave     == other.IsBrowserSave     &&
+                                            IsMailNewsDisplay == other.IsMailNewsDisplay &&
+                                            IsMailNewsSave    == other.IsMailNewsSave    &&
+                                            IsSingleByte      == other.IsSingleByte      &&
+                                            IsReadOnly        == other.IsReadOnly;
 
 
     public override int GetHashCode() => HashCode.Combine(BodyName, CodePage, EncodingName, HeaderName, WebName, WindowsCodePage);
@@ -265,14 +261,7 @@ public partial class Encoding2 : ObservableObject, IEquatable<Encoding2>
 
     public int ToIndex() => (int) ToEncodings(BodyName!);
 
-    public bool IsDefault() => (from prop in GetType().GetProperties()
-                                let dflt = prop.PropertyType.IsValueType ? Activator.CreateInstance(prop.PropertyType) : null
-                                let v1 = prop.GetValue(this)
-                                select v1 switch
-                                {
-                                    null => dflt == null,
-                                    _    => v1.Equals(dflt)
-                                }).Aggregate(true, (current, r1) => current & r1);
+    public bool IsDefault() => Equals(new(Encoding.Default));
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     #endregion Methods

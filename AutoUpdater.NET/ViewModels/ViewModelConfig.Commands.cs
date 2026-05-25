@@ -26,7 +26,7 @@ public partial class ViewModelConfig
 
 
     [RelayCommand]
-    private void Cancel() => _config = new(_configOrig);
+    private void Cancel() => Config = new Config(_configOrig);
 
 
     [RelayCommand]
@@ -39,11 +39,12 @@ public partial class ViewModelConfig
     private void _Update(bool init=false)
     {
         if (!init)
-            _configOrig = new(_config);
+            _configOrig = new Config(Config);
 
+        var _config = (Config)Config;
         _config._UpdateVersion();
         _config._UpdateTitle();
-        _config._UpdateIcon(_config.TmpIcon);
+        _config._UpdateIcon(Config.TmpIcon);
         _config._UpdateValidation(false);
     }
 
@@ -52,7 +53,9 @@ public partial class ViewModelConfig
     private void SaveConfig()
     {
         var directory = $@"{Directory.GetCurrentDirectory()}\Properties";
-        var file      = $@"{directory}\{Settings.Default!.ConfigFile}";
+        // TODO:
+        // Change to embedded resource
+        var file = $@"{directory}\{Settings.Default!.ConfigFile!.Decrypt(Settings.Default.CipherKey!)}";
 
         //var s = new SaveFileDialog
         //{
@@ -78,7 +81,7 @@ public partial class ViewModelConfig
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
-            var obj = (Config)_config.Clone();
+            var obj = ((Config) Config).Clone() as Config;
 
             if (obj.FtpProfile is not null && (obj.FtpProfile.Credentials is not null || obj.FtpProfile.Encoding is not null))
             {
@@ -107,8 +110,9 @@ public partial class ViewModelConfig
     [RelayCommand]
     private void LoadConfig()
     {
-        var directory = $@"{Directory.GetCurrentDirectory()}\Properties";
-        var file      = $@"{directory}\{Settings.Default!.ConfigFile}";
+        // TODO:
+        // Change to embedded resource
+        var file = $@"{Directory.GetCurrentDirectory()}\Properties\{Settings.Default!.ConfigFile!.Decrypt(Settings.Default.CipherKey!)}";
 
         if (!File.Exists(file))
             return;
@@ -127,9 +131,10 @@ public partial class ViewModelConfig
             if (obj.FtpProfile?.Encoding is not null)
                 obj.FtpProfile.Encoding = new Encoding2(obj.FtpProfile.Encoding);
 
+            var _config = (Config)Config;
             _config.Clone(obj);
-            _configOrig = new(_config);
-            _config.EqualsPredicate = () => _configOrig.Equals(_config);
+            _configOrig = new(Config);
+            _config.EqualsPredicate = () => _configOrig.Equals(Config);
 
             // Event Invocator
             Register?.Invoke(_config);
@@ -167,8 +172,8 @@ public partial class ViewModelConfig
             return;
 
         var imageUri = Path.GetRelativePath(Environment.CurrentDirectory, fd.FileName);
-        _config.IconOverride!.Uri = new Uri(imageUri, imageUri.StartsWith("pack:") ? UriKind.Absolute : UriKind.Relative);
-        _config.TmpIcon = _config.IconOverride.Uri.ConvertToBitmapImage();
+        Config.IconOverride!.Uri = new Uri(imageUri, imageUri.StartsWith("pack:") ? UriKind.Absolute : UriKind.Relative);
+        Config.TmpIcon = Config.IconOverride.Uri.ConvertToBitmapImage();
 
         return;
 

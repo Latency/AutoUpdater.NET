@@ -7,7 +7,6 @@
 // ReSharper disable InconsistentNaming
 
 using AutoUpdaterDotNET.DataTemplateSelectors;
-using AutoUpdaterDotNET.Enums;
 using AutoUpdaterDotNET.Extensions;
 using AutoUpdaterDotNET.Interfaces;
 using AutoUpdaterDotNET.Models;
@@ -39,8 +38,6 @@ public partial class Window_Config
     };
 
     private static   bool                        _credentialsExpanded;
-    private          bool                        _isLoading = true;
-    private          IConfig?                    _config;
     private          ContentControl?             _cc;
     private          PasswordBoxContentTemplate? _pbct;
     private          PropertyGrid?               _ftpPropertyGrid,         _httpPropertyGrid;
@@ -75,8 +72,6 @@ public partial class Window_Config
         if (DataContext is not ViewModelConfig vm)
             return;
 
-        _config = vm.Config;
-
         vm.Register = config =>
         {
             config.UpdateIcon       += OnUpdateIcon;
@@ -85,7 +80,8 @@ public partial class Window_Config
             config.UpdateTitle      += OnUpdateTitle;
         };
 
-        var dl                               = _vmDownloadUpdate.Download;
+        var dl = _vmDownloadUpdate.Download;
+
         tvAfterCheckForUpdates!.ItemsSource  = dl.AfterCheckForUpdatesNodeList;
         tvBeforeCheckForUpdates!.ItemsSource = dl.BeforeCheckForUpdatesNodeList;
         tvUpdateComplete!.ItemsSource        = dl.UpdateCompleteNodeList;
@@ -160,28 +156,16 @@ public partial class Window_Config
     }
 
 
-    private void CbEncoding_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_config?.FtpProfile is null || sender is not ComboBox cb)
-            return;
-
-        if (!_isLoading)
-            _config.FtpProfile.Encoding = new Encoding2((Encodings)cb.SelectedItem);
-        else
-            _isLoading = false;
-    }
-
-
     private void WatermarkPasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
     {
         switch (sender)
         {
             case WatermarkPasswordBox box:
-                _config?.FtpProfile?.Credentials?.Password       = box.Password ?? string.Empty;
-                _config?.FtpProfile?.Credentials?.SecurePassword = box.SecurePassword ?? new SecureString();
+                _vmDownloadUpdate.Download.Config.FtpProfile?.Credentials?.Password       = box.Password       ?? string.Empty;
+                _vmDownloadUpdate.Download.Config.FtpProfile?.Credentials?.SecurePassword = box.SecurePassword ?? new SecureString();
                 break;
             case WatermarkTextBox box:
-                _config?.FtpProfile?.Credentials?.Password = box.Text;
+                _vmDownloadUpdate.Download.Config.FtpProfile?.Credentials?.Password = box.Text;
                 break;
         }
     }
@@ -214,7 +198,7 @@ public partial class Window_Config
 
         _cc.ContentTemplate = cb.IsChecked is false ? _pbct.SecurePasswordTemplate : _pbct.UnsecuredPasswordTemplate;
 
-        if (_config?.FtpProfile?.Credentials is null)
+        if (_vmDownloadUpdate.Download.Config.FtpProfile?.Credentials is null)
             return;
 
         Dispatcher?.BeginInvoke(async () =>
@@ -222,25 +206,17 @@ public partial class Window_Config
             await Task.Delay(TimeSpan.FromMilliseconds(250)); // Allow time for the UI to update
 
             if (cb.IsChecked == false)
-                _ftpPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _config.FtpProfile.Credentials.Password ?? string.Empty;
+                _ftpPropertyGrid?.FindVisualChild<WatermarkPasswordBox>("SecurePasswordBox")?.Password = _vmDownloadUpdate.Download.Config.FtpProfile?.Credentials?.Password ?? string.Empty;
             else
-                _ftpPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _config.FtpProfile.Credentials.Password ?? string.Empty;
+                _ftpPropertyGrid?.FindVisualChild<WatermarkTextBox>("UnsecuredPasswordBox")?.Text = _vmDownloadUpdate.Download.Config.FtpProfile?.Credentials?.Password ?? string.Empty;
         });
     }
 
 
-    private void VersionOverride_OnLoaded(object sender, RoutedEventArgs e)
-    {
-        if (_config is not null)
-            VersionPropertyGrid?.SelectedObject = _config.InstalledVersion!;
-    }
+    private void VersionOverride_OnLoaded(object sender, RoutedEventArgs e) => VersionPropertyGrid?.SelectedObject = _vmDownloadUpdate.Download.Config.InstalledVersion!;
 
 
-    private void WindowSizeOverride_OnLoaded(object sender, RoutedEventArgs e)
-    {
-        if (_config is not null)
-            WindowSizePropertyGrid?.SelectedObject = _config.WindowSize!;
-    }
+    private void WindowSizeOverride_OnLoaded(object sender, RoutedEventArgs e) => WindowSizePropertyGrid?.SelectedObject = _vmDownloadUpdate.Download.Config.WindowSize!;
 
 
     private void FtpPropertyGrid_OnLoaded(object sender, RoutedEventArgs e)
@@ -268,8 +244,8 @@ public partial class Window_Config
         if (sender is not ComboBox cb)
             return;
 
-        if (_config?.FtpProfile?.Encoding is not null)
-            cb.SelectedIndex = _config.FtpProfile.Encoding.ToIndex();
+        if (_vmDownloadUpdate.Download.Config.FtpProfile?.Encoding is not null)
+            cb.SelectedIndex = _vmDownloadUpdate.Download.Config.FtpProfile.Encoding!.ToIndex();
     }
 
 

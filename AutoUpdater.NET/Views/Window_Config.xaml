@@ -28,9 +28,9 @@
     </behaviors:Interaction.Triggers>
     <controls:Window_Restricted.Resources>
         <converters:FilePathConverter x:Key="FilePathConverter" />
+        <converters:EncodingConverter x:Key="EncodingConverter" />
         <Style TargetType="xctk:WatermarkTextBox" x:Key="WatermarkTextBox">
             <Setter Property="Watermark" Value="Enter the password" />
-            <Setter Property="MaxLength" Value="10" />
             <Setter Property="KeepWatermarkOnGotFocus" Value="True" />
         </Style>
         <Style TargetType="xctk:PropertyGrid" x:Key="CustomPropertyGridStyle">
@@ -596,7 +596,11 @@
                                 <xctk:EditorTemplateDefinition TargetProperties="Domain">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
-                                            <xctk:WatermarkTextBox Watermark="Enter the domain" />
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                            <xctk:WatermarkTextBox
+                                                Watermark="Enter the domain"
+                                                Text="{Binding Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"
+                                            />
                                         </DataTemplate>
                                     </xctk:EditorTemplateDefinition.EditingTemplate>
                                 </xctk:EditorTemplateDefinition>
@@ -627,7 +631,11 @@
                                 <xctk:EditorTemplateDefinition TargetProperties="UserName">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
-                                            <xctk:WatermarkTextBox Watermark="Enter the user name" />
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                            <xctk:WatermarkTextBox
+                                                Watermark="Enter the user name"
+                                                Text="{Binding Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"
+                                            />
                                         </DataTemplate>
                                     </xctk:EditorTemplateDefinition.EditingTemplate>
                                 </xctk:EditorTemplateDefinition>
@@ -638,7 +646,7 @@
                                             <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
                                             <ComboBox
                                                 ItemsSource="{Binding Source={StaticResource EncodingEnumValues}}"
-                                                SelectionChanged="CbEncoding_OnSelectionChanged"
+                                                SelectedItem="{Binding Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource EncodingConverter}}"
                                                 Loaded="CbEncoding_OnLoaded"
                                             />
                                         </DataTemplate>
@@ -648,7 +656,11 @@
                                 <xctk:EditorTemplateDefinition TargetProperties="Host">
                                     <xctk:EditorTemplateDefinition.EditingTemplate>
                                         <DataTemplate>
-                                            <xctk:WatermarkTextBox Watermark="Enter the host name" />
+                                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                            <xctk:WatermarkTextBox
+                                                Watermark="Enter the host name"
+                                                Text="{Binding Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"
+                                            />
                                         </DataTemplate>
                                     </xctk:EditorTemplateDefinition.EditingTemplate>
                                 </xctk:EditorTemplateDefinition>

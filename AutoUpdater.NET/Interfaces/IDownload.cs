@@ -24,7 +24,7 @@ internal interface IDownload
     ObservableCollection<TreeViewItem> BeforeCheckForUpdatesNodeList { get; init; }
     ObservableCollection<TreeViewItem> AfterCheckForUpdatesNodeList  { get; init; }
 
-    IConfig Config { get; init; }
+    IConfig Config { get; set; }
 
     // ReSharper disable once InconsistentNaming
     CancellationTokenSource? CTS { get; }
